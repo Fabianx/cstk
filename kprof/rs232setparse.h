@@ -42,7 +42,7 @@ const char rs232set_type[NUM_RS232_ATTR][256] = {
 const char rs232set_defs[NUM_RS232_ATTR][16] = { 
 	"/dev/ttyS0",	"115200",	"1024",	"8",
 	"1",	"no",	"binary",
-	"G"  //  leave this item last (see code)
+	""  //  leave this item last (see code)
 };
 
 /**Class for parsing rs232 settings 

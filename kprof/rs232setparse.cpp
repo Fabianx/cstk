@@ -21,7 +21,9 @@
   *@author Kristof Van Laerhoven
   */
 
+// read a specific attribute's value as a string  
 int Rs232SetParse::read_set(char* attr, char* value) {
+ printf("%s %s\n",attr,value);
 	for (int i=0; i<NUM_RS232_ATTR; i++) 
 		if (strcasecmp(attr,rs232set_attr[i])==NULL) { 
 			strcpy(rs232set_val[i],value);
@@ -30,6 +32,7 @@ int Rs232SetParse::read_set(char* attr, char* value) {
 	return -1;
 }
 	
+// read all attributes from file and store (attribute,value) pairs
 int Rs232SetParse::read_set(FILE* fp) {
 	// read till '>'
 	char c=0;
@@ -64,6 +67,7 @@ int Rs232SetParse::read_set(FILE* fp) {
 	return 0;
 }
 	
+// update settings from (attribute,value) table, convert from strings
 int Rs232SetParse::update_set() {
 	strcpy(rs232_set->device, rs232set_val[0]);
 	switch (strtol(rs232set_val[1],NULL,0)) {
@@ -96,12 +100,13 @@ int Rs232SetParse::update_set() {
 	if (strcasecmp(rs232set_val[6],"ascii")==0)
 			rs232_set->mode = ASC_MODE;
 	else if (strcasecmp(rs232set_val[6],"binary")==0)
-		rs232_set->mode = BIN_MODE;
+			rs232_set->mode = BIN_MODE;
 	else return -1;
 	strcpy(rs232_set->poll_char, rs232set_val[NUM_RS232_ATTR-1]);
 	return 0;
 }
 
+// write the DTD for the settings to buffer
 int Rs232SetParse::write_dtd(char* buffer) {
 	char tmpstr[256];
 	strcpy(buffer,"\t<!ELEMENT rs232 (poll?,channel*)>\n"); 
@@ -117,6 +122,7 @@ int Rs232SetParse::write_dtd(char* buffer) {
 	return 0;
 }
 
+// write the rs232 settings in XML format to buffer 
 int Rs232SetParse::write_set(char* buffer) {
 	char tmpstr[256];
 	strcpy(buffer,"\t<rs232 "); // start at the beginning..
@@ -126,11 +132,14 @@ int Rs232SetParse::write_set(char* buffer) {
 		strcat(buffer,tmpstr); // add to buffer
 	}
 	strcat(buffer,">\n");	
-	sprintf(tmpstr, "\t\t<poll %s=\"%s\" %s=\"%s\">\n", 
-		rs232set_attr[NUM_RS232_ATTR-1], rs232set_val[NUM_RS232_ATTR-1],
-		// automatically determine the mode from the first byte:
-		"mode", (rs232set_val[NUM_RS232_ATTR-1][0]>31)?"ascii":"binary");
-	strcat(buffer,tmpstr);	
+	if (rs232set_val[NUM_RS232_ATTR-1][0]!=0) 
+	{
+		sprintf(tmpstr, "\t\t<poll %s=\"%s\" %s=\"%s\">\n", 
+			rs232set_attr[NUM_RS232_ATTR-1], rs232set_val[NUM_RS232_ATTR-1],
+			// automatically determine the mode from the first byte:
+			"mode",(rs232set_val[NUM_RS232_ATTR-1][0]>31)?"ascii":"binary");
+		strcat(buffer,tmpstr);	
+	}
 	return 0;
 }
 
