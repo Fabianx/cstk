@@ -22,6 +22,12 @@
 #define e 2.7182818284    
 #define pi 3.1415926535   
 
+/****************************************************************************************
+*	Self Organizing Sparse Distributed Memory which inherits the initialization	*
+*	method form SDMA and uses the parameter type. The self organizing aspect of 	*
+*	this algorithm is focused on the addresses of the memory, which are moved 	*
+*	to the input addresses during an initialization phase.				* 
+*****************************************************************************************/
 class SOSDM : public SDMA
 {
  public:
@@ -49,5 +55,5 @@ class SOSDM : public SDMA
 	oas_t total_sig;
 };
 
-#endif // SOSDM_H
+#endif
 
