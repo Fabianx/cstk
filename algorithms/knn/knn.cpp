@@ -73,7 +73,7 @@ vei_t KNN::get_k_dis(const VectorPoCl& datav, char dist, vei_t expo)
 	max = 0;
 	for (vei_t j=0; j<knn; j++) {
 		kclasses[j] = -1;
-		kdist[j] = max_oas;
+		kdist[j] = DBL_MAX;
 	}
 	/* determine the vector's class by going through the list
 	   and fetch the k smallest distances*/
