@@ -26,7 +26,7 @@
 #include <stdlib.h>  //strcmp()
 #include "algorithms/gng/gng.h"   
 
-#define border1 25
+#define border1 7
 
 int main(int ac, char **args) {
 
@@ -130,14 +130,14 @@ int main(int ac, char **args) {
 		for (i=0; i<kprof.is.numcols; i++) 
 				vec2->set_comp(columns[i].get_u8b(),U8B_TYPE,i);
 				
-	gng.create(*vec1,*vec2,4,0.8,0.8,0.01);
+	gng.create(*vec1,*vec2,2,0.95,0.8,0.01);
 	delete vec1;
 	delete vec2;	
 	
 	DVector *nodeT, *edgeT;
 	int x_max=100, y_max=100;
 	
-	int count=0;
+	int count=0, countlin=1;
 	int clr=0;
 	int nodes, nodes_old;
   	// Loop until the task is interrupted:
@@ -164,23 +164,19 @@ int main(int ac, char **args) {
 			gng.feed(*vect);
 			delete vect;
 		}
-		
 		if (gng.getFirst_node() != NULL)
 			nodeT = new DVector(*(gng.getFirst_node()));
 		else
 			nodeT = NULL;
-		//printf("-A\n");
 		if (gng.getFirst_edge() != NULL)
 			edgeT = new DVector(*(gng.getFirst_edge()));
 		else
 			edgeT = NULL;
-		//printf("-B\n");
 		nodes=0;
 		while (nodeT != NULL)
 		{	
 			nodes++;
 			kp.drawframe((int)(((float)(nodeT->get_comp(0))/x_max)*kprof.win.width), (int)(((float)(nodeT->get_comp(1))/y_max)*kprof.win.height), 5, 5);
-
 			if (clr<16)
 				clr++;
 			else
@@ -191,7 +187,6 @@ int main(int ac, char **args) {
 				edgeT = NULL;
 			while (edgeT != NULL)
 			{
-				//printf("B1\n");
 				kp.drawline((int)(((float)(nodeT->get_comp(0))/x_max)*kprof.win.width), (int)(((float)(nodeT->get_comp(1))/y_max)*kprof.win.height), (int)(((float)(edgeT->get_comp(0))/x_max)*kprof.win.width), (int)(((float)(edgeT->get_comp(1))/y_max)*kprof.win.height),clr);
 				edgeT = gng.getNext_edge();;
 			}
@@ -223,11 +218,12 @@ int main(int ac, char **args) {
 				} while (kp.eventloop()!=54);
 				break;
 		}
-		if (count<border1)
+		if (count<(border1*(countlin/log(countlin+2))))
 			count++;
 		else
 		{
 			count=0;
+			countlin++;
 			gng.newNode();
 		}
 	}
