@@ -25,7 +25,7 @@
 
  #include "cstk_base/vector/dvector.h"
  #include <sys/time.h>     // for timings
-
+ 
  int main(void) {
   printf("testing the DVector routines:\n\r");
   DVector v(4), w(4);

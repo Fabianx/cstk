@@ -1,7 +1,7 @@
 /***************************************************************************
-                         setparam_t.cpp  -  v.1.00
-                         -------------------------
-    begin                : Oct 21 2004
+                         annotate.cpp  -  v.1.00
+                         ------------------------
+    begin                : Dec 14 2004
     copyright            : (C) 2004 by Kristof Van Laerhoven
     email                : 
  ***************************************************************************/
@@ -20,8 +20,6 @@
 #include "kprof/udpsetparse.h"
 #include "kprof/logfilesetparse.h"
 #include "kprof/simsetparse.h"
-#include "kprof/channelsetparse.h"
-#include "kprof/inputcolumnsetparse.h"
 #include "sensordata/sensordata.h"
 #include "sensordata/rs232parser/rs232parser.h"
 #include "sensordata/logfileparser/logfileparser.h"
@@ -36,37 +34,46 @@
 #define ERR_NOINPUT      16
 #define ERR_UPDATE       17
 
-#define NUM_A_ITAGS 7
+#define NUM_A_ITAGS 5
 const char input_att_tags[NUM_A_ITAGS][16] = {
-	"rs232", "udp", "logfile", "sim", 
-	"channel", "inputcolumn", "poll"
-	};
-#define NUM_S_ITAGS 2
-const char input_sub_tags[NUM_S_ITAGS][16] = {
-	"!--", "packet" };
+	"rs232", "udp", "logfile", "sim", "poll" };
 
 int main(int ac, char *argv[]) {
 	
 	if (ac<2) {
-		printf("\n  This demo shows how settings can be read and\n");
-		printf("  generated with the setparse classes.\n");
+		printf("\n  This tool reads a CSTK XSD file and\n");
+		printf("  parses its input section. The user\n");
+		printf("  then gets the option of annotating\n");
+		printf("  the incoming data with a key as it\n");
+		printf("  streams in.\n");
 		printf("\n   syntax:");
-		printf("\n     %s <xsd>", argv[0]);
+		printf("\n     %s <xsd> [options]", argv[0]);
 		printf("\n");
 		printf("\n    <xsd> is an XML Settings Document.\n");
+		printf("\n    valid options:");
+		printf("\n     -i: add iterator in front");
+		printf("\n     -t: add timestamp in front");
 		printf("\n\n");
 		exit(0);
 	}
 	
+	bool iterator = false;
+	bool timestamp = false;
+	
+	if (ac>2) {
+		if (strcasecmp(argv[2],"-i")==0) 
+			iterator=true;
+		if (strcasecmp(argv[2],"-t")==0) 
+			timestamp=true;
+	}
+	
 	ConIO con;
-
+	
 	//----- These are valid settings elements: -------
 	 Rs232ParserSettings   	*rs232set	= NULL;
 	 UDPParserSettings     	*udpset  	= NULL;
 	 LogFileParserSettings 	*logfileset	= NULL;
 	 SimParserSettings     	*simset  	= NULL;
-	 ChannelSettings     	*chset=NULL; 	// linked list  
-	 InputColumnSettings 	*icolset=NULL;	// linked list 
 	//------------------------------------------------
 	
 	// generic attribute parser array:	
@@ -80,22 +87,6 @@ int main(int ac, char *argv[]) {
 	 unsigned int line=1;
 	 unsigned int errorline=0;
 	 
-	/*
-	//this is how you can easily set parameters:
-	Rs232SetParse setparse(&rs232set);
-	setparse.read_set("baudrate","38400");
-	setparse.read_set("port","/dev/tty.usbserial0");
-	setparse.read_set("databits","8");
-	setparse.read_set("stopbits","1");
-	setparse.read_set("command","G");
-	Rs232Parser rs232(rs232set);
-	char charbuffer[1024];
-	while(1) {
-		rs232.read(charbuffer);
-		printf("%s\n",charbuffer);
-	}
-	*/
-	
 	FILE* fp = fopen(argv[1],"r");
 	char tmpstr[1024];
 	if (!fp) {
@@ -107,7 +98,6 @@ int main(int ac, char *argv[]) {
 		int t=0;
 		char ch;
 		bool valid_att_tag = false;
-		bool valid_sub_tag = false;
 		do {
 		   do { ch=getc(fp); if (ch=='\n') line++;
 		   } while ((ch!='<')&&(!feof(fp)));
@@ -120,10 +110,7 @@ int main(int ac, char *argv[]) {
 		   for (i=0; i<NUM_A_ITAGS; i++)
 			if (strcasecmp(tmpstr,input_att_tags[i])==0)
 				valid_att_tag=true;
-		   for (i=0; i<NUM_S_ITAGS; i++)
-			if (strcasecmp(tmpstr,input_sub_tags[i])==0)
-				valid_sub_tag=true;
-		} while (!feof(fp)&&(!valid_att_tag)&&(!valid_sub_tag));
+		} while (!feof(fp)&&(!valid_att_tag));
 		
 		if (parser_counter<max_tags) {
 		  if (strcasecmp(tmpstr,"rs232")==0) {
@@ -143,33 +130,15 @@ int main(int ac, char *argv[]) {
 			setparse[parser_counter] = new SimSetParse(simset);
 		  }
 		  else if (strcasecmp(tmpstr,"poll")==0) {
-			if ((parser_counter)>0) parser_counter--;
+			if ((parser_counter-1)>=0) parser_counter--;
 		  }
-		  else if (strcasecmp(tmpstr,"channel")==0) {
-			// i_chset = add_channel();
-			// setparse[parser_counter] = new ChannelSetParse(i_chset);
-			chset = new ChannelSettings;
-			setparse[parser_counter] = new ChannelSetParse(chset);
-		  }
-		  else if (strcasecmp(tmpstr,"inputcolumn")==0) {
-			// i_icolset = add_inputcolumn();
-			// setparse[parser_counter] = new InputColumnSetParse(i_icolset);
-			icolset = new InputColumnSettings;
-			setparse[parser_counter] = new InputColumnSetParse(icolset);
-		  }
-		  else if (!feof(fp)&&(!valid_sub_tag)) {
-			err = ERR_INVTAG; // wrong tag
-			errorline = line;
-		  }
-		  if (valid_att_tag){
-		  	// parse attributes
+		  if (valid_att_tag){ 
 			if (setparse[parser_counter]->read_set(fp)!=0) {
 				err = ERR_INVATTR; // wrong attribute
 				errorline = line;
 			}
-			// update values in set
 			if (setparse[parser_counter]->update_set()!=0) {
-				err = ERR_UPDATE; // update error
+				err = ERR_UPDATE; // error during update
 				errorline = line;
 			}
 			parser_counter++;
@@ -184,47 +153,7 @@ int main(int ac, char *argv[]) {
 	
 	if (err!=0) {
 		printf("Error (number %i) at line %i\n",err,errorline);
-		exit(err);
-	}
-	else 
-	{
-	// print the parameters in XSD and their DTD:
-	  printf("<!-- ***** DTD section ************************* -->\n");
-	  for (int t=0; t<parser_counter; t++) {
-		setparse[t]->write_dtd(tmpstr);
-		printf("%s", tmpstr);
-	  }
-	  printf("<!-- ***** XSD section ************************* -->\n");
-	  char last_mode[256]; 
-	  char last_tag[256];
-	  char curr_tag[256];
-	  last_mode[0]='\0';
-	  last_tag[0]='\0';
-	  printf("\t<input>\n");
-	  for (int t=0; t<parser_counter; t++) {
-		setparse[t]->write_set(tmpstr);
-		setparse[t]->write_tag(curr_tag);
-		// is it a different tag than the previous?
-		if ((strcasecmp(last_tag,curr_tag)!=0)
-			&&(last_tag[0]!='\0')
-			&&(strcasecmp(last_tag,last_mode)!=0)) {
-				printf("\t\t</%s>\n", last_mode);
-				last_mode[0]='\0';
-		} 
-		// is it a tag that needs closing immediately?
-		if ((strcasecmp(curr_tag,"channel")==0)||
-		    (strcasecmp(curr_tag,"inputcolumn")==0) ||
-		    (strcasecmp(curr_tag,"poll")==0)) {
-			printf("\t%s</%s>\n", tmpstr,curr_tag);
-		}
-		else {
-			printf("\t%s", tmpstr);
-			strcpy (last_mode, curr_tag);
-		} 
-		strcpy (last_tag, curr_tag);
-	  }
-	  if (last_mode[0]!='\0') printf("\t\t</%s>\n", last_mode);
-	  printf("\t</input>\n");
+		//exit(err);
 	}
 	
 	SensorData *sd=NULL;
@@ -245,22 +174,24 @@ int main(int ac, char *argv[]) {
 	}
 
 	if (sd!=NULL) {
-	 // setup the dvector:
-	 // TODO: create and fill a dvector
-	  //
-	  
 	 // show what string is being returned
 	  tmpstr[0]=0;
-	  char ch=0;
-	  int t=0;
-	  while ((ch=con.kb_getc())!='q')
+	  char ch=0, cl='0';
+	  long int t=0;
+	  while (ch!='q'&&ch!='Q')
 	  {
 		int ret=sd->read(tmpstr);
-		if (ret>0) {
+		if (ret>0) 
+		{
 			tmpstr[ret]='\0';
-			printf("%5i:\t%s\n\r",t,tmpstr);
+			if (iterator)
+				printf("%6li\t%s\t%c\n\r",t,tmpstr,cl);
+			else
+				printf("%s\t%c\n\r",tmpstr,cl);
 			t++;
 		}
+		ch = con.kb_getc();
+		if (ch!=0) cl = ch;
 	  }
 	}
 	else 
