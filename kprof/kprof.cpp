@@ -22,23 +22,26 @@ KProf::KProf()
 	err = 0;	errline = 0;
 	sd      	= NULL;
 	sp      	= NULL; sp_size=0;
+	kp      	= NULL;
 	rs232set	= NULL;
 	udpset  	= NULL;
 	logfileset	= NULL;
 	simset  	= NULL;
 	ichset   	= NULL;
 	icolset 	= NULL;
+	winset  	= NULL;
 	plotset 	= NULL;
 	ichs     	= NULL;
 	icols   	= NULL;
 	filter  	= NULL;
 }
 
-KProf::~KProf() 
+KProf::~KProf()
 {
 	// delete all elements separately from sp:
 	for (unsigned int i=0; i<sp_size; i++) delete sp[i];
 	if (sp!=NULL) delete []sp;
+	if (kp!=NULL) delete kp;
 	if (sd!=NULL) delete sd;
 	if (ichs!=NULL) delete []ichs;
 	if (icols!=NULL) delete []icols;
@@ -110,8 +113,7 @@ void KProf::parse_output(FILE* fp, char* tmpstr, unsigned int line,
                         bool valid_sub_tag, bool valid_att_tag)
 {
 	if (strcasecmp(tmpstr,"output")==0) {
-		//rs232set = new Rs232CreatorSettings;
-		//sp[sp_size] = new Rs232SetParse(rs232set);
+		 //
 	}
 	else if (strcasecmp(tmpstr,"rs232")==0) {
 		//rs232set = new Rs232CreatorSettings;
@@ -171,7 +173,11 @@ void KProf::parse_output(FILE* fp, char* tmpstr, unsigned int line,
 void KProf::parse_window(FILE* fp, char* tmpstr, unsigned int line, 
                         bool valid_sub_tag, bool valid_att_tag)
 {
-	if (strcasecmp(tmpstr,"plot")==0) {
+	if (strcasecmp(tmpstr,"window")==0) {
+		winset = new WindowSettings;
+		sp[sp_size] = new WindowSetParse(winset);
+	}
+	else if (strcasecmp(tmpstr,"plot")==0) {
 		if (plotset==NULL) { // first addition
 			plotset = new PlotSettings; plotpset = plotset;
 		}
@@ -179,13 +185,13 @@ void KProf::parse_window(FILE* fp, char* tmpstr, unsigned int line,
 			PlotSettings *plotnset = new PlotSettings;
 			plotpset->next = plotnset; plotpset = plotnset;
 		}
-		sp[sp_size] = new PlotSetParse(plotset);
+		sp[sp_size] = new PlotSetParse(plotpset);
 		num_plots++; // count the number of plots
 	}
 	else if (!valid_sub_tag) {
 		err = ERR_INVTAG; errline = line;
 	}
-	if (valid_att_tag){
+	if (valid_att_tag || (strcasecmp(tmpstr,"window")==0)){
 		if (sp[sp_size]->read_set(fp)!=0) { 
 			err = ERR_INVATTR; errline = line;
 		}
@@ -300,7 +306,6 @@ int KProf::export_dtd(char* buffer) {
 	for (i=4; i<NUM_A_ITAGS; i++)
 		sprintf(buffer,"%s|%s",buffer,output_att_tags[i]);
 	sprintf(buffer,"%s),outputcolumn*)>\n",buffer);
-	sprintf(buffer,"%s\t<!ELEMENT window (plot*)>\n",buffer);
 	sprintf(buffer,"%s]>\n",buffer);
 	return err;
 }
@@ -340,14 +345,6 @@ int KProf::export_xsd(char* buffer) {
 		}
 		if (last_mode[0]!='\0') sprintf(buffer,"%s\t\t</%s>\n", buffer, last_mode);
 	}
-	/*
-	strcpy(buffer,"\t<input>\n");
-	sprintf(buffer,"%s\t</input>\n",buffer);
-	sprintf(buffer,"%s\t<output>\n",buffer);
-	sprintf(buffer,"%s\t</output>\n",buffer);
-	sprintf(buffer,"%s\t<window>\n",buffer);
-	sprintf(buffer,"%s\t</window>\n",buffer);
-	*/
 	return err;
 }
 
@@ -359,6 +356,46 @@ int KProf::setup_sensordata_parser() {
 	 if (simset)     	sd = new SimParser(*simset);     	else
 	 err = ERR_NOSET;
 	return err;
+}
+
+int KProf::setup_window() {
+	// set and create window
+	if (winset) {
+		kp = new KVPlot(*winset);
+		kp->prepare_colours();
+	}
+	// plotting kvectors:
+	if (kvect==NULL)
+	{
+		kvect = new KVector[num_icols];
+		for (vei_t i=0; i<num_icols; i++) 
+			kvect[i].createVector(100);
+	}
+	return 0;
+}
+
+int KProf::kvplot() {
+	plotpset = plotset;
+	while(plotpset != NULL) { 
+		switch (plotpset->type) {
+			case PLOT_HIST_TYPE: // if histogram
+				kp->histogram(plotpset->id+1, num_plots,
+					kvect[plotpset->src],
+					plotpset->color, 
+					plotpset->res, plotpset->title);
+				break;
+			case PLOT_TIME_TYPE: // if timeseries
+				kp->timeseries(plotpset->id+1, num_plots,
+					kvect[plotpset->src],
+					plotpset->color,
+					plotpset->title, plotpset->scale);
+				break;
+		}
+		plotpset = plotpset->next;
+	} 
+	kp->swap_buffers();
+        kp->delay(10000);
+	return 0;
 }
 
 int KProf::setup_inputchannels() {
@@ -402,6 +439,16 @@ int KProf::read_buffer(char* buff) {
 int KProf::read_icols(void) {
 	int ret = sd->read(ichs, num_ichs, icols, filter, num_icols);
 	if (ret<0)	err=-ret;
+	return ret;
+}
+
+int KProf::read_kvect(void) {
+	int ret = read_icols();
+	if ( ret == num_icols ) {
+		for (int i=0; i<ret; i++) {
+			kvect[i].add_comp(icols[i].get_u8b());
+		}
+	}
 	return ret;
 }
 

@@ -22,12 +22,14 @@
 #include "kprof/simsetparse.h"
 #include "kprof/channelsetparse.h"
 #include "kprof/inputcolumnsetparse.h"
+#include "kprof/windowsetparse.h"
 #include "kprof/plotsetparse.h"
 #include "sensordata/sensordata.h"
 #include "sensordata/rs232parser/rs232parser.h"
 #include "sensordata/logfileparser/logfileparser.h"
 #include "sensordata/udpparser/udpparser.h"
 #include "sensordata/simparser/simparser.h"
+#include "viz/x11/kvplot.h"
 
 #define ERR_INVATTR      1
 #define ERR_INVTAG       2
@@ -100,6 +102,10 @@ class KProf {
 	int setup_inputchannels();
 	int setup_inputcolumns();
 	
+	int setup_window();
+	int kvplot();
+	int read_kvect();
+	
 	int read_buffer(char* buff);
 	int read_icols(void);
 	
@@ -107,6 +113,9 @@ class KProf {
 	bool error() {return err;}
 	
 	SensorData *sd; // will point to the 1 object generating data
+	KVector *kvect;
+	KVPlot *kp; // will point to a KVectorPlot generating the plots
+	
 	
 	DataCell *icols;       	// datacell array of all input columns 
 	unsigned int num_icols;	// number of input columns
@@ -138,6 +147,7 @@ class KProf {
 	 ChannelSettings       	*ichset, *ichpset;   
 	 ChannelSettings       	*ochset, *ochpset;   
 	 InputColumnSettings   	*icolset, *icolpset; 
+	 WindowSettings 	*winset;
 	//-----------------------------------------------------
 };
 
