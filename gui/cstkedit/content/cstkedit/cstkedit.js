@@ -178,16 +178,16 @@ function doParseXML(data)
 	if ( xmldoc.getElementsByTagName("rs232").item(0).parentNode.nodeName =="input")
 	{
 		parseAtts(xmldoc.getElementsByTagName("rs232"),'inputt','iparams',
-					"http://cstk.sf.net/iparams#","rs232");
+					"http://cstk.sf.net/iparams#","rs232", true);
 		parseAtts(xmldoc.getElementsByTagName("poll"),'inputt','iparams',
-					"http://cstk.sf.net/iparams#","poll");
+					"http://cstk.sf.net/iparams#","poll", false);
 	}
 
 	//parseAtts(xmldoc.getElementsByTagName("logfile"),'outputt','oparams',
 	//		"http://cstk.sf.net/oparams#","logfile");
 
 	parseAtts(xmldoc.getElementsByTagName("window"),'windowt','wparams',
-				"http://cstk.sf.net/wparams#", "window");
+				"http://cstk.sf.net/wparams#", "window", true);
 				
 	ch_cols = ["id", "name", "bits", "sign", "format"];
 	ch_xmlcols = ["id", "name", "bits", "sign", "format"];
@@ -205,7 +205,31 @@ function doParseXML(data)
 			"http://cstk.sf.net/plots#", plot_cols, plot_xmlcols);
 }
 
-function parseAtts(tag, tab_id, tree_id, schema, rootname)
+function unassert_all(ds)
+{
+	dsResources = (ds.GetAllResources());
+	var thisResource = null;
+	var arcCursor = null;
+	var thisArc = null;
+	while(dsResources.hasMoreElements()) {
+		thisResource = 
+		dsResources.getNext().QueryInterface(Components.interfaces.nsIRDFResource);
+		arcCursor = ds.ArcLabelsOut(thisResource);
+		while(arcCursor.hasMoreElements()) {
+			thisArc = arcCursor.getNext().QueryInterface(Components.interfaces.nsIRDFResource);
+			arcTargets = ds.GetTargets( thisResource, thisArc, true );
+			while(arcTargets.hasMoreElements()) {
+				tmparc = arcTargets.getNext();
+				if (tmparc instanceof Components.interfaces.nsIRDFLiteral){
+				 thisTarget = tmparc.QueryInterface(Components.interfaces.nsIRDFLiteral);
+				 ds.Unassert(thisResource,thisArc,thisTarget,true);
+				}
+			}
+		}
+	}
+}
+
+function parseAtts(tag, tab_id, tree_id, schema, rootname, unassert_bool)
 {
 	var rdf  = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(
 						Components.interfaces.nsIRDFService);
@@ -224,8 +248,11 @@ function parseAtts(tag, tab_id, tree_id, schema, rootname)
 
 	var sub, pred, obj;
 
+	if (unassert_bool) unassert_all(ds);
+	
 	obj  = rdf.GetResource( schema+"node-"+rootname );
 	ds.Assert(root, child, obj, true);
+	alert("asserted"+rootname);
 	sub  = obj;
 	ds.Assert(sub, rdf.GetResource(schema+"att"), rdf.GetLiteral(rootname), true);
  
@@ -259,8 +286,6 @@ function parseCols(tag, tab_id, tree_id, schema, cols, xmlcols)
 
 	var tree = window.frames[tab_id].document.getElementById(tree_id);
 	
-	//tree.view is null here.. !
-	
 	var datasource = Components.classes["@mozilla.org/rdf/datasource;1?name=in-memory-datasource"].
 				createInstance(Components.interfaces.nsIRDFInMemoryDataSource);
 	tree.database.AddDataSource(datasource);
@@ -271,24 +296,27 @@ function parseCols(tag, tab_id, tree_id, schema, cols, xmlcols)
 
 	var sub, pred, obj;
 
+	// first unassert all: (there should be an easier way!)
+	unassert_all(ds);
+	
+
 	for (var j=0; j<tag.length; j++)
 	{
-		obj  = rdf.GetResource( schema+"node-"+j );
+		obj = rdf.GetResource( schema+"node-"+j );
 		ds.Assert(root, child, obj, true);
-		sub  = obj;
+		sub = obj;
 		for (var i=0; i<tag.item(j).attributes.length; i++) 
 		{
 			var nodename = tag.item(j).attributes.item(i).nodeName;
 			for (var z=0; z<cols.length; z++)
 				if (nodename == xmlcols[z])
 					pred = rdf.GetResource(schema+cols[z]);
-			obj  = rdf.GetLiteral(tag.item(j).attributes.item(i).nodeValue);
+			obj = rdf.GetLiteral(tag.item(j).attributes.item(i).nodeValue);
 			ds.Assert(sub, pred, obj, true);
 		}
 	}
 
 	tree.builder.rebuild();
-
 }
 
 function saveFile(file)
