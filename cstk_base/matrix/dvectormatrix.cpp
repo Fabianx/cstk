@@ -229,18 +229,21 @@ DVectorMatrix& operator*(const DVectorMatrix& mat1, const DVectorMatrix& mat2_T)
  	mat = new DVectorMatrix(mat2_T.vesize, mat1.vesize);
 	oas_t sum = 0.0;
 	
-	for (vei_t i=0; i<mat1.vesize; i++)
-	{	
-		for (vei_t j=0; j<mat2_T.vesize; j++)
-		{
-			
-			sum += mat1.vector[i] * mat2_T.vector[j];
-			
-			mat->vector[i].set_comp(sum, F64B_TYPE, j);
-			sum = 0.0;
+	if (mat1.vesize==mat2_T.vesize)
+	{
+		for (vei_t i=0; i<mat1.vesize; i++)
+		{	
+			for (vei_t j=0; j<mat2_T.vesize; j++)
+			{
+				
+				sum += mat1.vector[i] * mat2_T.vector[j];
+				
+				mat->vector[i].set_comp(sum, F64B_TYPE, j);
+				sum = 0.0;
+			}
 		}
 	}
-	
+		
 	return *mat;
 }
 
