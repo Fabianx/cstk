@@ -37,11 +37,14 @@ int main(int ac, char **args) {
   winset.skip   = 1;
   sprintf(winset.title, "KVPlot Demo");
   
-  KVPlot kp(winset); 
+  X11Plot *window = new X11Plot(winset);
+  window->prepare_colours();
+  
+  KVPlot kp(window);
+  
   KVector vect(80); // vector length
   Peak peak(25);   // remember the last x peaks
   
-  kp.prepare_colours();
   int temp_evnt;
   int quit=false;
   ves_t psiz;
@@ -52,8 +55,8 @@ int main(int ac, char **args) {
   printf("\nStarting KVPlot Demo, press 'q' to quit..\n\n");
   int i=0, j=0;
   while (!quit) {
-    kp.delay(0);
-    temp_evnt = kp.eventloop();
+    window->delay(0);
+    temp_evnt = window->eventloop();
     if (temp_evnt==24)          // 'q'
         quit = true;      
     vect.add_comp(simple_trace[(i++)]+j*14); 
@@ -68,8 +71,8 @@ int main(int ac, char **args) {
     peak.add_peak( psiz,  pamp,  plen, sign);
     kp.peakplot(3,4, peak,"Peak Analysis");
     kp.textplot(4,4, vect);
-    kp.swap_buffers();
-    kp.delay(10000);
+    window->swap_buffers();
+    window->delay(10000);
   } // while     
                     
  return 0;  
