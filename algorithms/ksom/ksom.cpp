@@ -251,6 +251,12 @@ DVector& KSOM::getCellVector(vei_t x, vei_t y)
     return vect[_to2(x,y)];
 }
 
+/****************************************************************************************
+*	This method realizes a different way of training the neuron grid using		*
+*	the distance of the input vector to the neurons in the grid to distribute 	*
+*	the data over the map. No determination of a winner neuron is needed in 	*
+*	this case. The new feed method works only on a pre trained map.			*
+****************************************************************************************/
 void KSOMfct::feed_NoWinner(DVector& vec, float lr) 
 {
 	KVector xy(2);

@@ -135,12 +135,6 @@ class KSOM {
 class KSOMfct : public KSOM 
 {
  public:
- 	/****************************************************************************************
-	*	This method realizes a different way of training the neuron grid using		*
-	*	the distance of the input vector to the neurons in the grid to distribute 	*
-	*	the data over the map. No determination of a winner neuron is needed in 	*
-	*	this case. The new feed method works only on a pre trained map.			*
-	****************************************************************************************/
  	void feed_NoWinner(DVector& vec, float lr);
  private: 
  	oas_t det_nb(oas_t dist, ve_t fct);
