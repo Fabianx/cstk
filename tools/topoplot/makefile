@@ -6,7 +6,7 @@ BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ../..;pwd)
 VECTOR_DIR=$(BASE_DIR)/cstk_base/vector
 SD_DIR=$(BASE_DIR)/sensordata
 
-TOPOPLOT_DEP = kvector.o clustplot.o datacell.o kprof.o rs232parser.o \
+TOPOPLOT_DEP = dvector.o kvector.o clustplot.o datacell.o kprof.o rs232parser.o \
 	udpparser.o logfileparser.o simparser.o ksom.o
 
 all:	topoplot
@@ -25,6 +25,7 @@ topoplot:	topoplot.o
 	$(SD_DIR)/udpparser/udpparser.o \
 	$(SD_DIR)/simparser/simparser.o \
 	$(VECTOR_DIR)/datacell.o \
+	$(VECTOR_DIR)/dvector.o \
 	-o ./$@
 
 topoplot.o: $(TOPOPLOT_DEP)
@@ -33,6 +34,9 @@ topoplot.o: $(TOPOPLOT_DEP)
 datacell.o:
 	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
 
+dvector.o:
+	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
+	
 kvector.o:
 	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
 
