@@ -7,7 +7,3 @@ clean:
 	@-rm -f ./*.o
 	@-rm -f ./*~
 	
-datadef.o:
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
-
-all:	datadef.o
