@@ -37,13 +37,20 @@
   v.set_comp(1,12);   v.set_comp(1,13); 
   w.tgl_comp(3);      w.tgl_comp(11);  
   w.tgl_comp(12);     w.tgl_comp(13); 
+  w.tgl_comp(5);      w.tgl_comp(7); 
   printf(" + v = %s\n\r", v.to_string());
   printf(" + w = %s\n\r", w.to_string());
   printf(" + Hamming distance between the two: %i\n\r\n\r", v.dis_ham(w));
   u = v && w;
   printf(" + AND between the two: %s\n\r\n\r", u.to_string());
+  u = v & w;
+  printf(" + AND between the two: %s\n\r\n\r", u.to_string());
   u = v || w;
   printf(" + OR between the two: %s\n\r\n\r", u.to_string());
+  u = v | w;
+  printf(" + OR between the two: %s\n\r\n\r", u.to_string());
+  printf(" + v == w ? %i\n\r\n\r", (int)(v == w));
+  printf(" + u == u ? %i\n\r\n\r", (int)(u == u));
   return 0;
   
  }

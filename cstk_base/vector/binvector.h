@@ -44,11 +44,17 @@ class BinVector {
    vei_t dis_nand(BinVector& invec);	 // nand distance
    char* to_string(void);               // returns the vector as a string
    
+   bool operator==(const BinVector& vec); 
+   	// compares two BinVectors and returns true if equal
    BinVector& operator=(const BinVector& vec); 
    	// hands a BinVector over to a new BinVector
    friend BinVector operator&&(const BinVector& andA, const BinVector& andB);
    	// makes a bitwise AND and returns returns vector
+   friend BinVector operator&(const BinVector& andA, const BinVector& andB);
+   	// makes a bitwise AND and returns returns vector
    friend BinVector operator||(const BinVector& orA, const BinVector& orB); 
+   	// makes a bitwise OR and returns result vector 
+   friend BinVector operator|(const BinVector& orA, const BinVector& orB); 
    	// makes a bitwise OR and returns result vector 
  private:
    u_8b bmask(vei_t iter);              // byte mask
