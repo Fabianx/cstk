@@ -84,9 +84,11 @@ class IParse {
 
 	void init(FILE* fp);
 	int parse(FILE* fp);
-	
+
 	int read_icols(void);
+	int read_binvect();
 	int read_kvect();
+	int read_dvect();
 	int read_buffer(char* buff);
 
 	int export_dtd(char* buffer);
