@@ -26,6 +26,7 @@
 
 int main(int ac, char **args) 
 {
+
 	if (ac<2) {
 		printf("\n TopoPlot - by Kristof Van Laerhoven and.");
 		printf("\n               Martin Berchtold.");
@@ -41,16 +42,16 @@ int main(int ac, char **args)
 	ClustPlot kp;                 // plots the cluster prototypes
 	IParse input;                 // read the profile from an XSD file   
 	WParse window;
-	KSOMfct ksom;
+	KSOM ksom;
 	KMeans kmeans;
 	bool quit=false;
 	int ret=0;                    // generic return variable
 	char buff[0x10000];           // buffer for error msgs
-	
+
 	// parse the input section of the xml:
 	FILE* fp = fopen(args[1],"r");
 	if (!fp) {printf("Error opening file %s.\n", args[1]); return -1;}
-	
+
 	input.init(fp);   // parse file and setup inputcolumns
 
 	if (input.error()) 
@@ -62,23 +63,41 @@ int main(int ac, char **args)
 	if (window.error()) 
 		{ window.export_err(buff); printf("Window error: %s\n",buff); return -1;}
 
-	
+
+	/*  this is how params should work:
+
+		params.init(fp);
+		ksomset.autol     = params.get_bool("autolearn");
+		ksomset.nfct      = params.get_string("nbfunction");
+		ksomset.nb_radius = params.get_float("nbradius");
+		ksomset.dist      = params.get_string("distmeasure");
+		ksomset.max_x     = params.get_int("width");
+		ksomset.max_y     = params.get_int("height");
+		ksomset.vecdim    = input.num_icols;
+
+	*/
+
+
 	KSOMSettings ksomset;
-	ksomset.autol = false;
-	ksomset.nfct = EUCLNB;
-	ksomset.nb_radius = 1.0;
-	ksomset.dist = DIS_EUCL;
-	ksomset.max_x = 56;
-	ksomset.max_y = 68;
-	ksomset.vecdim= 2;
+	ksomset.autol     = false;
+	ksomset.nfct      = GAUSSNB;
+	ksomset.nb_radius = 0.5;
+	ksomset.dist      = DIS_EUCL;
+	ksomset.max_x     = 26;
+	ksomset.max_y     = 28;
+	ksomset.vecdim    = input.num_icols;
+//ve_t ksomset.lfct;
+//oas_t ksomset.c;
+
 
 	ksom.create(&ksomset);
-	
-	KVector kvect(2, false); // false: no stats-keeping 
 
-	DVector *vect = new DVector(2);
-	for (int i=0; i<2; i++) 
-		vect->set_comp(0,U8B_TYPE,i);
+	KVector kvect(ksomset.vecdim, false); // false: no stats-keeping 
+
+	// initialize by giving a prototype vector:
+	DVector *vect = new DVector(ksomset.vecdim);
+	for (int i=0; i<ksomset.vecdim; i++) 
+		vect->set_comp(0, input.icols[i].get_type() /*U8B_TYPE*/,i);
 	ksom.initRandom(*vect);
 	delete vect;
 
@@ -89,14 +108,15 @@ int main(int ac, char **args)
 			printf("Input error(%i)\n",ret);
 		else
 		{
-			//printf("%s\n", input.kvect->to_string("%i "));
+			//printf("%s\n", input.dvect->to_string());
 			ksom.feed( *(input.dvect), 0.5);
 			// plot each cell
 			for (vei_t x=0; x<ksomset.max_x; x++) 
 				for (vei_t y=0; y<ksomset.max_y; y++) 
 				{
-					for (ve_t h=0; h<2; h++)
-						kvect.add_comp(ksom.getCell(x,y,h),h);
+					for (ve_t h=0; h<ksomset.vecdim; h++) {
+						kvect.add_comp(   /*to_u8b*/(ksom.getCell(x,y,h))/10 ,h);
+					}
 					window.ktplot( x, y, ksomset.max_x, ksomset.max_y, 
 					   ((ksom.winner_x==x)&&(ksom.winner_y==y))?8:15,
 					   &kvect);
