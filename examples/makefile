@@ -21,45 +21,50 @@ clean:
 
 rs232parser_demo: rs232parser_t.o
 	$(CC) rs232parser_t.o $(SD_DIR)/rs232parser/rs232parser.o \
+	      $(SD_DIR)/bufferparser.o \
 	      $(VECTOR_DIR)/datacell.o \
 	      -o ./$@
 	
-rs232parser_t.o: rs232parser.o datacell.o
+rs232parser_t.o: rs232parser.o datacell.o bufferparser.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
 
 ##### LogFileParser Demo ##########################################################
 
 logfileparser_demo: logfileparser_t.o
 	$(CC) logfileparser_t.o $(SD_DIR)/logfileparser/logfileparser.o \
+	      $(SD_DIR)/bufferparser.o \
 	      $(VECTOR_DIR)/datacell.o -o ./$@
 	
-logfileparser_t.o: logfileparser.o datacell.o
+logfileparser_t.o: logfileparser.o datacell.o bufferparser.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### NMEAParser Demo #############################################################
 
 nmeaparser_demo: nmeaparser_t.o
 	$(CC) nmeaparser_t.o $(SD_DIR)/nmeaparser/nmeaparser.o \
+	      $(SD_DIR)/bufferparser.o \
 	      $(SD_DIR)/logfileparser/logfileparser.o \
 	      $(VECTOR_DIR)/datacell.o -o ./$@
 	
-nmeaparser_t.o: nmeaparser.o logfileparser.o datacell.o
+nmeaparser_t.o: nmeaparser.o logfileparser.o datacell.o bufferparser.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### UDPParser Demos ############################################################
 
 udp_snd_demo: udp_snd_t.o
 	$(CC) udp_snd_t.o $(SD_DIR)/udpparser/udpparser.o \
+	      $(SD_DIR)/bufferparser.o \
 	      $(VECTOR_DIR)/datacell.o -o ./$@
 	
-udp_snd_t.o: udpparser.o datacell.o
+udp_snd_t.o: udpparser.o datacell.o bufferparser.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 udp_rec_demo: udp_rec_t.o
 	$(CC) udp_rec_t.o $(SD_DIR)/udpparser/udpparser.o \
+	      $(SD_DIR)/bufferparser.o \
 	      $(VECTOR_DIR)/datacell.o -o ./$@
 	
-udp_rec_t.o: udpparser.o datacell.o
+udp_rec_t.o: udpparser.o datacell.o bufferparser.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### SimParser Demo #############################################################
@@ -74,7 +79,8 @@ simparser_t.o: simparser.o datacell.o
 ##### Sensordata Demo ############################################################
 
 sensordata_demo: sensordata_t.o
-	$(CC) $(SD_DIR)/rs232parser/rs232parser.o \
+	$(CC) $(SD_DIR)/bufferparser.o \
+	      $(SD_DIR)/rs232parser/rs232parser.o \
 	      $(SD_DIR)/logfileparser/logfileparser.o \
 	      $(SD_DIR)/udpparser/udpparser.o \
 	      $(SD_DIR)/simparser/simparser.o \
