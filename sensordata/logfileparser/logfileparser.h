@@ -23,6 +23,7 @@
 #include <limits.h>
 #include <float.h>
 #include "sensordata/sensordata.h"
+#include "sensordata/bufferparser.h"
 
 #ifndef BIN_MODE
 #define BIN_MODE 1
@@ -35,6 +36,7 @@
 
 #define FILEERR_CANTOPEN  -10
 #define FILEERR_CANTREAD  -11
+#define FILEERR_INVTYPE   -12
 
 #define COLUMN_SEPARATOR 	" \t"
 #define BUFFER_MAX       	1024
@@ -59,7 +61,7 @@ public:
   LogFileParser(LogFileParserSettings file_param);
   ~LogFileParser();  
   int read(char *channel_types, uint numchannels, DataCell *columns,  
-		uint *filter, uint numcolumns);
+           uint *filter, uint numcolumns);
   int read(DataCell *channels, uint numchannels);
   int read(DataCell *channels, uint *numchannels);
   int read(char *line);  
@@ -68,9 +70,9 @@ public:
 private:
   void openFile();
   void closeFile();
-  uint filtrate(uint *filter, uint numcolumns, uint channel);
   
 private:
+  BufferParser bp;
   LogFileParserSettings file_param;
   FILE *fp;
   int err;

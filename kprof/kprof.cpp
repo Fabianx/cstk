@@ -28,6 +28,7 @@ KProf::KProf()
 	simset  	= NULL;
 	ichset   	= NULL;
 	icolset 	= NULL;
+	plotset 	= NULL;
 	ichs     	= NULL;
 	icols   	= NULL;
 	filter  	= NULL;
@@ -44,10 +45,13 @@ KProf::~KProf()
 	if (filter!=NULL) delete []filter;
 }
 
-void KProf::parse_input(char* tmpstr, unsigned int line, 
+void KProf::parse_input(FILE* fp, char* tmpstr, unsigned int line, 
                         bool valid_sub_tag, bool valid_att_tag)
 {
-	if (strcasecmp(tmpstr,"rs232")==0) {
+	if (strcasecmp(tmpstr,"input")==0) {
+		//;
+	}
+	else if (strcasecmp(tmpstr,"rs232")==0) {
 		rs232set = new Rs232ParserSettings;
 		sp[sp_size] = new Rs232SetParse(rs232set);
 	}
@@ -102,10 +106,14 @@ void KProf::parse_input(char* tmpstr, unsigned int line,
 	}
 }
 
-void KProf::parse_output(char* tmpstr, unsigned int line, 
+void KProf::parse_output(FILE* fp, char* tmpstr, unsigned int line, 
                         bool valid_sub_tag, bool valid_att_tag)
 {
-	if (strcasecmp(tmpstr,"rs232")==0) {
+	if (strcasecmp(tmpstr,"output")==0) {
+		//rs232set = new Rs232CreatorSettings;
+		//sp[sp_size] = new Rs232SetParse(rs232set);
+	}
+	else if (strcasecmp(tmpstr,"rs232")==0) {
 		//rs232set = new Rs232CreatorSettings;
 		//sp[sp_size] = new Rs232SetParse(rs232set);
 	}
@@ -160,10 +168,32 @@ void KProf::parse_output(char* tmpstr, unsigned int line,
 	}
 }
 
-void KProf::parse_window(char* tmpstr, unsigned int line, 
+void KProf::parse_window(FILE* fp, char* tmpstr, unsigned int line, 
                         bool valid_sub_tag, bool valid_att_tag)
 {
-
+	if (strcasecmp(tmpstr,"plot")==0) {
+		if (plotset==NULL) { // first addition
+			plotset = new PlotSettings; plotpset = plotset;
+		}
+		else { 
+			PlotSettings *plotnset = new PlotSettings;
+			plotpset->next = plotnset; plotpset = plotnset;
+		}
+		sp[sp_size] = new PlotSetParse(plotset);
+		num_plots++; // count the number of plots
+	}
+	else if (!valid_sub_tag) {
+		err = ERR_INVTAG; errline = line;
+	}
+	if (valid_att_tag){
+		if (sp[sp_size]->read_set(fp)!=0) { 
+			err = ERR_INVATTR; errline = line;
+		}
+		if (sp[sp_size]->update_set()!=0) { 
+			err = ERR_UPDATE; errline = line;
+		}
+		sp_size++;
+	}
 }
 
 int KProf::parse(FILE* fp) {
@@ -172,6 +202,7 @@ int KProf::parse(FILE* fp) {
 	err=0;
 	num_ichs=0;
 	num_icols=0;
+	num_plots=0;
 	sp = new SetParse*[max_tags];
 	char valid_section_tag = 0;
 	if (!fp) 
@@ -194,31 +225,41 @@ int KProf::parse(FILE* fp) {
 			for (i=0; i<NUM_SUBTAGS; i++) // sub tag ?
 				if (strcasecmp(tmpstr,sub_tags[i])==0) 
 					valid_sub_tag=true;
-			if (valid_section_tag==1) // we're in <input> 
-				for (i=0; i<NUM_A_ITAGS; i++) // input tag?
-					if (strcasecmp(tmpstr,input_att_tags[i])==0)
-						valid_att_tag=true;
-			else
-			if (valid_section_tag==2) // we're in <output> 
-				for (i=0; i<NUM_A_OTAGS; i++) // output tag?
-					if (strcasecmp(tmpstr,output_att_tags[i])==0)
-						valid_att_tag=true;
+			switch (valid_section_tag) // we're in <input> 
+			{
+				case 1:
+					for (i=0; i<NUM_A_ITAGS; i++) // input tag?
+						if (strcasecmp(tmpstr,input_att_tags[i])==0)
+							valid_att_tag=true;
+					break;
+				case 2:
+					for (i=0; i<NUM_A_OTAGS; i++) // output tag?
+						if (strcasecmp(tmpstr,output_att_tags[i])==0)
+							valid_att_tag=true;
+					break;
+				case 3:
+					for (i=0; i<NUM_A_WTAGS; i++) // window tag? 
+						if (strcasecmp(tmpstr,window_att_tags[i])==0) 
+							valid_att_tag=true;
+					break; 
+			}
 			for (i=0; i<NUM_S_TAGS; i++) // section tag ?
-				if (strcasecmp(tmpstr,section_tags[i])==0)
-					valid_section_tag=i+1;
+				if (strcasecmp(tmpstr,section_tags[i])==0) {
+					valid_section_tag=i+1; 
+					valid_sub_tag=true;
+				}
 		} while (!feof(fp)&&(!valid_att_tag)&&(!valid_sub_tag));
-
 		if (feof(fp)) return err;
 		if (sp_size<max_tags) {
 			switch (valid_section_tag) 
 			{
 			 case 0: // NO CSTK SECTION
 				 break;
-			 case 1: parse_input(tmpstr,line,valid_sub_tag,valid_att_tag);
+			 case 1: parse_input(fp,tmpstr,line,valid_sub_tag,valid_att_tag);
 				 break;
-			 case 2: parse_output(tmpstr,line,valid_sub_tag,valid_att_tag);
+			 case 2: parse_output(fp,tmpstr,line,valid_sub_tag,valid_att_tag);
 				 break;
-			 case 3: parse_window(tmpstr,line,valid_sub_tag,valid_att_tag);
+			 case 3: parse_window(fp,tmpstr,line,valid_sub_tag,valid_att_tag);
 				 break;
 			}
 		}
@@ -238,12 +279,15 @@ int KProf::export_dtd(char* buffer) {
 	buffer[0]=0;
 	char *authorstr="The CSTK Team";
 	char *titlestr="CommonSense ToolKit";
+	unsigned int i;
+	
 	sprintf(buffer,"<!DOCTYPE CSTK [\n\t");
 	sprintf(buffer,"%s<!ENTITY AUTHOR \"%s\">\n\t",buffer,authorstr);
 	sprintf(buffer,"%s<!ENTITY SOFTWARE \"%s\">\n",buffer,titlestr);
-	// input:
-	sprintf(buffer,"%s\t<!ELEMENT input ((rs232|logfile",buffer);
-	sprintf(buffer,"%s|udp|sim),inputcolumn*)>\n",buffer);
+	sprintf(buffer,"%s\t<!ELEMENT input ((%s",buffer,input_att_tags[3]);
+	for (i=4; i<NUM_A_ITAGS; i++)
+		sprintf(buffer,"%s|%s",buffer,input_att_tags[i]);
+	sprintf(buffer,"%s),inputcolumn*)>\n",buffer);
 	for (unsigned int t=0; t<sp_size; t++) {
 		sp[t]->write_tag(tmpstr);
 		if (strcasecmp(last_tag,tmpstr)!=0) {
@@ -252,8 +296,10 @@ int KProf::export_dtd(char* buffer) {
 		}
 		strcpy(last_tag, tmpstr);
 	}
-	sprintf(buffer,"%s\t<!ELEMENT output ((rs232|logfile",buffer);
-	sprintf(buffer,"%s|udp),outputcolumn*)>\n",buffer);
+	sprintf(buffer,"%s\t<!ELEMENT output ((%s",buffer,output_att_tags[3]);
+	for (i=4; i<NUM_A_ITAGS; i++)
+		sprintf(buffer,"%s|%s",buffer,output_att_tags[i]);
+	sprintf(buffer,"%s),outputcolumn*)>\n",buffer);
 	sprintf(buffer,"%s\t<!ELEMENT window (plot*)>\n",buffer);
 	sprintf(buffer,"%s]>\n",buffer);
 	return err;
@@ -266,21 +312,23 @@ int KProf::export_xsd(char* buffer) {
 	char curr_tag[MAX_TAG_LENGTH];
 	last_mode[0]='\0';
 	last_tag[0]='\0';
+	buffer[0] = '\0';
 	if (sp_size) {
-		strcpy(buffer,"\t<input>\n");
 		for (unsigned int t=0; t<sp_size; t++) {
-			sp[t]->write_set(tmpstr);
 			sp[t]->write_tag(curr_tag);
+			sp[t]->write_set(tmpstr);
 			// is it a different tag than the previous?
 			if ((strcasecmp(last_tag,curr_tag)!=0)
 				&&(last_tag[0]!='\0')
-				&&(strcasecmp(last_tag,last_mode)!=0)) {
+				&&(strcasecmp(last_tag,last_mode)!=0)
+				&&(last_mode[0]!=0)) {
 					sprintf(buffer,"%s\t\t</%s>\n", buffer, last_mode);
 					last_mode[0]='\0';
 			} 
 			// is it a tag that needs closing immediately?
 			if ((strcasecmp(curr_tag,"channel")==0)||
 			(strcasecmp(curr_tag,"inputcolumn")==0) ||
+			(strcasecmp(curr_tag,"plot")==0) ||
 			(strcasecmp(curr_tag,"poll")==0)) {
 				sprintf(buffer,"%s\t%s</%s>\n", buffer, tmpstr,curr_tag);
 			}
@@ -291,16 +339,15 @@ int KProf::export_xsd(char* buffer) {
 			strcpy(last_tag, curr_tag);
 		}
 		if (last_mode[0]!='\0') sprintf(buffer,"%s\t\t</%s>\n", buffer, last_mode);
-		sprintf(buffer,"%s\t</input>\n",buffer);
 	}
-	//if (sc_size) {
-		sprintf(buffer,"%s\t<output>\n",buffer);
-		sprintf(buffer,"%s\t</output>\n",buffer);
-	//}
-	//if (win_size) {
-		sprintf(buffer,"%s\t<window>\n",buffer);
-		sprintf(buffer,"%s\t</window>\n",buffer);
-	//}
+	/*
+	strcpy(buffer,"\t<input>\n");
+	sprintf(buffer,"%s\t</input>\n",buffer);
+	sprintf(buffer,"%s\t<output>\n",buffer);
+	sprintf(buffer,"%s\t</output>\n",buffer);
+	sprintf(buffer,"%s\t<window>\n",buffer);
+	sprintf(buffer,"%s\t</window>\n",buffer);
+	*/
 	return err;
 }
 

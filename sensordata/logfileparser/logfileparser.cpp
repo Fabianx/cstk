@@ -65,105 +65,26 @@ int LogFileParser::read(char 	 *channel_types,
 	openFile();
 	if (fp==NULL)
 		return FILEERR_CANTOPEN;
-	uint i = 0;
 	char buf[BUFFER_MAX];
 	if (fgets(buf, sizeof(buf), fp) == NULL)
 		return FILEERR_CANTREAD;
-	char *token = strtok(buf, COLUMN_SEPARATOR);
-	while (token != NULL && i < numcolumns) {
-		char *decimal = strchr(token, '.');
-		if (decimal == NULL) {
-			s_64b field; // Assume maximum size
-			sscanf(token, "%lli", &field);
-			uint col = 0;	
-			// Map the sscanf types to the native CSTK types
-			switch (channel_types[i]) {
-				case U8B_TYPE:
-					col = filtrate(filter, numcolumns, i);
-					columns[col].set_u8val((u_8b)field);
-					columns[col].set_type(U8B_TYPE);
-					break;
-				case S8B_TYPE:
-					col = filtrate(filter, numcolumns, i);
-					columns[col].set_s8val((s_8b)field);
-					columns[col].set_type(S8B_TYPE);
-					break;
-				case U16B_TYPE:
-					col = filtrate(filter, numcolumns, i);
-					columns[col].set_u16val((u_16b)field);
-					columns[col].set_type(U16B_TYPE);
-					break;
-				case S16B_TYPE:
-					col = filtrate(filter, numcolumns, i);
-					columns[col].set_s16val((s_16b)field);
-					columns[col].set_type(S16B_TYPE);
-					break;
-				case U32B_TYPE:
-					col = filtrate(filter, numcolumns, i);
-					columns[col].set_u32val((u_32b)field);
-					columns[col].set_type(U32B_TYPE);
-					break;
-				case S32B_TYPE:
-					col = filtrate(filter, numcolumns, i);
-					columns[col].set_s32val((s_32b)field);
-					columns[col].set_type(S32B_TYPE);
-					break;
-				case U64B_TYPE:
-					col = filtrate(filter, numcolumns, i);
-					columns[col].set_u64val((u_64b)field);
-					columns[col].set_type(U64B_TYPE);
-					break;
-				case S64B_TYPE:
-					col = filtrate(filter, numcolumns, i);
-					columns[col].set_s64val((s_64b)field);
-					columns[col].set_type(S64B_TYPE);
-					break;
-				default:
-					// TODO: Something here?
-					break;
-			}
-		} else {
-			f_64b field; // Assume maximum size
-			if (sscanf(token, "%lf", &field) || 
-			    sscanf(token, "%le", &field) ||
-			    sscanf(token, "%lg", &field)) {
-				uint col = 0;
-				// Map the sscanf types to the native CSTK types
-				switch (channel_types[i]) {
-					case F32B_TYPE:
-						col = filtrate(filter, numcolumns, i);
-						columns[col].set_f32val((f_32b)field);
-						columns[col].set_type(F32B_TYPE);
-						break;
-					case F64B_TYPE:
-						col = filtrate(filter, numcolumns, i);
-						columns[col].set_f64val((f_64b)field);
-						columns[col].set_type(F64B_TYPE);
-						break;
-					default:
-						// TODO: Something here?
-						break;
-				}
-			}
-		}
-		++i;
-		token = strtok(NULL, COLUMN_SEPARATOR);
+
+	uint i = 0;
+	if (file_param.mode==ASC_MODE)
+		i = bp.parse_asc( buf, channel_types,
+				numchannels, columns, filter, numcolumns);
+	else if (file_param.mode==BIN_MODE)
+		i = bp.parse_bin( buf, strlen(buf), channel_types, 
+				numchannels, columns, filter, numcolumns);
+	if (i<0) {
+		err = FILEERR_INVTYPE;
+		return err;
 	}
+
 	if (feof(fp))
 		closeFile();
 	return i;
 }
-
-
-uint LogFileParser::filtrate(uint *filter, uint numcolumns, uint channel) {
-
-	for (uint i = 0; i < numcolumns; ++i) {
-		if (filter[i] == channel) 
-			return i;
-	}
-	return 0;
-}
-
 
 int LogFileParser::read(DataCell *channels, uint numchannels) {
 	

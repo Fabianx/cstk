@@ -131,7 +131,7 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
                       DataCell* columns,  uint* filter, uint numcolumns) 
 {
 	int res=-2;
-	uint i, j, k;
+	uint i;
 	// if rs232=closed, open it:
 	if (fd==0) {
 		err = open_rs232(rs232_param.device);
@@ -156,91 +156,28 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
 		err = RS232ERR_CANTREAD;
 		return err;
 	}
-	else { 
-		i=0;  // counter for the buffer array
-		// if the data is ascii, and no poll is given, wait for a return '\r':
-		while ((rs232_param.mode==ASC_MODE)&&(rs232_param.poll_char[0]=='\0')
-			&&(buf[i++]!='\r')&&(i<(unsigned int)res)) {
+	else {
+		if (rs232_param.mode==ASC_MODE)
+			i = bp.parse_asc( buf, channel_types,
+			              numchannels, columns, filter, numcolumns);
+		else if (rs232_param.mode==BIN_MODE)
+			i = bp.parse_bin( buf, res, channel_types, 
+			              numchannels, columns, filter, numcolumns);
+		if (i<0) {
+			err = RS232ERR_INVTYPE;
+			return err;
 		}
-		// if the data is binary, and no poll is given, wait for a return 0xFF:
-		while ((rs232_param.mode==BIN_MODE)&&(rs232_param.poll_char[0]=='\0')
-			&&(buf[i++]!=0xFF)&&(i<(unsigned int)res)) {
-		}
-		if (i==(unsigned int)res) return 0;
-     
-		j=0;  // counter for the datacells
-		k=0;  // temp counter
-		while ((i<(unsigned int)res)&&(j<numchannels)) { 
-			switch(channel_types[j]) {
-				case U8B_TYPE: 
-					for (k=0; k<numcolumns; k++) if (filter[k]==j)  
-							columns[k].set_u8val(buf[i]);
-					i++;    
-					break;
-				case S8B_TYPE: 
-					for (k=0; k<numcolumns; k++) if (filter[k]==j)  
-							columns[k].set_s8val(buf[i]);
-					i++;    
-					break;
-				case U16B_TYPE:    
-					for (k=0; k<numcolumns; k++) if (filter[k]==j) 
-							columns[k].set_u16val(buf[i],buf[i+1]);
-					i+=2;
-					break;
-				case S16B_TYPE:
-					for (k=0; k<numcolumns; k++) if (filter[k]==j) 
-							columns[k].set_s16val(buf[i],buf[i+1]);
-					i+=2;
-					break;
-				case U32B_TYPE:    
-					for (k=0; k<numcolumns; k++) if (filter[k]==j) 
-							columns[k].set_u32val(buf[i],buf[i+1],
-							buf[i+2],buf[i+3]);
-					i+=4;
-					break;
-				case S32B_TYPE:    
-					for (k=0; k<numcolumns; k++) if (filter[k]==j)
-							columns[k].set_s32val(buf[i],buf[i+1],
-							buf[i+2],buf[i+3]);
-					i+=4;
-					break;
-#ifdef U64
-				case U64B_TYPE:
-					for (k=0; k<numcolumns; k++) if (filter[k]==j)
-							columns[k].set_u64val(buf[i],buf[i+1],
-							buf[i+2],buf[i+3],buf[i+4],
-							buf[i+5],buf[i+6],buf[i+7]);
-					i+=8;
-					break;
-#endif
-#ifdef S64
-				case S64B_TYPE:
-					for (k=0; k<numcolumns; k++) if (filter[k]==j)
-							columns[k].set_s64val(buf[i],buf[i+1],
-							buf[i+2],buf[i+3],buf[i+4],
-							buf[i+5],buf[i+6],buf[i+7]);
-					i+=8;
-					break;
-#endif
-				default: // errormsg
-					err = RS232ERR_INVTYPE;
-					return err;
-					break;    
-			}//switch
-     
-			j++;
-		}//while
-  	} //if..else 
+	} //if..else 
 	return numcolumns; // if no errors
 }
 
-int Rs232Parser::read(DataCell* channels, uint numchannels) 
+int Rs232Parser::read(DataCell* channels, uint numchannels)
 {
 	// stub
 	return 0;
 }
 
-int Rs232Parser::read(DataCell* channels, uint* numchannels) 
+int Rs232Parser::read(DataCell* channels, uint* numchannels)
 {
 	// stub
 	return 0;
@@ -289,7 +226,7 @@ int Rs232Parser::open_rs232(char* devicename)
 		delete[] buf;
 	char *test = NULL;
 	test = new char[1200];
-	buf = new unsigned char [rs232_param.buff_size];
+	buf = new char [rs232_param.buff_size];
 	// open the device to be non-blocking (read will return immediatly)
 	fd = open(devicename, O_RDWR | O_NONBLOCK | O_NOCTTY); //
 	if (fd ==-1) {     // error:

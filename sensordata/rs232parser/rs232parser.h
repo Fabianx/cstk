@@ -30,6 +30,7 @@
 #include <sys/types.h>
 #include "cstk_base/types.h"
 #include "sensordata/sensordata.h"
+#include "sensordata/bufferparser.h"
 
 #ifndef BIN_MODE
 #define BIN_MODE 1
@@ -112,10 +113,12 @@ class Rs232Parser : virtual public SensorData {
 	int open_rs232(char* devicename);
 	void close_rs232();
 
+	BufferParser bp;
+	
 	Rs232ParserSettings rs232_param;
 	int fd;
 	struct termios oldtio,newtio;
-	unsigned char *buf;
+	char *buf;
 	unsigned int bufcounter; // an iterator for buffers that weren't polled
 	int err;
 };

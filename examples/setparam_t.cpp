@@ -53,6 +53,7 @@ int main(int ac, char *argv[]) {
 	kp.setup_inputchannels();
 	kp.setup_inputcolumns();
 	
+	
 	if (kp.error()) { kp.export_err(buff); printf("%s",buff); exit(-1);}
 
 	printf("--- raw output strings: ----------------------\n");
@@ -68,7 +69,7 @@ int main(int ac, char *argv[]) {
 			else 
 				printf("error(%i)\n\r",ret);
 		}
-
+	
 	printf("\n--- interpreted output: ----------------------\n");
 
 		KVector vect[kp.num_icols];

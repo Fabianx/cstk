@@ -50,8 +50,9 @@
 */
 
 // abstract base class for all sensor data providers:
-struct SensorData {  
-   virtual ~SensorData() {};   
+struct SensorData 
+{  
+   virtual ~SensorData() {};
    // read filtered:
     virtual int read(char* channel_types, uint numchannels, 
                      DataCell* columns,  uint* filter, uint numcolumns)=0;

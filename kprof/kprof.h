@@ -22,6 +22,7 @@
 #include "kprof/simsetparse.h"
 #include "kprof/channelsetparse.h"
 #include "kprof/inputcolumnsetparse.h"
+#include "kprof/plotsetparse.h"
 #include "sensordata/sensordata.h"
 #include "sensordata/rs232parser/rs232parser.h"
 #include "sensordata/logfileparser/logfileparser.h"
@@ -59,16 +60,21 @@ const char kperr_strings[NUM_KPERRS][32] =
 	  "Error setting inputcolumns.",
 	  "No inputcolumns found."};
 
+
 // CSTK tags linked to settings:
 #define NUM_A_ITAGS 7
 const char input_att_tags[NUM_A_ITAGS][16] = {
-	"rs232", "udp", "logfile", "sim", 
-	"channel", "inputcolumn", "poll"
+	"channel", "inputcolumn", "poll",
+	"rs232", "udp", "logfile", "sim"
 	};
 #define NUM_A_OTAGS 6
 const char output_att_tags[NUM_A_OTAGS][16] = {
-	"rs232", "udp", "logfile",
-	"channel", "outputcolumn", "poll"
+	"channel", "outputcolumn", "poll",
+	"rs232", "udp", "logfile"
+	};
+#define NUM_A_WTAGS 1
+const char window_att_tags[NUM_A_WTAGS][16] = {
+	"plot"
 	};
 // valid but empty CSTK tags:
 #define NUM_SUBTAGS 2
@@ -76,7 +82,7 @@ const char sub_tags[NUM_SUBTAGS][16] = {
 	"!--", "packet" };
 // main section tags:
 #define NUM_S_TAGS 3
-const char section_tags[NUM_S_TAGS][16] = { 
+const char section_tags[NUM_S_TAGS][16] = {
 	"input", "output", "window" };
 
 
@@ -104,13 +110,14 @@ class KProf {
 	
 	DataCell *icols;       	// datacell array of all input columns 
 	unsigned int num_icols;	// number of input columns
+	unsigned int num_plots;	// number of plots
 	
  private:
-	void parse_input(char* tmpstr, unsigned int line, 
+	void parse_input(FILE* fp, char* tmpstr, unsigned int line, 
 	                 bool valid_sub_tag, bool valid_att_tag);
-	void parse_output(char* tmpstr, unsigned int line, 
+	void parse_output(FILE* fp, char* tmpstr, unsigned int line, 
 	                 bool valid_sub_tag, bool valid_att_tag);
-	void parse_window(char* tmpstr, unsigned int line, 
+	void parse_window(FILE* fp, char* tmpstr, unsigned int line, 
 	                 bool valid_sub_tag, bool valid_att_tag);
 	
 	char *ichs;             	// array of types in channels
@@ -127,6 +134,7 @@ class KProf {
 	 UDPParserSettings     	*udpset;
 	 LogFileParserSettings 	*logfileset;
 	 SimParserSettings     	*simset;
+	 PlotSettings     	*plotset, *plotpset;
 	 ChannelSettings       	*ichset, *ichpset;   
 	 ChannelSettings       	*ochset, *ochpset;   
 	 InputColumnSettings   	*icolset, *icolpset; 
