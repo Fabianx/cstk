@@ -69,12 +69,30 @@ void DVector::create(vei_t nsize)
 {
      vctsize = nsize;
      vct = new void *[nsize];
+     for (vei_t i=0; i<nsize; i++)
+     	vct[i]=NULL;
      types = new char[nsize];
 }
+
 // allocate a comonent and fill it
 void DVector::set_comp(f_64b value, char type, vei_t comp) 
 {
      void *v=NULL;
+     v = vct[comp];
+     if (v!=NULL)
+        switch (types[comp]){
+           case U8B_TYPE:  delete (u_8b*)v;  break;
+           case U16B_TYPE: delete (u_16b*)v; break; 
+           case U32B_TYPE: delete (u_32b*)v; break;
+           case U64B_TYPE: delete (u_64b*)v; break;
+           case S8B_TYPE:  delete (s_8b*)v;  break;
+           case S16B_TYPE: delete (s_16b*)v; break;
+           case S32B_TYPE: delete (s_32b*)v; break;
+           case S64B_TYPE: delete (s_64b*)v; break;
+           case F32B_TYPE: delete (f_32b*)v; break;
+           case F64B_TYPE: delete (f_64b*)v; break;
+        }
+     vct[comp]=NULL;
      switch (type) {
         case U8B_TYPE:  v = new u_8b;  
                         *((u_8b*)v)  = (u_8b)value; 
@@ -123,6 +141,21 @@ void DVector::set_comp(f_64b value, char type, vei_t comp)
 void DVector::set_comp(DataCell value, vei_t comp) 
 {
      void *v=NULL;
+     v = vct[comp];
+     if (v!=NULL)
+        switch (types[comp]){
+           case U8B_TYPE:  delete (u_8b*)v;  break;
+           case U16B_TYPE: delete (u_16b*)v; break; 
+           case U32B_TYPE: delete (u_32b*)v; break;
+           case U64B_TYPE: delete (u_64b*)v; break;
+           case S8B_TYPE:  delete (s_8b*)v;  break;
+           case S16B_TYPE: delete (s_16b*)v; break;
+           case S32B_TYPE: delete (s_32b*)v; break;
+           case S64B_TYPE: delete (s_64b*)v; break;
+           case F32B_TYPE: delete (f_32b*)v; break;
+           case F64B_TYPE: delete (f_64b*)v; break;
+        }
+     vct[comp]=NULL;
      switch (value.get_type()) {
         case U8B_TYPE:  v = new u_8b;  
                         *((u_8b*)v)  = value.get_u8b(); 
@@ -288,6 +321,7 @@ oas_t get(const DVector& vec, vei_t i)
         	case F32B_TYPE: return (f_64b)(*((f_32b*)vec.vct[i]));
         	case F64B_TYPE: return (f_64b)(*((f_64b*)vec.vct[i])); 
      	}
+	return 0.0;
 }
 
 DVector& DVector::operator=(const DVector& vec) 
@@ -359,68 +393,66 @@ DVector& DVector::operator-=(const DVector& vec)
 	return *this;
 }
 
-DVector& operator+(const DVector& vec1, const DVector& vec2)
+DVector operator+(const DVector& vec1, const DVector& vec2)
 {
-   	DVector *vec;
-	vec = new DVector;
+   	DVector vec;
 	if (vec1.vctsize == vec1.vctsize)
 	{
-		vec->create(vec1.vctsize);
+		vec.create(vec1.vctsize);
 		for (vei_t i=0; i<vec1.vctsize; i++)
 		{
 			if (vec1.types[i] == vec2.types[i])
 			{
 		 		switch (vec1.types[i]) 
 				{
-					case U8B_TYPE:  vec->set_comp((*((u_8b*)vec1.vct[i]))+(*((u_8b*)vec2.vct[i])),U8B_TYPE,i); break;
-					case U16B_TYPE: vec->set_comp((*((u_16b*)vec1.vct[i]))+(*((u_16b*)vec2.vct[i])),U16B_TYPE,i); break;
-					case U32B_TYPE: vec->set_comp((*((u_32b*)vec1.vct[i]))+(*((u_32b*)vec2.vct[i])),U32B_TYPE,i); break;
-					case U64B_TYPE: vec->set_comp((*((u_64b*)vec1.vct[i]))+(*((u_64b*)vec2.vct[i])),U64B_TYPE,i); break;
-					case S8B_TYPE:  vec->set_comp((*((s_8b*)vec1.vct[i]))+(*((s_8b*)vec2.vct[i])),S8B_TYPE,i); break;
-					case S16B_TYPE: vec->set_comp((*((s_16b*)vec1.vct[i]))+(*((s_16b*)vec2.vct[i])),S16B_TYPE,i); break;
-					case S32B_TYPE: vec->set_comp((*((s_32b*)vec1.vct[i]))+(*((s_32b*)vec2.vct[i])),S32B_TYPE,i); break;
-					case S64B_TYPE: vec->set_comp((*((s_64b*)vec1.vct[i]))+(*((s_64b*)vec2.vct[i])),S64B_TYPE,i); break;
-					case F32B_TYPE: vec->set_comp((*((f_32b*)vec1.vct[i]))+(*((f_32b*)vec2.vct[i])),F32B_TYPE,i); break;
-					case F64B_TYPE: vec->set_comp((*((f_64b*)vec1.vct[i]))+(*((f_64b*)vec2.vct[i])),F64B_TYPE,i); break;
+					case U8B_TYPE:  vec.set_comp((*((u_8b*)vec1.vct[i]))+(*((u_8b*)vec2.vct[i])),U8B_TYPE,i); break;
+					case U16B_TYPE: vec.set_comp((*((u_16b*)vec1.vct[i]))+(*((u_16b*)vec2.vct[i])),U16B_TYPE,i); break;
+					case U32B_TYPE: vec.set_comp((*((u_32b*)vec1.vct[i]))+(*((u_32b*)vec2.vct[i])),U32B_TYPE,i); break;
+					case U64B_TYPE: vec.set_comp((*((u_64b*)vec1.vct[i]))+(*((u_64b*)vec2.vct[i])),U64B_TYPE,i); break;
+					case S8B_TYPE:  vec.set_comp((*((s_8b*)vec1.vct[i]))+(*((s_8b*)vec2.vct[i])),S8B_TYPE,i); break;
+					case S16B_TYPE: vec.set_comp((*((s_16b*)vec1.vct[i]))+(*((s_16b*)vec2.vct[i])),S16B_TYPE,i); break;
+					case S32B_TYPE: vec.set_comp((*((s_32b*)vec1.vct[i]))+(*((s_32b*)vec2.vct[i])),S32B_TYPE,i); break;
+					case S64B_TYPE: vec.set_comp((*((s_64b*)vec1.vct[i]))+(*((s_64b*)vec2.vct[i])),S64B_TYPE,i); break;
+					case F32B_TYPE: vec.set_comp((*((f_32b*)vec1.vct[i]))+(*((f_32b*)vec2.vct[i])),F32B_TYPE,i); break;
+					case F64B_TYPE: vec.set_comp((*((f_64b*)vec1.vct[i]))+(*((f_64b*)vec2.vct[i])),F64B_TYPE,i); break;
 				}
 			}
 			else
-				vec->set_comp(get(vec1,i)+get(vec2,i), F64B_TYPE, i);
+				vec.set_comp(get(vec1,i)+get(vec2,i), F64B_TYPE, i);
 		}
 	}
-	return *vec;
+	return vec;
 }
    
-DVector& operator-(const DVector& vec1, const DVector& vec2)
+DVector operator-(const DVector& vec1, const DVector& vec2)
 {
-   	DVector *vec;
-	vec = new DVector;
+   	DVector vec;
 	if (vec1.vctsize == vec1.vctsize)
 	{
-		vec->create(vec1.vctsize);
+		vec.create(vec1.vctsize);
 		for (vei_t i=0; i<vec1.vctsize; i++)
 		{
 			if (vec1.types[i] == vec2.types[i])
 			{
 		 		switch (vec1.types[i]) 
 				{
-					case U8B_TYPE:  vec->set_comp((*((u_8b*)vec1.vct[i]))-(*((u_8b*)vec2.vct[i])),U8B_TYPE,i); break;
-					case U16B_TYPE: vec->set_comp((*((u_16b*)vec1.vct[i]))-(*((u_16b*)vec2.vct[i])),U16B_TYPE,i); break;
-					case U32B_TYPE: vec->set_comp((*((u_32b*)vec1.vct[i]))-(*((u_32b*)vec2.vct[i])),U32B_TYPE,i); break;
-					case U64B_TYPE: vec->set_comp((*((u_64b*)vec1.vct[i]))-(*((u_64b*)vec2.vct[i])),U64B_TYPE,i); break;
-					case S8B_TYPE:  vec->set_comp((*((s_8b*)vec1.vct[i]))-(*((s_8b*)vec2.vct[i])),S8B_TYPE,i); break;
-					case S16B_TYPE: vec->set_comp((*((s_16b*)vec1.vct[i]))-(*((s_16b*)vec2.vct[i])),S16B_TYPE,i); break;
-					case S32B_TYPE: vec->set_comp((*((s_32b*)vec1.vct[i]))-(*((s_32b*)vec2.vct[i])),S32B_TYPE,i); break;
-					case S64B_TYPE: vec->set_comp((*((s_64b*)vec1.vct[i]))-(*((s_64b*)vec2.vct[i])),S64B_TYPE,i); break;
-					case F32B_TYPE: vec->set_comp((*((f_32b*)vec1.vct[i]))-(*((f_32b*)vec2.vct[i])),F32B_TYPE,i); break;
-					case F64B_TYPE: vec->set_comp((*((f_64b*)vec1.vct[i]))-(*((f_64b*)vec2.vct[i])),F64B_TYPE,i); break;
+					case U8B_TYPE:  vec.set_comp((*((u_8b*)vec1.vct[i]))-(*((u_8b*)vec2.vct[i])),U8B_TYPE,i); break;
+					case U16B_TYPE: vec.set_comp((*((u_16b*)vec1.vct[i]))-(*((u_16b*)vec2.vct[i])),U16B_TYPE,i); break;
+					case U32B_TYPE: vec.set_comp((*((u_32b*)vec1.vct[i]))-(*((u_32b*)vec2.vct[i])),U32B_TYPE,i); break;
+					case U64B_TYPE: vec.set_comp((*((u_64b*)vec1.vct[i]))-(*((u_64b*)vec2.vct[i])),U64B_TYPE,i); break;
+					case S8B_TYPE:  vec.set_comp((*((s_8b*)vec1.vct[i]))-(*((s_8b*)vec2.vct[i])),S8B_TYPE,i); break;
+					case S16B_TYPE: vec.set_comp((*((s_16b*)vec1.vct[i]))-(*((s_16b*)vec2.vct[i])),S16B_TYPE,i); break;
+					case S32B_TYPE: vec.set_comp((*((s_32b*)vec1.vct[i]))-(*((s_32b*)vec2.vct[i])),S32B_TYPE,i); break;
+					case S64B_TYPE: vec.set_comp((*((s_64b*)vec1.vct[i]))-(*((s_64b*)vec2.vct[i])),S64B_TYPE,i); break;
+					case F32B_TYPE: vec.set_comp((*((f_32b*)vec1.vct[i]))-(*((f_32b*)vec2.vct[i])),F32B_TYPE,i); break;
+					case F64B_TYPE: vec.set_comp((*((f_64b*)vec1.vct[i]))-(*((f_64b*)vec2.vct[i])),F64B_TYPE,i); break;
 				}
 			}
 			else
-				vec->set_comp(get(vec1,i)-get(vec2,i), F64B_TYPE, i);
+				vec.set_comp(get(vec1,i)-get(vec2,i), F64B_TYPE, i);
 		}
 	}
-	return *vec;
+	return vec;
 }
 
 oas_t operator*(const DVector& vec1, const DVector& vec2)
@@ -434,17 +466,15 @@ oas_t operator*(const DVector& vec1, const DVector& vec2)
 	return sum;
 }
    
-DVector& operator*(const oas_t val, const DVector& vec1)
+DVector operator*(const oas_t val, const DVector& vec1)
 {
-	DVector *vec;
-	vec = new DVector;
-	vec->create(vec1.vctsize);
+	DVector vec;
+	vec.create(vec1.vctsize);
 	for (vei_t i=0; i<vec1.vctsize; i++)
-		vec->set_comp(val * get(vec1,i), F64B_TYPE, i);
+		vec.set_comp(val * get(vec1,i), F64B_TYPE, i);
 
-	return *vec;
+	return vec;
 }   
-   
    
    
    
