@@ -37,6 +37,11 @@ SimParser::SimParser(unsigned int num)
   create(num);
 }
 
+SimParser::SimParser(SimParserSettings sim_param)
+{
+  create(sim_param.size);
+}
+
 SimParser::~SimParser()
 {
   if (sim!=NULL) delete[] sim;

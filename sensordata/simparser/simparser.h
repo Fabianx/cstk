@@ -50,20 +50,26 @@
    
   */
 
+struct SimParserSettings {
+  SimParserSettings() { 
+	size=0;
+  }
+  int size;
+};
+
 class SimParser : virtual public SensorData {
   
 public:
   SimParser();
   SimParser(uint num);
+  SimParser(SimParserSettings sim_param);
   ~SimParser();
-  void create(uint num);
-  
+  void create(uint num);  
   int read(char* channel_types, uint numchannels, 
            DataCell* columns,  uint* filter, uint numcolumns);  
   int read(DataCell* channels, uint numchannels);
   int read(DataCell* channels, uint* numchannels);
   int read(char *line);
-
   void       set_bias(signed int *newbias, uint numdatacells);  
   void       set_bias(signed int newbias, uint datacell);  
   signed int get_bias(uint datacell) {return bias[datacell];}   
@@ -74,16 +80,16 @@ public:
   float      get_upp_lim(uint datacell) {return upp_lim[datacell];}
   
 public:
-  signed int *sim;  
+  signed int *sim;
 
 private:
+  SimParserSettings sim_param;
   signed int *bias;
   float *incr;
   float *low_lim;
   float *upp_lim;
   uint size;
-
+  int err;
 }; 
 
 #endif
-

@@ -15,6 +15,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef UDPPARSER_H
+#define UDPPARSER_H
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -26,21 +29,41 @@
 #include "cstk_base/types.h"
 #include "sensordata/sensordata.h"
 
-#define UDPERR_CANNOTOPEN 0x01
-#define UDPERR_CANNOTBIND 0x02
-#define UDPERR_WRONGHOSTN 0x03
-#define UDPERR_CANNOTSEND 0x11
+#define UDPERR_CANNOTOPEN -11
+#define UDPERR_CANNOTBIND -12
+#define UDPERR_WRONGHOSTN -13
+#define UDPERR_CANNOTSEND -21
+
+#ifndef BIN_MODE
+#define BIN_MODE 1
+#endif
+#ifndef ASC_MODE
+#define ASC_MODE 2
+#endif
 
 #define MAX_MSG 1024
 
+struct UDPParserSettings {
+  UDPParserSettings() { 
+	port=0;
+	timeout=0;
+	targethost[0]='\0';
+	mode=0;
+  }
+  int port;
+  unsigned int timeout;
+  char  targethost[1024];        
+  short mode;
+};
+
 class UDPParser : virtual public SensorData {
-  
-public:
+
+ public:
   UDPParser();
+  UDPParser(UDPParserSettings udp_param);
   UDPParser(int port, unsigned int timeout);
   UDPParser(int port, unsigned int timeout, char* targethost);
   ~UDPParser();
-  
   // read & filter values from the udp port, see SensorData 
   int read(char* channel_types, uint numchannels, 
            DataCell* columns,  uint* filter, uint numcolumns);
@@ -50,28 +73,28 @@ public:
   int read(DataCell* channels, uint* numchannels);
   // read all from the udp port, see SensorData 
   int read(char *line);
-  
   void setMsg(char *msg) {strcpy(this->msg,msg);};
-  void setPort(int port) {this->port = port;};
-  int  getPort() {return port;};
-  void setTimeOut(unsigned int to) {timeout = to;};
-  unsigned int  getTimeOut() {return timeout;};
-  
+  void setPort(int port) {this->udp_param.port = port;};
+  int  getPort() {return this->udp_param.port;};
+  void setTimeOut(unsigned int to) {this->udp_param.timeout = to;};
+  unsigned int  getTimeOut() {return this->udp_param.timeout;};
   char createGet();
   int  getmsg();
   char createSend(char* targethost);
   char sendmsg();
 
-public:
+ public:
   char  msg[MAX_MSG];
   char*  msgClient;
   unsigned int msgPort;
   
-private:
+ private:
   int sd,sdd; // sockets
-  int port;   // local server port
   struct sockaddr_in clientAddr, serverAddr; // client and server adresses
   struct sockaddr_in remoteServerAddr; // remote Server to send things to
   struct hostent *h;
-  unsigned int timeout;
+  UDPParserSettings udp_param;
+  int err;
 };
+
+#endif

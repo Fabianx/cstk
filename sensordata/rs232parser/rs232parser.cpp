@@ -1,5 +1,5 @@
 /***************************************************************************
-                          rs232parser.cpp  -  v.0.1
+                          rs232parser.cpp  -  v.0.2
                              -------------------
     begin                : Sun Feb 29 2004
     copyright            : (C) 2004 by Kristof Van Laerhoven
@@ -272,7 +272,7 @@ int Rs232Parser::read(char *line)
 			return RS232ERR_CANTWRITE;
 		}
 	}
-	usleep(100); // wait a bit for the buffer to fill up
+	usleep(100); // wait a bit for the buffer to fill up, should: *(baudrate)
  
 	res = ::read(fd,buf,rs232_param.buff_size);  
 	if (res==-1) {
@@ -288,7 +288,7 @@ int Rs232Parser::read(char *line)
 	return res+1;
 }
 
-int Rs232Parser::open_rs232(char* devicename) 
+int Rs232Parser::open_rs232(char* devicename)
 {  
 	if (fd!=0) {  // close previous connection if there is one
 		close_rs232();

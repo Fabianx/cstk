@@ -1,5 +1,5 @@
 /***************************************************************************
-                           rs232parser.h  -  v.0.1
+                           rs232parser.h  -  v.0.2
                              -------------------
     begin                : Sun Feb 29 2004
     copyright            : (C) 2004 by Kristof Van Laerhoven
@@ -31,8 +31,12 @@
 #include "cstk_base/types.h"
 #include "sensordata/sensordata.h"
 
+#ifndef BIN_MODE
 #define BIN_MODE 1
+#endif
+#ifndef ASC_MODE
 #define ASC_MODE 2
+#endif
 
 #define PAR_NO    0
 #define PAR_ODD   1
@@ -54,7 +58,6 @@
   */
   
 struct Rs232ParserSettings {
-  // init: ( for the defaults see /kprof/rs232setparse )
   Rs232ParserSettings() { 
 	device[0]='\0';
 	baudrate=0;
@@ -107,7 +110,7 @@ class Rs232Parser : virtual public SensorData {
 	int open_rs232(char* devicename);
 	void close_rs232();
 
- 	Rs232ParserSettings rs232_param;
+	Rs232ParserSettings rs232_param;
 	int fd;
 	struct termios oldtio,newtio;
 	unsigned char *buf;
