@@ -22,7 +22,6 @@
 
 KSOM::KSOM()
 {
-	//printf("KSOM()1\n");
     	vect = NULL;
 	par.c=2; 
 	par.epoch=1;
@@ -31,7 +30,6 @@ KSOM::KSOM()
 	par.minkexp=2;
     	win_xy = NULL;
     	max_xy = NULL;
-	//printf("KSOM()2\n");
 }
 
 KSOM::KSOM(vei_t x, vei_t y, vei_t n,ve_t distance, ve_t neighbourfct, bool autolearn, ve_t learnfct)
@@ -120,7 +118,7 @@ for (vei_t x=0; x<max_xy->pvect[0]; x++)
 				case F32B_TYPE: if (floor(2.0*rand()/(RAND_MAX+1.0))==1)
 							vect[_to2(x,y)].set_comp(((f_32b_max)*((double)(rand())/(double)(RAND_MAX+1))),  F32B_TYPE,n); 
 						else
-							vect[_to2(x,y)].set_comp(((f_32b_min)*((double)(rand())/(double)(RAND_MAX+1))),  F32B_TYPE,n);  
+				//printf("KSOM()2\n");				vect[_to2(x,y)].set_comp(((f_32b_min)*((double)(rand())/(double)(RAND_MAX+1))),  F32B_TYPE,n);  
 						break;
 				case F64B_TYPE: if (floor(2.0*rand()/(RAND_MAX+1.0))==1)
 							vect[_to2(x,y)].set_comp(((f_64b_max)*((double)(rand())/(double)(RAND_MAX+1))),  F64B_TYPE,n); 

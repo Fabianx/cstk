@@ -41,22 +41,42 @@
 #define GAUSSNB 5
 
 typedef struct KSOM_PARAM
-{
-	ve_t nfct;
-  	ve_t dist;;
+{	
+	/*---parameters used for automatig determination of the learning rate---*/
+	/*----------------------------------------------------------------------*/
+	/*automatic decreasing learning rate*/
   	bool autol;
+	/*specification of the function that decreases the learning rate*/
   	ve_t lfct;
-	
+	/*constant that is used by learning rate calculations*/
 	oas_t c;
 	/*number of epochs trained jet*/ 
 	vei_t epoch;
+	/*----------------------------------------------------------------------*/
+	
+	/*---parameters to determine the neighbourhood---*/
+	/*-----------------------------------------------*/
+	/*specification of neighbourhood function*/
+	ve_t nfct;
 	/*neighbourhood radius*/
 	oas_t nb_radius;
+	/*-----------------------------------------------*/
+	
+	/*---specification of the distance masurement used to determine the winner neuron---*/
+	/*----------------------------------------------------------------------------------*/
+	/*selection of the distance masurement*/
+  	ve_t dist;
 	/*exponent for Minkowski distance*/
 	vei_t minkexp;
-	/*area of lateral inhibition of mexican hat function*/
-	oas_t d; 
+	/*----------------------------------------------------------------------------------*/
+	
+	/*---parameters for the maxican hat neighbour function---*/
+	/*-------------------------------------------------------*/
+	/*parameter that specifies the entrance of the lower zero part of the maxican hat function*/
+	oas_t d;
+	/*constant for mexican hat function for f(x)<0*/  
 	oas_t roh;
+	/*-------------------------------------------------------*/
 };
 
 
