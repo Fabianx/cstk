@@ -195,7 +195,7 @@ function doParseXML(data)
 
 	parseAtts(xmldoc.getElementsByTagName("window"),'windowt','wparams',
 				"http://cstk.sf.net/wparams#", "window", true);
-				
+
 	ch_cols = ["id", "name", "bits", "sign", "format"];
 	ch_xmlcols = ["id", "name", "bits", "sign", "format"];
 	parseCols(xmldoc.getElementsByTagName("channel"),'inputt','ichannels',
@@ -212,29 +212,31 @@ function doParseXML(data)
 			"http://cstk.sf.net/plots#", plot_cols, plot_xmlcols);
 }
 
-function unassert_all(ds)
-{
-	dsResources = (ds.GetAllResources());
-	var thisResource = null;
-	var arcCursor = null;
-	var thisArc = null;
-	while(dsResources.hasMoreElements()) {
-		thisResource = 
-		dsResources.getNext().QueryInterface(Components.interfaces.nsIRDFResource);
-		arcCursor = ds.ArcLabelsOut(thisResource);
-		while(arcCursor.hasMoreElements()) {
-			thisArc = arcCursor.getNext().QueryInterface(Components.interfaces.nsIRDFResource);
-			arcTargets = ds.GetTargets( thisResource, thisArc, true );
-			while(arcTargets.hasMoreElements()) {
-				tmparc = arcTargets.getNext();
-				if (tmparc instanceof Components.interfaces.nsIRDFLiteral){
-				 thisTarget = tmparc.QueryInterface(Components.interfaces.nsIRDFLiteral);
-				 ds.Unassert(thisResource,thisArc,thisTarget,true);
-				}
-			}
-		}
-	}
-}
+// function unassert_all(ds)
+// {
+// 	
+// 	dsResources = (ds.GetAllResources());
+// 	var thisResource = null;
+// 	var arcCursor = null;
+// 	var thisArc = null;
+// 	while(dsResources.hasMoreElements()) {
+// 		thisResource = 
+// 		dsResources.getNext().QueryInterface(Components.interfaces.nsIRDFResource);
+// 		arcCursor = ds.ArcLabelsOut(thisResource);
+// 		while(arcCursor.hasMoreElements()) {
+// 			thisArc = arcCursor.getNext().QueryInterface(Components.interfaces.nsIRDFResource);
+// 			arcTargets = ds.GetTargets( thisResource, thisArc, true );
+// 			while(arcTargets.hasMoreElements()) {
+// 				tmparc = arcTargets.getNext();
+// 				if (tmparc instanceof Components.interfaces.nsIRDFLiteral){
+// 				 thisTarget = tmparc.QueryInterface(Components.interfaces.nsIRDFLiteral);
+// 				 ds.Unassert(thisResource,thisArc,thisTarget,true);
+// 				}
+// 			}
+// 		}
+// 	}
+// 	
+// }
 
 function parseAtts(tag, tab_id, tree_id, schema, rootname, unassert_bool)
 {
@@ -247,14 +249,20 @@ function parseAtts(tag, tab_id, tree_id, schema, rootname, unassert_bool)
 
 	var datasource = Components.classes["@mozilla.org/rdf/datasource;1?name=in-memory-datasource"].
 				createInstance(Components.interfaces.nsIRDFInMemoryDataSource);
-	tree.database.AddDataSource(datasource);
+	var ds;
 
-	var ds = tree.database.GetDataSources();
-	ds = (ds.getNext(),ds.getNext());
+	if (unassert_bool) {
+		// remove previous datasources:
+		ds = tree.database.GetDataSources();
+		while (ds.hasMoreElements())
+			tree.database.RemoveDataSource(ds.getNext());
+	}
+
+	tree.database.AddDataSource(datasource);
+	ds = tree.database.GetDataSources();
+	ds = ds.getNext();
 	ds = ds.QueryInterface(Components.interfaces.nsIRDFDataSource);
 
-	if (unassert_bool) unassert_all(ds);
-	
 	var sub, pred, obj;
 
 	obj  = rdf.GetResource( schema+"node-"+rootname );
@@ -294,16 +302,20 @@ function parseCols(tag, tab_id, tree_id, schema, cols, xmlcols)
 	
 	var datasource = Components.classes["@mozilla.org/rdf/datasource;1?name=in-memory-datasource"].
 				createInstance(Components.interfaces.nsIRDFInMemoryDataSource);
-	tree.database.AddDataSource(datasource);
+	var ds;
 
-	var ds = tree.database.GetDataSources();
-	ds = (ds.getNext(),ds.getNext());
+	// remove previous datasources:
+	ds = tree.database.GetDataSources();
+	while (ds.hasMoreElements())
+		tree.database.RemoveDataSource(ds.getNext());
+
+	tree.database.AddDataSource(datasource);
+	ds = tree.database.GetDataSources();
+	ds = ds.getNext();
 	ds = ds.QueryInterface(Components.interfaces.nsIRDFDataSource);
 
 	var sub, pred, obj;
 
-	unassert_all(ds);
-	
 	for (var j=0; j<tag.length; j++)
 	{
 		obj = rdf.GetResource( schema+"node-"+j );
