@@ -10,10 +10,14 @@ all:	kprof.o setparse.o rs232setparse.o udpsetparse.o \
 	windowsetparse.o plotsetparse.o ksomsetparse.o \
 	iparse.o wparse.o
 
-iparse.o: datacell.o binvector.o kvector.o dvector.o
+iparse.o: datacell.o binvector.o kvector.o dvector.o bufferparser.o \
+	rs232parser.o udpparser.o logfileparser.o simparser.o \
+	rs232setparse.o udpsetparse.o logfilesetparse.o simsetparse.o \
+	channelsetparse.o inputcolumnsetparse.o 
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
-wparse.o: kvector.o peak.o plotsetparse.o windowsetparse.o
+wparse.o: kvector.o peak.o plotsetparse.o windowsetparse.o \
+	windowsetparse.o plotsetparse.o 
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 kprof.o:	peak.o
@@ -51,7 +55,6 @@ ksomsetparse.o: setparse.o
 	
 peak.o:
 	@cd $(BASE_DIR)/algorithms/$*; make $@ BASE_DIR=$(BASE_DIR)
-
 
 datacell.o:
 	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
