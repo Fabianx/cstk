@@ -18,36 +18,6 @@ clean:
 	@-rm -f ./*~
 	@-rm -f ./*_demo
 	
-##### BinVector Demo ##############################################################
-
-binvector_demo: binvector_t.o
-	$(CC) ./binvector_t.o $(VECTOR_DIR)/binvector.o -o ./binvector_demo
-	
-binvector_t.o: binvector.o
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
-	
-##### BVector Demo ################################################################
-
-bvector_demo: 
-	$(CC) ./bvector_t.cpp -I"$(BASE_DIR)" -o ./bvector_demo
-	
-##### DVector Demo ################################################################
-
-dvector_demo: dvector_t.o
-	$(CC) ./dvector_t.o $(VECTOR_DIR)/dvector.o $(VECTOR_DIR)/datacell.o \
-	      -o ./dvector_demo
-	
-dvector_t.o: dvector.o datacell.o
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
-
-##### KVector Demo ################################################################
-
-kvector_demo: kvector_t.o
-	$(CC) ./kvector_t.o $(VECTOR_DIR)/kvector.o -o ./kvector_demo
-	
-kvector_t.o: kvector.o
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
-
 ##### RS232Parser Demo ############################################################
 
 rs232parser_demo: rs232parser_t.o
@@ -130,24 +100,6 @@ bpnn_demo: bpnn_t.o
 bpnn_t.o: bpnn.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
-##### KMeans Demo ################################################################
-
-kmeans_demo: kmeans_t.o
-	$(CC) kmeans_t.o $(VECTOR_DIR)/dvector.o $(VECTOR_DIR)/datacell.o \
-	      $(BASE_DIR)/algorithms/kmeans/kmeans.o -o ./$@
-	
-kmeans_t.o: kmeans.o datacell.o dvector.o  
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
-
-##### KNN Demo ###################################################################
-
-knn_demo: knn_t.o
-	$(CC) knn_t.o $(VECTOR_DIR)/dvector.o $(VECTOR_DIR)/datacell.o \
-	      $(BASE_DIR)/algorithms/knn/knn.o -o ./$@
-	
-knn_t.o: knn.o datacell.o dvector.o  
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
-
 ##### Peak Demo ##################################################################
 
 peak_demo: peak_t.o
@@ -203,12 +155,6 @@ bpnn.o:
 	@cd $(BASE_DIR)/algorithms/$*; make $@ BASE_DIR=$(BASE_DIR)
 
 peak.o:
-	@cd $(BASE_DIR)/algorithms/$*; make $@ BASE_DIR=$(BASE_DIR)
-	
-kmeans.o:
-	@cd $(BASE_DIR)/algorithms/$*; make $@ BASE_DIR=$(BASE_DIR)
-	
-knn.o:
 	@cd $(BASE_DIR)/algorithms/$*; make $@ BASE_DIR=$(BASE_DIR)
 	
 kvplot.o:
