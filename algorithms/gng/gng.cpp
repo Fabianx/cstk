@@ -83,42 +83,33 @@
 	vei_t NodeNum0, NodeNum1;
 	currNode = first;
 	bool edgeex=false;
-	//printf("feeda\n");
 	while (currNode != NULL)
 	{
-		//printf("feeda11\n");
 		tmp = input.dis_eucl(*((*currNode).vector));
-		//printf("feeda12\n");
 		if (tmp < MinDis0)
 		{
 			MinDis1 = MinDis0;
 			NodeNum1 = NodeNum0;
 			mindisel1 = mindisel0;	
-			//printf("feeda1\n");
 			MinDis0 = tmp;
 			NodeNum0 = (*currNode).NodeNumber;
 			mindisel0 = currNode;
 		}	
 		else if ((tmp < MinDis1) and (tmp > MinDis0))
-		{
-			//printf("feeda2\n");
+		{;
 			MinDis1 = tmp;
 			NodeNum1 = (*currNode).NodeNumber;
 			mindisel1 = currNode;
 		}
 		currNode = (*currNode).next;
 	}
-	//printf("feeda3\n");
 	(*mindisel0).DeltaError += (MinDis0 * MinDis0);
-	//printf("feeda4\n");
 	if ((*mindisel0).vector == NULL)
 		(*mindisel0).vector = new DVector;
-	//printf("feedb\n");
+
 	(*((*mindisel0).vector)) += par.epsilon_b * (input - (*((*mindisel0).vector)));
-	//printf("feedb1\n");
 	EdgeListElement *currEdge;
 	currEdge = (*mindisel0).firstEdge;
-	//printf("feedb2\n");
 	while (currEdge != NULL)
 	{
 		(*currEdge).age++;
@@ -129,18 +120,14 @@
 			edgeex = true;
 		currEdge = (*currEdge).next;
 	}
-	//printf("feedb3\n");
 	if ((not edgeex) and (mindisel1 != NULL))
 		newEdge(mindisel0, mindisel1);
-	//printf("feedb4\n");
 	if (currNode != NULL)
 	{
 		delete currNode;
 		currNode = NULL;	
 	}
-	//printf("feedc\n");
 	removeEdgeNode();
-	//printf("feedd\n");
  }
  
  void GNG::newNode()
@@ -183,7 +170,7 @@
 	if (nextelem != NULL)	
 	{
 		newEdge(nextelem, node);
-		removeEdge(maxelem, nextelem);	
+		removeEdge(maxelem, nextelem, false);	
 		(*nextelem).DeltaError *= par.alpha;
 	}
 	(*maxelem).DeltaError *= par.alpha;
@@ -233,7 +220,7 @@
 			if (edge->age > par.age_max)
 			{
 				tmp = edge->next;
-				removeEdgeandNode(edge->connectA,edge->connectB);
+				removeEdge(edge->connectA,edge->connectB, true);
 				edge = tmp;
 			}	
 			if (edge!=NULL)
@@ -287,7 +274,7 @@
 	} 
  }
  
-  void GNG::removeEdgeandNode(NodeListElement* nodeA, NodeListElement* nodeB)
+ /* void GNG::removeEdgeandNode(NodeListElement* nodeA, NodeListElement* nodeB)
  {
  	printf("Remove edge\n");
 	EdgeListElement *edge,*tmp1,*tmp2;
@@ -351,9 +338,9 @@
 		else
 				edge = edge->next;
 	} 
- }
+ }*/
  
- void GNG::removeEdge(NodeListElement* nodeA, NodeListElement* nodeB)
+ void GNG::removeEdge(NodeListElement* nodeA, NodeListElement* nodeB, bool DelNodeIfNecessary)
  {
 	EdgeListElement *edge,*tmp1,*tmp2;
 	edge = nodeA->firstEdge;
@@ -363,8 +350,20 @@
 		{
 			tmp1 = edge->next;
 			tmp2 = edge->last;
-			if (nodeA->firstEdge == edge) 
-				nodeA->firstEdge = edge->next;
+			if (DelNodeIfNecessary) 
+			{
+				if ((tmp2 == NULL) and (tmp1 == NULL))
+				 	if (nodeA != first)
+				 		removeNode(nodeA);
+				 	else
+						nodeA->firstEdge = NULL;
+				else
+					if (nodeA->firstEdge == edge) 
+						nodeA->firstEdge = edge->next;
+			}
+			else
+				if (nodeA->firstEdge == edge) 
+					nodeA->firstEdge = edge->next;
 			
 			delete edge;
 			edge = NULL;
@@ -384,8 +383,20 @@
 		{
 			tmp1 = edge->next;
 			tmp2 = edge->last;
-			if (nodeB->firstEdge == edge) 
-				nodeB->firstEdge = edge->next;		
+			if (DelNodeIfNecessary) 
+			{
+				if ((tmp2 == NULL) and (tmp1 == NULL))
+					if (nodeB != first)
+						removeNode(nodeB);	
+					else
+						nodeB->firstEdge = NULL;	
+				else
+					if (nodeB->firstEdge == edge) 
+						nodeB->firstEdge = edge->next;
+			}
+			else
+				if (nodeB->firstEdge == edge) 
+					nodeB->firstEdge = edge->next;		
 				
 			delete edge;
 			edge = NULL;

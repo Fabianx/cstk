@@ -98,9 +98,9 @@
 	
 	void newEdge(NodeListElement* nodeA, NodeListElement* nodeB);
 	void removeEdgeNode();
-	void removeEdgeandNode(NodeListElement* nodeA, NodeListElement* nodeB);
+	//void removeEdgeandNode(NodeListElement* nodeA, NodeListElement* nodeB);
 	void removeNode(NodeListElement* node);
-	void removeEdge(NodeListElement* nodeA, NodeListElement* nodeB);
+	void removeEdge(NodeListElement* nodeA, NodeListElement* nodeB, bool DelNodeIfNecessary);
  };
  
  #endif
