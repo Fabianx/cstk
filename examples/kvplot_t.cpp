@@ -1,5 +1,5 @@
 /***************************************************************************
-                           kvplot_t.cpp - v.1.00
+                           kvplot_t.cpp - v.1.10
                            ---------------------
     begin                : Thu Dec 19 2002
     copyright            : (C) 2002-2003 by Kristof Van Laerhoven
@@ -27,11 +27,20 @@ const ve_t simple_trace[60] =
 
 int main(int ac, char **args) {
 
-  KVPlot kp; 
+  WindowSettings winset;
+  winset.xpos   = 1;
+  winset.ypos   = 1;
+  winset.width  = 250;
+  winset.height = 320;
+  winset.border = 2;
+  winset.framerate=1;
+  winset.skip   = 1;
+  sprintf(winset.title, "KVPlot Demo");
+  
+  KVPlot kp(winset); 
   KVector vect(80); // vector length
   Peak peak(25);   // remember the last x peaks
   
-  kp.create(1,250,1,320,2, "kvplot demo"); // x1,y1,width,height,border
   kp.prepare_colours();
   int temp_evnt;
   int quit=false;
