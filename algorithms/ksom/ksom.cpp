@@ -17,40 +17,27 @@
 
 #include "ksom.h"
 
-#define _to3(x,y,l) (x)+((y)*max_x)+((l)*max_x*max_y)
-#define _to2(x,y) (((x)*max_y)+y)
+#define _to3(x,y,l) (x)+((y)*par->max_x)+((l)*par->max_x*par->max_y)
+#define _to2(x,y) (((x)*par->max_y)+y)
 
 KSOM::KSOM()
 {
     	vect = NULL;
-	par.c=2; 
-	par.epoch=1;
-	par.nb_radius=5;
-	par.roh = 100;
-	par.minkexp=2;
     	win_xy = NULL;
     	max_xy = NULL;
 }
 
-KSOM::KSOM(vei_t x, vei_t y, vei_t n,ve_t distance, ve_t neighbourfct, bool autolearn, ve_t learnfct)
+
+KSOM::KSOM(KSOMSettings *parameters)
 {
-	par.c=0.5; 
-	par.epoch=1;
-	par.nb_radius=5;
-	par.roh = 100;
-	par.minkexp=2;
+	par = parameters;
 	win_xy = new KVector(2);
 	max_xy = new KVector(2);
-	max_xy->add_comp(x,0);
-	max_xy->add_comp(y,1);
-	max_y = y; max_x = x;
-	par.dist = distance;
-	par.nfct = neighbourfct;
-	par.autol = autolearn;
-	par.lfct = learnfct;
-	vect = new DVector[_to2(x-1,y)];
-	for (vei_t i=0; i<(_to2(x-1,y)); i++)
-		vect[i].create(n);
+	max_xy->add_comp(par->max_x,0);
+	max_xy->add_comp(par->max_y,1);
+	vect = new DVector[_to2(par->max_x-1, par->max_y)];
+	for (vei_t i=0; i<(_to2(par->max_x-1, par->max_y)); i++)
+		vect[i].create(par->vecdim);
 }
 
 KSOM::~KSOM()
@@ -60,35 +47,30 @@ KSOM::~KSOM()
     	delete max_xy;
 }
 
-void KSOM::create(vei_t x, vei_t y, vei_t n,ve_t distance, ve_t neighbourfct, bool autolearn, ve_t learnfct)
+void KSOM::create(KSOMSettings *parameters)
 {
-	//printf("create(..)1\n");
+	par = parameters;
 	win_xy = new KVector(2);
     	max_xy = new KVector(2);
-    	max_xy->add_comp(x,0);
-	max_xy->add_comp(y,1);
-	max_y = y; max_x = x;
-	par.dist = distance;
-	par.nfct = neighbourfct;
-	par.autol = autolearn;
-	par.lfct = learnfct;
-	vect = new DVector[_to2(x-1,y)];
-	for (vei_t i=0; i<(_to2(x-1,y)); i++)
-		vect[i].create(n);
+    	max_xy->add_comp(par->max_x,0);
+	max_xy->add_comp(par->max_y,1);
+	vect = new DVector[_to2(par->max_x-1,par->max_y)];
+	for (vei_t i=0; i<(_to2(par->max_x-1,par->max_y)); i++)
+		vect[i].create(par->vecdim);
 }
 
-void KSOM::savetoFile(char filename[50])
+void KSOM::savetoFile()
 {
-	FILE *f = fopen(filename,"w");
-	for (vei_t i=0; i<(_to2(max_x-1,max_y)); i++)
+	FILE *f = fopen("grid.sav","w");
+	for (vei_t i=0; i<(_to2(par->max_x-1,par->max_y)); i++)
 		for (vei_t j=0; j<vect[i].get_dim(); j++)
 			fprintf(f,"(%i,%i,%i)%lf ",i,j,vect[i].get_type(j),vect[i].get_comp(j));
 	fclose(f);
 }
 
-int KSOM::restorefromFile(char filename[50])
+int KSOM::restorefromFile()
 {
-	FILE *f = fopen(filename,"r");
+	FILE *f = fopen("grid.sav","r");
 	if (!ferror(f))
 	{
 		double out;	
@@ -159,24 +141,24 @@ for (vei_t x=0; x<max_xy->pvect[0]; x++)
 
 oas_t KSOM::det_dis(DVector& vec1, DVector& vec2)
 {
-	switch (par.dist)
+	switch (par->dist)
 	{
 		case DIS_MANH:	return vec1.dis_manh(vec2);
 		case DIS_CHEB:	return vec1.dis_cheb(vec2);
 		case DIS_EUCL:	return vec1.dis_eucl(vec2);
-		case DIS_MINK:	return vec1.dis_mink(vec2, par.minkexp);
+		case DIS_MINK:	return vec1.dis_mink(vec2, par->minkexp);
 	}
 	return vec1.dis_manh(vec1);
 }
 
 oas_t KSOM::det_dis(KVector& vec1, KVector& vec2)
 {
-	switch (par.dist)
+	switch (par->dist)
 	{
 		case DIS_MANH:	return vec1.dis_manh(vec2);
 		case DIS_CHEB:	return vec1.dis_cheb(vec2);
 		case DIS_EUCL:	return vec1.dis_eucl(vec2);
-		case DIS_MINK:	return vec1.dis_mink(vec2, par.minkexp);
+		case DIS_MINK:	return vec1.dis_mink(vec2, par->minkexp);
 	}
 	return vec1.dis_manh(vec1);
 }
@@ -202,8 +184,8 @@ void KSOM::feed(DVector& vec, float lr)
     	}
 	winner_x = win_xy->pvect[0];
 	winner_y = win_xy->pvect[1]; 
-	if (par.nfct==MEXNB)
-		par.d=(mindist);
+	if (par->nfct==MEXNB)
+		par->d=(mindist);
 		
     	// update the grid
 	for (vei_t x=0; x<max_xy->pvect[0]; x++) 
@@ -213,8 +195,8 @@ void KSOM::feed(DVector& vec, float lr)
            		xy.add_comp(x, 0);
 			xy.add_comp(y, 1);
 			
-	   		nb = det_nb(*win_xy, xy, par.nfct);
-			if (par.autol)
+	   		nb = det_nb(*win_xy, xy, par->nfct);
+			if (par->autol)
 				vect[_to2(x,y)] +=(det_lr(lr) * nb * (vec - vect[_to2(x,y)]));
 			else
             			vect[_to2(x,y)] +=(lr * nb * (vec - vect[_to2(x,y)]));
@@ -229,14 +211,16 @@ oas_t KSOM::det_nb(KVector& vec1, KVector& vec2, ve_t fct)
 		case EUCLNB:	return (1.0/(1.0 + vec1.dis_eucl(vec2)));
 		case MANHNB:	return (1.0/(1.0 + vec1.dis_manh(vec2)));
 		case CHEBNB:	return (1.0/(1.0 + vec1.dis_cheb(vec2)));
-		case MINKNB:	return (1.0/(1.0 + vec1.dis_mink(vec2, par.minkexp)));
-		case MEXNB:	if ((vec1.dis_eucl(vec2)) <= par.d)
+		case MINKNB:	return (1.0/(1.0 + vec1.dis_mink(vec2, par->minkexp)));
+		case MEXNB:	if ((vec1.dis_eucl(vec2)) <= par->d)
 					return det_nb(vec1,vec2,GAUSSNB);
-				else if ((par.d < vec1.dis_eucl(vec2)) and (vec1.dis_eucl(vec2) <= (3*par.d+1)))
-					return -(det_nb(vec1,vec2,GAUSSNB)/par.roh); 
-				else if (vec1.dis_eucl(vec2) > (3*par.d+1))
+				else if ((par->d < vec1.dis_eucl(vec2)) 
+					and 
+					(vec1.dis_eucl(vec2) <= (3*par->d+1)))
+					return -(det_nb(vec1,vec2,GAUSSNB)/par->roh); 
+				else if (vec1.dis_eucl(vec2) > (3*par->d+1))
 					return 0.0;
-		case GAUSSNB:   return exp(((-0.5)*vec1.dis_eucl(vec2))/(2*par.nb_radius*par.nb_radius));
+		case GAUSSNB:   return exp(((-0.5)*vec1.dis_eucl(vec2))/(2*par->nb_radius*par->nb_radius));
 	}
 	return 1.0;
 }
@@ -244,15 +228,15 @@ oas_t KSOM::det_nb(KVector& vec1, KVector& vec2, ve_t fct)
 oas_t KSOM::det_lr(oas_t lr)
 {
 	oas_t temp=0.0;
-	switch (par.lfct)
+	switch (par->lfct)
 	{
-		case LIN:	temp = (-((1/par.c) * par.epoch) + lr);
+		case LIN:	temp = (-((1/par->c) * par->epoch) + lr);
 				if (temp<0)
 					return 0;
 				else
-					return temp;
-		case LOG:	return ((1/(par.c * log(par.epoch))) + lr);
-		case EXP:	return ((1/(par.c * exp(par.epoch))) + lr);
+					return (-((1/par->c) * par->epoch) + lr);
+		case LOG:	return ((1/(par->c * log(par->epoch))) + lr);
+		case EXP:	return ((1/(par->c * exp(par->epoch))) + lr);
 	}
 	return 1.0;
 }
@@ -273,7 +257,7 @@ void KSOMfct::feed_NoWinner(DVector& vec, float lr)
     	oas_t mindist = (2.0 * DBL_MAX);
     	float nb;   
 	 
-	DVector distances(_to2(max_x-1,max_y));
+	DVector distances(_to2(par->max_x-1,par->max_y));
 	
 	for (vei_t x=0; x<max_xy->pvect[0]; x++) 
 	{
@@ -290,17 +274,17 @@ void KSOMfct::feed_NoWinner(DVector& vec, float lr)
 	}
 	winner_x = win_xy->pvect[0];
 	winner_y = win_xy->pvect[1]; 
-	if (par.nfct==MEXNB)
-		par.d=(mindist);
+	if (par->nfct==MEXNB)
+		par->d=(mindist);
 	
     	// update the grid
 	for (vei_t x=0; x<max_xy->pvect[0]; x++) 
 	{
       		for (vei_t y=0; y<max_xy->pvect[1]; y++) 
       		{ 
-			nb = det_nb((distances.get_comp(_to2(x,y))/mindist), par.nfct);
+			nb = det_nb((distances.get_comp(_to2(x,y))/mindist), par->nfct);
 		
-			if (par.autol)
+			if (par->autol)
 				vect[_to2(x,y)] +=(det_lr(lr) * nb * (vec - vect[_to2(x,y)]));
 			else
             			vect[_to2(x,y)] +=(lr * nb * (vec - vect[_to2(x,y)]));
@@ -316,13 +300,13 @@ oas_t KSOMfct::det_nb(oas_t dist, ve_t fct)
 		case MANHNB:	return (1.0/(1.0 + dist));
 		case CHEBNB:	return (1.0/(1.0 + dist));
 		case MINKNB:	return (1.0/(1.0 + dist));
-		case MEXNB:	if (dist <= par.d)
+		case MEXNB:	if (dist <= par->d)
 					return det_nb(dist,GAUSSNB);
-				else if ((par.d < dist) and (dist <= (3*par.d+1)))
-					return -(det_nb(dist,GAUSSNB)/par.roh); 
-				else if (dist > (3*par.d+1))
+				else if ((par->d < dist) and (dist <= (3*par->d+1)))
+					return -(det_nb(dist,GAUSSNB)/par->roh); 
+				else if (dist > (3*par->d+1))
 					return 0.0;
-		case GAUSSNB:   return exp(((-2.5)*dist)/(par.nb_radius*par.nb_radius));
+		case GAUSSNB:   return exp(((-2.5)*dist)/(par->nb_radius*par->nb_radius));
 	}
 	return 1.0;
 }

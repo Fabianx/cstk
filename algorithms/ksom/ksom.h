@@ -40,7 +40,7 @@
 #define MEXNB 4
 #define GAUSSNB 5
 
-typedef struct KSOM_PARAM
+struct KSOMSettings
 {	
 	/*---parameters used for automatig determination of the learning rate---*/
 	/*----------------------------------------------------------------------*/
@@ -77,6 +77,12 @@ typedef struct KSOM_PARAM
 	/*constant for mexican hat function for f(x)<0*/  
 	oas_t roh;
 	/*-------------------------------------------------------*/
+	
+	/*---specifivations for grid and vector dimensions---*/
+	/*---------------------------------------------------*/
+	vei_t max_x;
+	vei_t max_y; 
+	vei_t vecdim;
 };
 
 /****************************************************************************************
@@ -88,15 +94,15 @@ typedef struct KSOM_PARAM
 class KSOM {
  public: 
   	KSOM();
-  	/* create the map with the right dimensions and all parameters*/
-  	KSOM(vei_t x, vei_t y, vei_t n, ve_t distance=DIS_EUCL, ve_t neighbourfct=EUCLNB, bool autolearn=false, ve_t learnfct=LIN);
+	/* create the map with the right dimensions and all parameters*/
+	KSOM(KSOMSettings *parameters);
   	~KSOM();
 	
-	void savetoFile(char filename[50]);
-	int restorefromFile(char filename[50]);
+	void savetoFile();
+	int restorefromFile();
 	
   	/* create the map with the right dimensions and all parameters*/
-  	void create(vei_t x, vei_t y, vei_t n, ve_t distance=DIS_EUCL, ve_t neighbourfct=EUCLNB, bool autolearn=false, ve_t learnfct=LIN);
+  	void create(KSOMSettings *parameters);
   	/* randomize the contents of the map's cells, prototyp vector spezializes the range of each dimension*/
   	void initRandom(DVector& prototyp);
   	/* feed a vector into the map, lr specifies the learning rate when autolearn=false*/
@@ -108,9 +114,9 @@ class KSOM {
   	/* winner coords on the map*/
   	KVector *win_xy;  
 	vei_t winner_x, winner_y; 
-	vei_t max_x, max_y; 
+	//vei_t max_x, max_y; 
 	
-	KSOM_PARAM par;
+	KSOMSettings *par;
 	
  protected:
   	oas_t det_dis(DVector& vec1, DVector& vec2);

@@ -28,7 +28,7 @@
  
  class NodeListElement;
  
- typedef struct GNG_PARAM
+ struct GNG_PARAM
  {
  	vei_t age_max;
  	oas_t d;
@@ -65,7 +65,7 @@
 		DVector *vector;
 		NodeListElement *next;
 		NodeListElement *last;
-		ves_t NodeNumber;
+		vei_t NodeNumber;
 		oas_t DeltaError;
 		EdgeListElement *firstEdge;
  };
@@ -74,18 +74,17 @@
  {
  public:
  	GNG();
-	GNG(DVector& NodeA, DVector& NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonValB, oas_t EpsilonValN);
+	GNG(GNG_PARAM parameters);
+	GNG(DVector& NodeA, DVector& NodeB, GNG_PARAM parameters);
 	~GNG();
  	
-	void create(DVector& NodeA, DVector& NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonValB, oas_t EpsilonValN);
+	void create(DVector& NodeA, DVector& NodeB, GNG_PARAM parameters);
 	
-	void savetoFile(char filename1[50], char filename2[50]);
-	int restorefromFile(char filename1[50], char filename2[50]);
+	void savetoFile();
+	int restorefromFile();
 	
 	void feed(DVector& input);
 	void decreaseErrors();
-	
-	DVector* getWinner_node(DVector& input);
 	
 	DVector* getFirst_node();
 	DVector* getNext_node();

@@ -26,18 +26,19 @@
 	par.epsilon_n = 0.5 * par.epsilon_b;
  }
  
- GNG::GNG(DVector& NodeA, DVector& NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonValB, oas_t EpsilonValN)
+ GNG::GNG(GNG_PARAM parameters)
  {
- 	create(NodeA, NodeB, MaximumAge, DecreaseError, AlphaVal, EpsilonValB, EpsilonValN);
+ 	par = parameters;
  }
  
- void GNG::create(DVector& NodeA, DVector& NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonValB, oas_t EpsilonValN)
+ GNG::GNG(DVector& NodeA, DVector& NodeB, GNG_PARAM parameters)
  {
- 	par.age_max = MaximumAge;
-	par.d = DecreaseError;
-	par.alpha = AlphaVal;
-	par.epsilon_b = EpsilonValB;
-	par.epsilon_n = EpsilonValN;
+ 	create(NodeA, NodeB, parameters);
+ }
+ 
+ void GNG::create(DVector& NodeA, DVector& NodeB, GNG_PARAM parameters)
+ {
+ 	par = parameters;
 	//create first node in neural gas network
 	NodeListElement *nodeA;
 	nodeA = new NodeListElement;
@@ -75,10 +76,10 @@
 	}
  }
  
- void GNG::savetoFile(char filename1[50], char filename2[50])
+ void GNG::savetoFile()
  {
- 	FILE *f1 = fopen(filename1,"w");
-	FILE *f2 = fopen(filename2,"w");
+ 	FILE *f1 = fopen("node.sav","w");
+	FILE *f2 = fopen("edge.sav","w");
 	NodeListElement *currNode;
 	EdgeListElement *currEdge;
 	currNode = first;
@@ -103,18 +104,17 @@
 	fclose(f1);
 	fclose(f2);
  }
- int GNG::restorefromFile(char filename1[50], char filename2[50])
+ 
+ int GNG::restorefromFile()
  {
- 	this->~GNG();
- 	FILE *f = fopen(filename1,"r");
-	int tempcount=0;
+ 	FILE *f = fopen("node.sav","r");
 	if (!ferror(f))
 	{
-		oas_t out=0;	
-		vei_t i=0, j=0, t=0, n=0, k=0;
-		ves_t  nodenum=0;
+		oas_t out;	
+		vei_t i, j, t, n;
+		ves_t nodenum;
 		first = NULL;
-		fscanf(f,"MaximumAge=%i, DecreaseError=%lf, AlphaVal=%lf, EpsilonValB=%lf, EpsilonValN=%lf, VecDim=%i\n",
+		fscanf(f,"MaximumAge=%hi, DecreaseError=%lf, AlphaVal=%lf, EpsilonValB=%lf, EpsilonValN=%lf, VecDim=%hi\n",
 		    &par.age_max, &par.d, &par.alpha, &par.epsilon_b, &par.epsilon_n, &n);
 		while (!feof(f))
 		{
@@ -123,60 +123,17 @@
 			node = new NodeListElement;
 			(*node).next = first;
 			(*node).vector = new DVector(n);
-			k=0;
-			while ((k<n) and (!feof(f)))
+			while ((i<n) or (!feof(f)))
 			{
-				fscanf(f,"(%li)(%i,%i,%i)%lf\n",&nodenum,&i,&j,&t,&out);
+				fscanf(f,"(%li)(%hi,%hi,%hi)%lf\n",&nodenum,&i,&j,&t,&out);
 				(*node).vector->set_comp(out,t,j);
-				k++;
-			} 
+			}
 			(*node).DeltaError = 0;
-			(*node).NodeNumber = nodenum;
 			(*node).firstEdge = NULL;
 			(*node).last = NULL;
 			if (first!=NULL)
 				(*first).last = node;
 			first = node;
-			tempcount++;
-		}
-		fclose(f);
-	}
-	f = fopen(filename2,"r");
-	NodeListElement *currNode;
-	NodeListElement *currNodeA;
-	NodeListElement *currNodeB;
-	if (!ferror(f))
-	{
-		ves_t i=0, j=0;
-		vei_t nodenum=0;
-		while (!feof(f))
-		{
-			EdgeListElement *edge;
-			edge = new EdgeListElement;
-			fscanf(f,"(%i,%li,%li)\n",&nodenum,&i,&j);
-			currNode = first;
-			currNodeA = NULL; currNodeB = NULL;
-			while (currNode != NULL) 
-			{
-				if ((*currNode).NodeNumber == i)
-				{
-					currNodeA = currNode;
-				}
-				if ((*currNode).NodeNumber == j)
-				{
-					currNodeB = currNode;
-				}
-				if ((currNodeA != NULL) and (currNodeB != NULL))
-					break;
-				currNode = currNode->next;
-			}
-			(*edge).next = currNodeA->firstEdge;
-			(*edge).last = NULL;
-			edge->connectA = currNodeA;
-			edge->connectB = currNodeB;
-			if ((*currNodeA).firstEdge != NULL)
-				currNodeA->firstEdge->last = edge;
-			(*currNodeA).firstEdge = edge;
 		}
 		fclose(f);
 	}
@@ -236,24 +193,6 @@
 		currNode = NULL;	
 	}
 	removeEdgeNode();
- }
- 
- DVector* GNG::getWinner_node(DVector& input)
- {
- 	NodeListElement *currNode, *mindisel;
-	mindisel = NULL;
-	oas_t MinDis=(2.0 * DBL_MAX), tmp;
-	currNode = first;
-	while (currNode != NULL)
-	{
-		if (input.dis_eucl(*((*currNode).vector)) < MinDis)
-		{
-			MinDis = input.dis_eucl(*((*currNode).vector));
-			mindisel = currNode;
-		}	
-		currNode = (*currNode).next;
-	}
-	return mindisel->vector;
  }
  
  void GNG::newNode()
