@@ -30,8 +30,10 @@ struct WindowSettings {
 	WindowSettings() {
 		xpos = ypos = width= height=-1;
 		border=framerate=skip = -1;
+		title[0]='\0';
    }
    int xpos,ypos,width,height,border,framerate,skip;
+   char title[256];
 };
 
 class KVPlot : public X11Plot {
@@ -50,7 +52,7 @@ class KVPlot : public X11Plot {
   char impulse(uint cscr, uint tscr, KVector& vector, int colour, 
                char* title=NULL);  
   
-private: 
+ private: 
   XPoint plot_point[1024];
   // variables for the plots that do not change very often:
   unsigned int sub_height;

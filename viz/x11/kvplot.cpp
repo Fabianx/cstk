@@ -19,7 +19,7 @@
 
 KVPlot::KVPlot(WindowSettings ws)
 {
-  create(ws.xpos, ws.width, ws.ypos, ws.height, ws.border, "");
+  create(ws.xpos, ws.width, ws.ypos, ws.height, ws.border, ws.title);
 }
 
 char KVPlot::histogram(uint cscr, uint tscr, KVector& vector, int colour, 
@@ -94,7 +94,8 @@ char KVPlot::timeseries(uint cscr, uint tscr, KVector& vector, int colour,
   return 0;   
 }
   
-char KVPlot::peakplot(uint cscr, uint tscr, Peak& peak, char* title){ 
+char KVPlot::peakplot(uint cscr, uint tscr, Peak& peak, char* title) 
+{ 
   drawframe(0, ((cscr-1)*win_height)/tscr, win_width, win_height/tscr);
   // read each value for bar and draw it
   ves_t curpeak = 0;
@@ -102,7 +103,7 @@ char KVPlot::peakplot(uint cscr, uint tscr, Peak& peak, char* title){
   ves_t max = 0;
   ve_t  maxamp = 0;
   if (win_height!=old_win_height) {
-    sub_height= (win_height/tscr-14);
+    sub_height = (win_height/tscr-14);
     old_win_height = win_height;
   } 
   peak_width = (win_width-4)/peak.ppeak_size;
