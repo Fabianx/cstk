@@ -26,7 +26,7 @@
 #include <stdlib.h>  //strcmp()
 #include "algorithms/ksom/ksom.h"   
 
-#define border1 10
+#define border1 1500
 
 int main(int ac, char **args) {
 
@@ -34,7 +34,7 @@ int main(int ac, char **args) {
   ClustPlot kp;                  // plots the cluster prototypes
   SensorData *sd = NULL;         // generic sensor data class
   KProf kprof;                   // read the profile from an XSD file
-  KSOM ksom;
+  KSOMfct ksom;
   int ret=0;
   bool quit=false;
   unsigned int i;
@@ -115,7 +115,7 @@ int main(int ac, char **args) {
     DVector *vect;
     KVector kvect(kprof.is.numcols); // no stats-keeping please
     ksom.create( kprof.par.gridsize[0], kprof.par.gridsize[1], 
-                     kprof.is.numcols, DIS_EUCL, MEXNB, false, EXP);
+                     kprof.is.numcols, DIS_EUCL, GAUSSNB, false, EXP);
     ksom.par.nb_radius = kprof.par.nbr;
 		     
     vect = new DVector(kprof.is.numcols);
@@ -138,7 +138,17 @@ int main(int ac, char **args) {
 				vect->set_comp(columns[i].get_u8b(),U8B_TYPE,i);
 			} 
 		} 
-		ksom.feed(*vect, kprof.par.lr);
+		if (counter<border1)
+		{
+			ksom.feed(*vect, kprof.par.lr);
+			counter++;
+		}
+		else
+		{
+			ksom.feed_NoWinner(*vect, kprof.par.lr);
+			counter++;
+		}	
+		printf("c=%i\n",counter);
 		delete vect;
         }
         
@@ -181,14 +191,6 @@ int main(int ac, char **args) {
                    } while (kp.eventloop()!=54);
                    break;
         }
-	
-	if (counter<border1)
-		counter++;
-	else 
-	{
-		counter=0; 
-		ksom.par.epoch++;
-	}
    } // main while loop
    //delete vect;
   // release all allocated memory:
