@@ -65,6 +65,8 @@ class Rs232SetParse: public SetParse {
 	int write_set(char* buffer);            // write to xsd 
 	int write_dtd(char* buffer);            // write to dtd
 	int write_tag(char* buffer) {strcpy(buffer,"rs232");return 0;}
+	int write_set(void** set) {*set = rs232_set;return 0;}
+
  private:
 	Rs232ParserSettings* rs232_set;
 	char rs232set_val[NUM_RS232_ATTR][256];

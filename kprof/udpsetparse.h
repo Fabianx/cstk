@@ -52,6 +52,8 @@ class UDPSetParse: public SetParse {
  	int write_set(char* buffer);            // write to xsd 
  	int write_dtd(char* buffer);            // write to dtd
 	int write_tag(char* buffer) {strcpy(buffer,"udp");return 0;}
+	int write_set(void** set) {*set = udp_set; return 0;}
+
  private:
 	UDPParserSettings* udp_set;
 	char udpset_val[NUM_UDP_ATTR][1024];

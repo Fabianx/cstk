@@ -16,6 +16,7 @@
  ***************************************************************************/
 
 #include "kprof/kprof.h"
+#include "cstk_base/vector/kvector.h"
 
 int main(int ac, char *argv[]) {
 	
@@ -60,34 +61,39 @@ int main(int ac, char *argv[]) {
 		return kp.err;
 	}
 
+	printf("raw output strings:\n");
 
-	// print raw output:
-	//
 		// wait a sec or 2 for sensordata to get ready
-		usleep(2000000);
+		usleep(200000);
 		// and get a few output strings
 		for (int t=0; t<20; t++) {
 			int ret = kp.sd->read(buff);
 			if (ret>0) {
 				buff[ret]='\0';
-				printf("%5i:\t%s\n\r",t,buff);
+				printf("%5i:\t'%s'\n\r",t,buff);
 			}
 		}
 
+	printf("\ninterpreted output:\n");
 
-	// print prepared output:
-	//
-	/*	KVector vect[kp.numcols];
-		while (!quit) {
-			int ret = kp.sd->read(kp.chs, kp.num_chs, kp.icols, kp.filter, kp.num_icols);
-			if ( ret != 0 ) {
-				printf("Error: %i\n",ret);
-			} else
-			for (i=0; i<kp.numcols; i++) {
-				vect[i].add_comp(kp.icols[i].get_u8b());
+		KVector vect[kp.num_icols];
+		for (unsigned int i=0; i<kp.num_icols; i++) vect[i].createVector(100);
+		for (int t=0; t<20; t++) {
+			int ret = kp.sd->read(kp.chs, kp.num_chs, 
+			                      kp.icols, kp.filter, kp.num_icols);
+		 	if ( ret <= 0 ) {
+		 		printf("Error: %i\n",ret);
+			} 
+			else
+			{
+				printf("%5i: K[",t);
+				for (unsigned int i=0; i<kp.num_icols; i++) {
+					vect[i].add_comp(kp.icols[i].get_u8b());
+					printf(" %6i",vect[i].val());
+				}
+				printf("]\n");
 			}
 		}
-	*/
 
 	return 0; // no error
 }

@@ -37,6 +37,7 @@ struct SetParse {
 	virtual int write_set(char* buffer)=0;            // write to xsd 
 	virtual int write_dtd(char* buffer)=0;            // write to dtd
 	virtual int write_tag(char* buffer)=0;            // write the tag
+	virtual int write_set(void** set)=0;               // return set
 };
 
 #endif
