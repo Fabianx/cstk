@@ -41,11 +41,50 @@ KMeans::~KMeans()
 
 void KMeans::create(vei_t buckets, oas_t alpha, ve_t seldist, vei_t exp)
 {
+	if (bucket!=NULL)
+		delete []bucket;
 	bucket = new DVector[buckets];
 	bucket_num = buckets;
 	alpval = alpha;
 	selected_dist = seldist;
 	exponent = exp;
+}
+
+void KMeans::savetoFile()
+{
+	FILE *f = fopen("cluster.sav","w");
+	fprintf(f,"#clusters=%i, alphavalue=%f, distance=%u, exponent=%u, n=%i\n",bucket_num,alpval,selected_dist,exponent,bucket[0].get_dim());
+	for (vei_t i=0; i<bucket_num; i++)
+		for (vei_t j=0; j<bucket[i].get_dim(); j++)
+			fprintf(f,"(%i,%i,%i)%lf ",i,j,bucket[i].get_type(j),bucket[i].get_comp(j));
+	fclose(f);
+}
+
+int KMeans::restorefromFile()
+{
+	FILE *f = fopen("cluster.sav","r");
+	if (!ferror(f))
+	{
+		int num, expo,n;
+		double alph; 
+		unsigned int dist;
+		fscanf(f,"#clusters=%i, alphavalue=%f, distance=%u, exponent=%u, n=%i\n",&num,&alph,&dist,&expo,&n);
+		//printf("#clusters=%i, alphavalue=%f, distance=%u, exponent=%u, n=%i\n",num,alph,dist,expo,n);
+		create(num,alph,dist,expo);
+		for (int i=0; i<num; i++)
+			bucket[i].create(n);
+		double out;	
+		int i,j,t;
+		while (!feof(f))
+		{
+			fscanf(f,"(%i,%i,%i)%lf ",&i,&j,&t,&out);
+			//printf("(%i,%i,%i)%lf",i,j,t,out);
+			bucket[i].set_comp(out,t,j);
+		}
+		fclose(f);
+	}
+	//printf("respective error occured: %i\n",ferror(f));
+	return ferror(f);
 }
 
 void KMeans::initialize(DVector& min, DVector& max)

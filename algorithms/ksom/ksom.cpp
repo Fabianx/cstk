@@ -77,6 +77,32 @@ void KSOM::create(vei_t x, vei_t y, vei_t n,ve_t distance, ve_t neighbourfct, bo
 		vect[i].create(n);
 }
 
+void KSOM::savetoFile()
+{
+	FILE *f = fopen("grid.sav","w");
+	for (vei_t i=0; i<(_to2(max_x-1,max_y)); i++)
+		for (vei_t j=0; j<vect[i].get_dim(); j++)
+			fprintf(f,"(%i,%i,%i)%lf ",i,j,vect[i].get_type(j),vect[i].get_comp(j));
+	fclose(f);
+}
+
+int KSOM::restorefromFile()
+{
+	FILE *f = fopen("grid.sav","r");
+	if (!ferror(f))
+	{
+		double out;	
+		int i,j,t;
+		while (!feof(f))
+		{
+			fscanf(f,"(%i,%i,%i)%lf ",&i,&j,&t,&out);
+			vect[i].set_comp(out,t,j);
+		}
+		fclose(f);
+	}
+	return ferror(f);
+}
+
 void KSOM::initRandom(DVector& prototyp)
 {   
 for (vei_t x=0; x<max_xy->pvect[0]; x++) 
@@ -234,6 +260,11 @@ oas_t KSOM::det_lr(oas_t lr)
 oas_t KSOM::getCell(vei_t x, vei_t y, vei_t i) 
 {
     return vect[_to2(x,y)].get_comp(i);
+}
+
+DVector& KSOM::getCellVector(vei_t x, vei_t y) 
+{
+    return vect[_to2(x,y)];
 }
 
 void KSOMfct::feed_NoWinner(DVector& vec, float lr) 

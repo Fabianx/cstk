@@ -91,6 +91,10 @@ class KSOM {
   	/* create the map with the right dimensions and all parameters*/
   	KSOM(vei_t x, vei_t y, vei_t n, ve_t distance=DIS_EUCL, ve_t neighbourfct=EUCLNB, bool autolearn=false, ve_t learnfct=LIN);
   	~KSOM();
+	
+	void savetoFile();
+	int restorefromFile();
+	
   	/* create the map with the right dimensions and all parameters*/
   	void create(vei_t x, vei_t y, vei_t n, ve_t distance=DIS_EUCL, ve_t neighbourfct=EUCLNB, bool autolearn=false, ve_t learnfct=LIN);
   	/* randomize the contents of the map's cells, prototyp vector spezializes the range of each dimension*/
@@ -99,6 +103,7 @@ class KSOM {
   	void feed(DVector& vec, float lr);
   	/* get the value of the cell x/y*/
   	oas_t getCell(vei_t x, vei_t y, vei_t i);
+	DVector& getCellVector(vei_t x, vei_t y);
 	
   	/* winner coords on the map*/
   	KVector *win_xy;  

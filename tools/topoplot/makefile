@@ -7,7 +7,7 @@ VECTOR_DIR=$(BASE_DIR)/cstk_base/vector
 SD_DIR=$(BASE_DIR)/sensordata
 
 TOPOPLOT_DEP = dvector.o kvector.o clustplot.o datacell.o kprof.o rs232parser.o \
-	udpparser.o logfileparser.o simparser.o ksom.o
+	udpparser.o logfileparser.o simparser.o ksom.o kmeans.o
 
 all:	topoplot
 
@@ -19,6 +19,7 @@ clean:
 topoplot:	topoplot.o
 	$(CC)  -L/usr/X11R6/lib/ -lX11 \
 	$(VECTOR_DIR)/kvector.o topoplot.o $(BASE_DIR)/algorithms/ksom/ksom.o \
+	$(BASE_DIR)/algorithms/kmeans/kmeans.o  \
 	$(BASE_DIR)/viz/x11/clustplot.o $(BASE_DIR)/viz/x11/x11plot.o \
 	$(BASE_DIR)/kprof/kprof.o $(SD_DIR)/rs232parser/rs232parser.o \
 	$(SD_DIR)/logfileparser/logfileparser.o \
@@ -54,6 +55,9 @@ simparser.o:
 
 kprof.o:
 	@cd $(BASE_DIR)/$*; make $@ BASE_DIR=$(BASE_DIR)
+
+kmeans.o:
+	@cd $(BASE_DIR)/algorithms/$*; make $@ BASE_DIR=$(BASE_DIR)
 
 ksom.o:
 	@cd $(BASE_DIR)/algorithms/$*; make $@ BASE_DIR=$(BASE_DIR)

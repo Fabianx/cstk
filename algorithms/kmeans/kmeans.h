@@ -38,6 +38,9 @@ class KMeans
 		KMeans(vei_t buckets, oas_t alpha, ve_t seldist=DIS_EUCL, vei_t exp=2); 
 		~KMeans();
 		
+		void savetoFile();
+		int restorefromFile();
+		
 		//initialize values - specifies k, alpha(multipl. constant) and distance measurement
 		void create(vei_t buckets, oas_t alpha, ve_t seldist=DIS_EUCL, vei_t exp=2); 
 		
