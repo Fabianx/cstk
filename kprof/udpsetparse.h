@@ -30,10 +30,10 @@ const char udpset_attr[NUM_UDP_ATTR][16] = {
 const char udpset_type[NUM_UDP_ATTR][16] = { 
 	"CDATA", "CDATA", "CDATA", "(ascii|binary)"};
 const char udpset_defs[NUM_UDP_ATTR][16] = { 
-	"2221", "200", "localhost", "ascii"};
+	"2221", "200", "", "ascii"};
 
 /**Class for parsing udp settings 
-  *@author Kristof Van Laerhoven
+  *@author Kristof Van Laerhoven  
   */
 
 class UDPSetParse: public SetParse {

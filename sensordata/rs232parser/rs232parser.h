@@ -44,14 +44,14 @@
 #define PAR_SPACE 3
 #define PAR_MARK  4
 
-#define RS232ERR_CANTOPEN  -10
-#define RS232ERR_CANTWRITE -11
-#define RS232ERR_CANTREAD  -12
-#define RS232ERR_CANTFLUSH -13
-#define RS232ERR_CANTSET   -14
-#define RS232ERR_INVTYPE   -20   // invalid data type
-#define RS232ERR_INVDATAB  -21   // invalid # of databits
-#define RS232ERR_INVPAR    -22   // invalid parity type
+#define RS232ERR_CANTOPEN  -110
+#define RS232ERR_CANTWRITE -111
+#define RS232ERR_CANTREAD  -112
+#define RS232ERR_CANTFLUSH -113
+#define RS232ERR_CANTSET   -114
+#define RS232ERR_INVTYPE   -120   // invalid data type
+#define RS232ERR_INVDATAB  -121   // invalid # of databits
+#define RS232ERR_INVPAR    -122   // invalid parity type
 
 /**Class for parsing rs232 output
   *@author Kristof Van Laerhoven
@@ -62,6 +62,7 @@ struct Rs232ParserSettings {
 	device[0]='\0';
 	baudrate=0;
 	poll_char[0]='\0';
+	poll_wait=0;
 	buff_size=0;
 	databits=0;
 	stopbits=0;
@@ -71,6 +72,7 @@ struct Rs232ParserSettings {
   char  device[256];              // the name of the rs232 device
   int   baudrate;              
   char  poll_char[256];           // what to send to ask for data
+  unsigned int poll_wait;         // how long to wait after poll sent
   unsigned int buff_size;
   short databits;
   short stopbits;
@@ -116,6 +118,6 @@ class Rs232Parser : virtual public SensorData {
 	unsigned char *buf;
 	unsigned int bufcounter; // an iterator for buffers that weren't polled
 	int err;
-}; 
+};
 
 #endif

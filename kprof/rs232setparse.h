@@ -24,21 +24,24 @@
 
 #define _SET_RS323SET_DEF(a) strcpy(rs232set_val[(a)],rs232set_defs[(a)])
 
-#define NUM_RS232_ATTR 8
+#define NUM_RS232_ATTR 9
 const char rs232set_attr[NUM_RS232_ATTR][16] = { 
 	"port", "baudrate", "buffsize",	"databits",
 	"stopbits",	"parity",	"mode",
+	"wait",
 	"command"  //  leave this item last (see code)
 };
 const char rs232set_type[NUM_RS232_ATTR][256] = { 
 	"CDATA",	"CDATA",	"CDATA",	"(5|6|7|8)",
 	"(1|2)",	"(no|odd|even|mark|space)",	"(ascii|binary)",
+	"CDATA",
 	"CDATA"  //  leave this item last (see code)
 };
 const char rs232set_defs[NUM_RS232_ATTR][16] = { 
 	"/dev/ttyS0",	"115200",	"1024",	"8",
-	"1",	"no",	"binary",
-	""  //  leave this item last (see code)
+	"1",	"no",	"binary", 
+	"0"  //  leave these item last (see code)
+	"" 
 };
 
 /**Class for parsing rs232 settings 
@@ -57,6 +60,7 @@ class Rs232SetParse: public SetParse {
 		if (!rs232_set->stopbits)  _SET_RS323SET_DEF(4);	
 		if (!rs232_set->parity)    _SET_RS323SET_DEF(5);   
 		if (!rs232_set->mode)      _SET_RS323SET_DEF(6);
+		if (!rs232_set->poll_wait) _SET_RS323SET_DEF(7);
 		if (!rs232_set->poll_char[0]) _SET_RS323SET_DEF(NUM_RS232_ATTR-1);
 	};
 	~Rs232SetParse() {};

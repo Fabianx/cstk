@@ -68,6 +68,7 @@ int Rs232SetParse::update_set()
 	else if (strcasecmp(rs232set_val[6],"binary")==0)
 			rs232_set->mode = BIN_MODE;
 	else return -1;
+	rs232_set->poll_wait = strtol(rs232set_val[NUM_RS232_ATTR-2],NULL,0);
 	strcpy(rs232_set->poll_char, rs232set_val[NUM_RS232_ATTR-1]);
 	return 0;
 }
@@ -77,15 +78,16 @@ int Rs232SetParse::write_dtd(char* buffer)
 {
 	char tmpstr[256];
 	strcpy(buffer,"\t<!ELEMENT rs232 (poll?,channel*)>\n"); 
-	for (int i=0; i<NUM_RS232_ATTR-1; i++) {
+	for (int i=0; i<NUM_RS232_ATTR-2; i++) {
 		sprintf(tmpstr, "\t\t<!ATTLIST   rs232 %s\t%s\t\"%s\">\n", 
 			rs232set_attr[i], rs232set_type[i], rs232set_defs[i]);
 		strcat(buffer,tmpstr); // add to buffer
 	}
 	strcat(buffer, "\t<!ELEMENT poll (#PCDATA)>\n");
 	strcat(buffer,"\t\t<!ATTLIST   poll command\tCDATA\t#IMPLIED>\n");
-	strcat(buffer, 
-	"\t\t<!ATTLIST   poll mode\t(ascii|binary)\t\"ascii\">\n");
+	strcat(buffer,"\t\t<!ATTLIST   poll wait\tCDATA\t\"0\">\n");
+	strcat(buffer,
+	       "\t\t<!ATTLIST   poll mode\t(ascii|binary)\t\"ascii\">\n");
 	return 0;
 }
 
@@ -94,7 +96,7 @@ int Rs232SetParse::write_set(char* buffer)
 {
 	char tmpstr[256];
 	strcpy(buffer,"\t<rs232 "); // start at the beginning..
-	for (int i=0; i<NUM_RS232_ATTR-1; i++) {
+	for (int i=0; i<NUM_RS232_ATTR-2; i++) {
 		sprintf(tmpstr, "%s=\"%s\" ", rs232set_attr[i],
 			rs232set_val[i]);
 		strcat(buffer,tmpstr); // add to buffer
@@ -102,8 +104,9 @@ int Rs232SetParse::write_set(char* buffer)
 	strcat(buffer,">\n");	
 	if (rs232set_val[NUM_RS232_ATTR-1][0]!=0) 
 	{
-		sprintf(tmpstr, "\t\t<poll %s=\"%s\" %s=\"%s\">\n", 
+		sprintf(tmpstr, "\t\t<poll %s=\"%s\" %s=\"%s\" %s=\"%s\">\n", 
 			rs232set_attr[NUM_RS232_ATTR-1], rs232set_val[NUM_RS232_ATTR-1],
+			rs232set_attr[NUM_RS232_ATTR-2], rs232set_val[NUM_RS232_ATTR-2],
 			// automatically determine the mode from the first byte:
 			"mode",(rs232set_val[NUM_RS232_ATTR-1][0]>31)?"ascii":"binary");
 		strcat(buffer,tmpstr);	

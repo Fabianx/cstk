@@ -207,7 +207,7 @@ int KProf::setup_channels() {
 	 chpset = chset;
 	 while (chpset != NULL) {
 	 	chs[ch_ctr] = DC_typecast( chpset->sign, chpset->bits, chpset->format );
-	 	chpset = chpset->next;
+		chpset = chpset->next;
 	 	ch_ctr++;
 	 }
 	 if (num_chs!=ch_ctr) err = ERR_CHSET;

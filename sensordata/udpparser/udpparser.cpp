@@ -132,7 +132,77 @@ char UDPParser::sendmsg()
 int UDPParser::read(char* channel_types, uint numchannels, 
                     DataCell* columns,  uint* filter, uint numcolumns)
 {
-	return 0;
+	uint i, j, k;
+	int res = getmsg();
+	if (res<0) {
+		return UDPERR_CANNOTREAD;
+	} 
+	else {
+		//parse_datacell_from_buffer(msg, channel_types, numchannels, 
+		//                           columns,  filter, numcolumns);
+		i=0;
+		j=0;
+		while ((msg[i]!='\0')&&(i<MAX_MSG))
+		{
+			switch(channel_types[j]) {
+				case U8B_TYPE: 
+					for (k=0; k<numcolumns; k++) if (filter[k]==j)  
+							columns[k].set_u8val(msg[i]);
+					i++;    
+					break;
+				case S8B_TYPE: 
+					for (k=0; k<numcolumns; k++) if (filter[k]==j)  
+							columns[k].set_s8val(msg[i]);
+					i++;    
+					break;
+				case U16B_TYPE:    
+					for (k=0; k<numcolumns; k++) if (filter[k]==j) 
+							columns[k].set_u16val(msg[i],msg[i+1]);
+					i+=2;
+					break;
+				case S16B_TYPE:
+					for (k=0; k<numcolumns; k++) if (filter[k]==j) 
+							columns[k].set_s16val(msg[i],msg[i+1]);
+					i+=2;
+					break;
+				case U32B_TYPE:    
+					for (k=0; k<numcolumns; k++) if (filter[k]==j) 
+							columns[k].set_u32val(msg[i],msg[i+1],
+							msg[i+2],msg[i+3]);
+					i+=4;
+					break;
+				case S32B_TYPE:    
+					for (k=0; k<numcolumns; k++) if (filter[k]==j)
+							columns[k].set_s32val(msg[i],msg[i+1],
+							msg[i+2],msg[i+3]);
+					i+=4;
+					break;
+#ifdef U64
+				case U64B_TYPE:
+					for (k=0; k<numcolumns; k++) if (filter[k]==j)
+							columns[k].set_u64val(msg[i],msg[i+1],
+							msg[i+2],msg[i+3],msg[i+4],
+							msg[i+5],msg[i+6],msg[i+7]);
+					i+=8;
+					break;
+#endif
+#ifdef S64
+				case S64B_TYPE:
+					for (k=0; k<numcolumns; k++) if (filter[k]==j)
+							columns[k].set_s64val(msg[i],msg[i+1],
+							msg[i+2],msg[i+3],msg[i+4],
+							msg[i+5],msg[i+6],msg[i+7]);
+					i+=8;
+					break;
+#endif
+				default: // errormsg
+					err = UDPERR_INVTYPE;
+					return err;
+			} 
+			j++;
+		}
+	}
+	return numcolumns; // if no errors
 }
 
 int UDPParser::read(DataCell* channels, uint numchannels)
@@ -150,10 +220,8 @@ int UDPParser::read(char *line)
 	int res = getmsg();
 	int i=0; 
 	if (res>0) {
-		while ((msgClient[i]!='\0')&&(i<MAX_MSG))
-		{
-			line[i] = msgClient[i];
-			i++;
+		while ((msgClient[i]!='\0')&&(i<MAX_MSG)) {
+			line[i] = msgClient[i];	i++;
 		}
 		line[i] = '\t'; i++;
 		char portstr[6];

@@ -26,7 +26,7 @@
 #define CH_FLOAT_FORMAT 2
 
 #define CH_SIGNED   1
-#define CH_UNSIGNED 2
+#define CH_UNSIGNED 0
 
 #define _SET_CHSET_DEF(a) strcpy(chset_val[(a)],chset_defs[(a)])
 

@@ -26,7 +26,7 @@
 #define ICOL_FLOAT_FORMAT 2
 
 #define ICOL_SIGNED   1
-#define ICOL_UNSIGNED 2
+#define ICOL_UNSIGNED 0
 
 #define _SET_ICOLSET_DEF(a) strcpy(icolset_val[(a)],icolset_defs[(a)])
 
