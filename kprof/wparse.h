@@ -17,54 +17,13 @@
 #ifndef WPARSE_H
 #define WPARSE_H
 
+#include "kprof/tags.h"
 #include "kprof/setparse.h"
 #include "kprof/windowsetparse.h"
 #include "kprof/plotsetparse.h"
 #include "viz/x11/kvplot.h"
 #include "algorithms/peak/peak.h"
 
-#define ERR_INVATTR      1
-#define ERR_INVTAG       2
-#define ERR_INVCH        3
-#define ERR_TAGOVERFLOW  4
-#define ERR_NOINPUT      5
-#define ERR_UPDATE       6
-#define ERR_NOFILE       7
-#define ERR_NOSET        8
-#define ERR_CHSET        9
-#define ERR_ICOLSET      10
-#define ERR_NOICOLS      11
-#define ERR_NOWINDOW     12
-
-#define MAX_TAG_LENGTH   255
-#define MAX_DTD_LENGTH   2048
-#define MAX_XSD_LENGTH   1024
-
-#define NUM_KPERRS       13
-const char kperr_strings[NUM_KPERRS][32] = 
-	{ "No error found.",
-	  "Invalid attribute found.",
-	  "Invalid tag found.",
-	  "Invalid channel found.",
-	  "Tag overflow (too many tags).",
-	  "No input.",
-	  "Error during updating.",
-	  "No such file.",
-	  "No parser encountered.",
-	  "Error setting channels.",
-	  "Error setting inputcolumns.",
-	  "No inputcolumns found.",
-	  "No window section found."};
-
-#define NUM_A_WTAGS 1
-const char window_att_tags[NUM_A_WTAGS][16] = {
-	"plot"
-	};
-
-// valid but empty CSTK tags:
-#define NUM_SUBTAGS 2
-const char sub_tags[NUM_SUBTAGS][16] = {
-	"!--", "packet" };
 
 /***************************************************************************
  WParse parses CSTK settings (formatted as an XML file) for window and plot
