@@ -173,6 +173,12 @@ void X11Plot::drawframe(int x, int y, int width, int height)
    XDrawRectangle(display, buffer, gc, x, y, width-1, height-1);
 }
 
+void X11Plot::drawline(int x1, int y1, int x2, int y2, int clr)
+{
+	XSetForeground(display, gc, plot_colours[clr].pixel);
+      	XDrawLine( display, buffer, gc, x1, y1, x2, y2);
+}
+
 void X11Plot::delay(unsigned long i)
 {
   usleep(i);

@@ -53,6 +53,7 @@ class X11Plot
   void draw_text(char* text_string, int x, int y, int color);
   int eventloop();
   void drawframe(int x, int y, int width, int height); 
+  void drawline(int x1, int y1, int x2, int y2, int clr);
   void delay(unsigned long i);   
  protected: 
   Display* display;
