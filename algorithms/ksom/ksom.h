@@ -102,13 +102,25 @@ class KSOM {
 	
 	KSOM_PARAM par;
 	
- private:
+ protected:
   	oas_t det_dis(DVector& vec1, DVector& vec2);
 	oas_t det_dis(KVector& vec1, KVector& vec2);
 	oas_t det_nb(KVector& vec1, KVector& vec2, ve_t fct);
+	
 	oas_t det_lr(oas_t lr);
+	KVector  *max_xy; 
   	DVector *vect;
-  	KVector  *max_xy;  
+};
+
+class KSOMfct : public KSOM 
+{
+ public:
+ 	//KSOMfct();
+	//~KSOMfct();
+	
+ 	void feed_NoWinner(DVector& vec, float lr);
+ private: 
+ 	oas_t det_nb(oas_t dist, ve_t fct);
 };
 
 #endif

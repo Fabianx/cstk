@@ -158,7 +158,7 @@ oas_t KSOM::det_dis(KVector& vec1, KVector& vec2)
 void KSOM::feed(DVector& vec, float lr) 
 {
 	KVector xy(2);
-    	oas_t dist, mindist = (2.0 * DBL_MAX);;
+    	oas_t dist, mindist = (2.0 * DBL_MAX);
     	float nb;    
 	// find winner coords
     	for (vei_t x=0; x<max_xy->pvect[0]; x++) 
@@ -174,10 +174,11 @@ void KSOM::feed(DVector& vec, float lr)
          		}
       		}
     	}
-	if (par.nfct==MEXNB)
-		par.d=(mindist);
 	winner_x = win_xy->pvect[0];
 	winner_y = win_xy->pvect[1]; 
+	if (par.nfct==MEXNB)
+		par.d=(mindist);
+		
     	// update the grid
 	for (vei_t x=0; x<max_xy->pvect[0]; x++) 
 	{
@@ -185,8 +186,9 @@ void KSOM::feed(DVector& vec, float lr)
       		{ 
            		xy.add_comp(x, 0);
 			xy.add_comp(y, 1);
+			
 	   		nb = det_nb(*win_xy, xy, par.nfct);
-	    		if (par.autol)
+			if (par.autol)
 				vect[_to2(x,y)] +=(det_lr(lr) * nb * (vec - vect[_to2(x,y)]));
 			else
             			vect[_to2(x,y)] +=(lr * nb * (vec - vect[_to2(x,y)]));
@@ -210,6 +212,7 @@ oas_t KSOM::det_nb(KVector& vec1, KVector& vec2, ve_t fct)
 					return 0.0;
 		case GAUSSNB:   return exp(((-0.5)*vec1.dis_eucl(vec2))/(2*par.nb_radius*par.nb_radius));
 	}
+	return 1.0;
 }
 
 oas_t KSOM::det_lr(oas_t lr)
@@ -225,6 +228,7 @@ oas_t KSOM::det_lr(oas_t lr)
 		case LOG:	return ((1/(par.c * log(par.epoch))) + lr);
 		case EXP:	return ((1/(par.c * exp(par.epoch))) + lr);
 	}
+	return 1.0;
 }
 
 oas_t KSOM::getCell(vei_t x, vei_t y, vei_t i) 
@@ -232,4 +236,62 @@ oas_t KSOM::getCell(vei_t x, vei_t y, vei_t i)
     return vect[_to2(x,y)].get_comp(i);
 }
 
+void KSOMfct::feed_NoWinner(DVector& vec, float lr) 
+{
+	KVector xy(2);
+    	oas_t mindist = (2.0 * DBL_MAX);
+    	float nb;   
+	 
+	DVector distances(_to2(max_x-1,max_y));
+	
+	for (vei_t x=0; x<max_xy->pvect[0]; x++) 
+	{
+      		for (vei_t y=0; y<max_xy->pvect[1]; y++) 
+      		{ 
+			distances.set_comp(det_dis(vect[_to2(x,y)],vec), F64B_TYPE, _to2(x,y));
+         		if (distances.get_comp(_to2(x,y))<mindist) 
+			{
+           			mindist  = distances.get_comp(_to2(x,y));
+				win_xy->add_comp(x, 0);
+           			win_xy->add_comp(y, 1); 
+			}
+		}
+	}
+	winner_x = win_xy->pvect[0];
+	winner_y = win_xy->pvect[1]; 
+	if (par.nfct==MEXNB)
+		par.d=(mindist);
+	
+    	// update the grid
+	for (vei_t x=0; x<max_xy->pvect[0]; x++) 
+	{
+      		for (vei_t y=0; y<max_xy->pvect[1]; y++) 
+      		{ 
+			nb = det_nb((distances.get_comp(_to2(x,y))/mindist), par.nfct);
+		
+			if (par.autol)
+				vect[_to2(x,y)] +=(det_lr(lr) * nb * (vec - vect[_to2(x,y)]));
+			else
+            			vect[_to2(x,y)] +=(lr * nb * (vec - vect[_to2(x,y)]));
+         	}
+      	}         
+}
 
+oas_t KSOMfct::det_nb(oas_t dist, ve_t fct)
+{
+	switch (fct)
+	{
+		case EUCLNB:	return (1.0/(1.0 + dist));
+		case MANHNB:	return (1.0/(1.0 + dist));
+		case CHEBNB:	return (1.0/(1.0 + dist));
+		case MINKNB:	return (1.0/(1.0 + dist));
+		case MEXNB:	if (dist <= par.d)
+					return det_nb(dist,GAUSSNB);
+				else if ((par.d < dist) and (dist <= (3*par.d+1)))
+					return -(det_nb(dist,GAUSSNB)/par.roh); 
+				else if (dist > (3*par.d+1))
+					return 0.0;
+		case GAUSSNB:   return exp(((-2.5)*dist)/(par.nb_radius*par.nb_radius));
+	}
+	return 1.0;
+}
