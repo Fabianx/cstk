@@ -20,17 +20,19 @@
 KNN::KNN()
 {
 	knn = 0;
-	first = NULL;
+	first = current = NULL;
 	kclasses = NULL;
 	kdist = NULL;
+	num_prototypes = 0;
 }
 
 KNN::KNN(vei_t k)
 {
 	knn = k;
+	first = current = NULL;
 	kclasses = new vei_t[knn];
-	kdist = new oas_t[knn];
-	first = NULL;
+	kdist = new f_32b[knn];
+	num_prototypes = 0;
 }
 
 KNN::~KNN()
@@ -46,38 +48,42 @@ KNN::~KNN()
 	}
 }
 
-vei_t KNN::access(VectorPoCl& datav, char dist, vei_t expo)
-{
+vei_t KNN::access(const VectorPoCl& datav, char dist, vei_t expo)
+{  
 	if (datav.vec_class == -1)
 		return get_k_dis(datav, dist, expo); // get the k distances and vote
 	else
-	{
+	{  
 		/*insert new vector at the beginning of the list with 
 		start_pointer(t)=vector(t) and nextpointer(t)=start_pointer(t-1)*/
 		VectorPoCl *dummy;
 		dummy = new VectorPoCl(datav);
 		dummy->next = first;
 		first = dummy;
+		num_prototypes++;
 		return -1;
 	}
 }
 
 inline
-vei_t KNN::get_k_dis(VectorPoCl& datav, char dist, vei_t expo)
+vei_t KNN::get_k_dis(const VectorPoCl& datav, char dist, vei_t expo)
 {
-	vei_t max;
+   vei_t max;
 	f_64b maxdis;
 	max = 0;
 	for (vei_t j=0; j<knn; j++) {
-		kclasses[j] = 0;
+		kclasses[j] = -1;
 		kdist[j] = max_oas;
 	}
-
 	/* determine the vector's class by going through the list
 	   and fetch the k smallest distances*/
+	
+	if (first==NULL) return -1;
+	
 	current = first;
+	
 	while (current != NULL) // distances between vector and list vectors
-	{
+	{  
 		maxdis = 0;
 		oas_t rad = det_rad(datav, dist, expo); //distance calculation
 		if (rad < kdist[max]) {           // minimum distance?
@@ -92,33 +98,40 @@ vei_t KNN::get_k_dis(VectorPoCl& datav, char dist, vei_t expo)
 		}
 		current = (*current).next; //set pointer to next vector in list
 	}
-
-	//determine the maximum amount of classes in knn 
+	
+	//determine the maximum class in knn memory 
 	vei_t maxclass = 0;
 	for (vei_t i=0; i<knn; i++)
 		if (kclasses[i]>maxclass)
 			maxclass = kclasses[i];
 
-	vei_t numclass=-1;
-	f_64b *numcl = new f_64b[maxclass]; // weigh & sum the classes.. 
+	if (maxclass<1)  return -1;
+	
+	f_32b *numcl = new f_32b[maxclass+1]; // weigh & sum the classes..
+	for (vei_t k=0; k<maxclass; k++)	numcl[k]=0.0; 
 	allcl = 0;
 	for (vei_t l=0; l<knn; l++) {
-		numcl[kclasses[l]]+=(1.0/kdist[l]); 
-		allcl += (1.0/kdist[l]);
+		if (kclasses[l]>-1) {
+			numcl[kclasses[l]]+=(1.0/(kdist[l]+0.00001)); 
+			allcl += (1.0/(kdist[l]+0.00001));
+		}
 	}
+	
 	// get the best class
 	wincl=0;
-	for (vei_t m=1; m<=maxclass; m++)
+	vei_t numclass=-1;
+	for (vei_t m=0; m<=maxclass; m++)
 		if (numcl[m] > wincl) {
 			wincl = numcl[m];
 			numclass = m;
 		}
-
+	delete []numcl;
+	
 	return numclass;
 }
 
 inline
-f_64b KNN::det_rad(VectorPoCl& datav, char seldis, vei_t exp)
+f_32b KNN::det_rad(const VectorPoCl& datav, char seldis, vei_t exp)
 {
 	switch (seldis)
 	{
