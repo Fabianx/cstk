@@ -22,14 +22,16 @@
 #include "kprof/simsetparse.h"
 #include "kprof/channelsetparse.h"
 #include "kprof/inputcolumnsetparse.h"
+#include "sensordata/sensordata.h"
 #include "sensordata/rs232parser/rs232parser.h"
 #include "sensordata/logfileparser/logfileparser.h"
 #include "sensordata/udpparser/udpparser.h"
 #include "sensordata/simparser/simparser.h"
 
-#define ERR_INVATTR 12
-#define ERR_INVTAG  13
-#define ERR_INVCH   14
+#define ERR_INVATTR      12
+#define ERR_INVTAG       13
+#define ERR_INVCH        14
+#define ERR_TAGOVERFLOW  15
 
 #define NUM_A_ITAGS 6
 const char input_att_tags[NUM_A_ITAGS][16] = {
@@ -53,16 +55,20 @@ int main(int ac, char *argv[]) {
 		exit(0);
 	}
 	
-	// Enable these settings:
-	 Rs232ParserSettings   	rs232set;
-	 UDPParserSettings     	udpset;
-	 LogFileParserSettings 	logfileset;
-	 SimParserSettings     	simset;
-	 ChannelSettings     	chset;
-	 InputColumnSettings 	icolset;
+	//----- These are valid settings elements: -------
+	 Rs232ParserSettings   	*rs232set	= NULL;
+	 UDPParserSettings     	*udpset  	= NULL;
+	 LogFileParserSettings 	*logfileset	= NULL;
+	 SimParserSettings     	*simset  	= NULL;
+	 ChannelSettings     	*chset=NULL; 	// linked list  
+	 InputColumnSettings 	*icolset=NULL;	// linked list 
+	//------------------------------------------------
 	
-	// generic attribute parser:
-	 SetParse*	setparse[256];
+	// generic attribute parser array:	
+	 int max_tags = 1024;
+	 SetParse*	setparse[max_tags];
+	 for (int j=0; j<max_tags; j++)
+	 	setparse[j] = NULL;
 	 int      	parser_counter=0;
 	 
 	 int err=0;
@@ -77,6 +83,12 @@ int main(int ac, char *argv[]) {
 	setparse.read_set("databits","8");
 	setparse.read_set("stopbits","1");
 	setparse.read_set("command","G");
+	Rs232Parser rs232(rs232set);
+	char charbuffer[1024];
+	while(1) {
+		rs232.read(charbuffer);
+		printf("%s\n",charbuffer);
+	}
 	*/
 	
 	FILE* fp = fopen(argv[1],"r");
@@ -107,24 +119,41 @@ int main(int ac, char *argv[]) {
 			if (strcasecmp(tmpstr,input_sub_tags[i])==0)
 				valid_sub_tag=true;
 		} while (!feof(fp)&&(!valid_att_tag)&&(!valid_sub_tag));
-		{
-		  if (strcasecmp(tmpstr,"rs232")==0) 
-			setparse[parser_counter] = new Rs232SetParse(&rs232set);
-		  else if (strcasecmp(tmpstr,"udp")==0) 
-			setparse[parser_counter] = new UDPSetParse(&udpset);
-		  else if (strcasecmp(tmpstr,"logfile")==0)
-			setparse[parser_counter] = new LogFileSetParse(&logfileset);
-		  else if (strcasecmp(tmpstr,"sim")==0) 
-			setparse[parser_counter] = new SimSetParse(&simset);
+		
+		if (parser_counter<max_tags) {
+		  if (strcasecmp(tmpstr,"rs232")==0) {
+			rs232set = new Rs232ParserSettings;
+			setparse[parser_counter] = new Rs232SetParse(rs232set);
+		  }
+		  else if (strcasecmp(tmpstr,"udp")==0) {
+			udpset = new UDPParserSettings;
+			setparse[parser_counter] = new UDPSetParse(udpset);
+		  }
+		  else if (strcasecmp(tmpstr,"logfile")==0) {
+			logfileset = new LogFileParserSettings;
+			setparse[parser_counter] = new LogFileSetParse(logfileset);
+		  }
+		  else if (strcasecmp(tmpstr,"sim")==0) { 
+			simset = new SimParserSettings;
+			setparse[parser_counter] = new SimSetParse(simset);
+		  }
 		  else if (strcasecmp(tmpstr,"poll")==0) {
 			if ((parser_counter-1)>0) 
 			if (setparse[parser_counter-1]->read_set(fp)!=0) 
 				printf("error reading parameters!\n");
 		  }
-		  else if (strcasecmp(tmpstr,"channel")==0) 
-			setparse[parser_counter] = new ChannelSetParse(&chset);
-		  else if (strcasecmp(tmpstr,"inputcolumn")==0) 
-			setparse[parser_counter] = new InputColumnSetParse(&icolset);
+		  else if (strcasecmp(tmpstr,"channel")==0) {
+			// i_chset = add_channel();
+			// setparse[parser_counter] = new ChannelSetParse(i_chset);
+			chset = new ChannelSettings;
+			setparse[parser_counter] = new ChannelSetParse(chset);
+		  }
+		  else if (strcasecmp(tmpstr,"inputcolumn")==0) { 
+			// i_icolset = add_inputcolumn();
+			// setparse[parser_counter] = new InputColumnSetParse(i_icolset);
+			icolset = new InputColumnSettings;
+			setparse[parser_counter] = new InputColumnSetParse(icolset);
+		  }
 		  else if (!feof(fp)&&(!valid_sub_tag)) {
 			err = ERR_INVTAG; // wrong tag
 			errorline = line;
@@ -137,11 +166,20 @@ int main(int ac, char *argv[]) {
 			parser_counter++;
 		  }
 		}
+		else { // too many tags: array is overflowing!
+			err = ERR_TAGOVERFLOW;
+			errorline = line;
+		}
 	}
 	fclose(fp);
 	
+	if (err!=0) {
+		printf("Error (number %i) at line %i\n",err,errorline);
+		exit(err);
+	}
+	else 
+	{
 	// print the parameters in XSD and their DTD:
-	if (err==0) {
 	  printf("<!-- ***** DTD section ************************* -->\n");
 	  for (int t=0; t<parser_counter; t++) {
 		if (setparse[t]->update_set()!=0)
@@ -182,14 +220,38 @@ int main(int ac, char *argv[]) {
 	  printf("\t</input>\n");
 	}
 	
+	SensorData *sd=NULL;
+		
+	// set the input mode:
+	tmpstr[0]=0;
+	for (int t=0; t<parser_counter; t++) {
+		setparse[t]->write_tag(tmpstr);
+		if (strcasecmp(tmpstr,"rs232")==0) {
+			if (rs232set) 	sd = new Rs232Parser(*rs232set);
+		} else if (strcasecmp(tmpstr,"udp")==0) {
+			if (udpset) 	sd = new UDPParser(*udpset);
+		} else if (strcasecmp(tmpstr,"logfile")==0) {
+			if (logfileset)	sd = new LogFileParser(*logfileset);
+		} else if (strcasecmp(tmpstr,"sim")==0) {
+			if (simset) 	sd = new SimParser(*simset);
+		}
+	}
 	
-	// return the settings:
+	// setup the dvector:
+	// TODO
 	
+	// show what string is being returned
+	tmpstr[0]=0;
+	for (int t=0; t<100; t++) {
+		int ret=sd->read(tmpstr);
+		tmpstr[ret]='\0';
+		printf("*%s*\n",tmpstr);
+	}
 	
-	if (err!=0) 
-		printf("Error (number %i) at line %i\n",err,errorline);
-	
-	for(int i=0; i<256;i++) if (setparse[i]!=NULL) delete setparse[i];
+	// delete pointers:
+	for(int i=0; i<max_tags;i++) 
+		if (setparse[i]!=NULL) delete setparse[i];
 	
 	return err;
 }
+
