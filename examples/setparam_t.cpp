@@ -59,19 +59,35 @@ int main(int ac, char *argv[]) {
 			argv[1], kp.err);
 		return kp.err;
 	}
-	
-	// wait a sec for sensordata to get ready
-	usleep(2000000);
-	// and get 20 samples
-	for (int t=0; t<20; t++) {
-		int ret = kp.sd->read(buff);
-		if (ret>0) {
-			buff[ret]='\0';
-			printf("%5i:\t%s\n\r",t,buff);
+
+
+	// print raw output:
+	//
+		// wait a sec or 2 for sensordata to get ready
+		usleep(2000000);
+		// and get a few output strings
+		for (int t=0; t<20; t++) {
+			int ret = kp.sd->read(buff);
+			if (ret>0) {
+				buff[ret]='\0';
+				printf("%5i:\t%s\n\r",t,buff);
+			}
 		}
-	}
-	
-	delete kp.sd;
-	
+
+
+	// print prepared output:
+	//
+	/*	KVector vect[kp.numcols];
+		while (!quit) {
+			int ret = kp.sd->read(kp.chs, kp.num_chs, kp.icols, kp.filter, kp.num_icols);
+			if ( ret != 0 ) {
+				printf("Error: %i\n",ret);
+			} else
+			for (i=0; i<kp.numcols; i++) {
+				vect[i].add_comp(kp.icols[i].get_u8b());
+			}
+		}
+	*/
+
 	return 0; // no error
 }
