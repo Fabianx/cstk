@@ -42,49 +42,36 @@ public:
   Rs232Parser(int baud, int buff, char* poll, char* dev);
   ~Rs232Parser();
 
-  /* read values from rs232 port, see SensorData class for more info */
-    int read(char* channel_types, uint numchannels, 
-             DataCell* columns,  uint* filter, uint numcolumns);
-
-  /* read all from rs232 port, see SensorData class for more info */
-    int read(DataCell* channels, uint numchannels);
-
-  /* read all from rs232 port, see SensorData class for more info */
-    int read(DataCell* channels, uint* numchannels);
-
-    int read(char *line);
+  int read(char* channel_types, uint numchannels, 
+           DataCell* columns,  uint* filter, uint numcolumns);
+  int read(DataCell* channels, uint numchannels);
+  int read(DataCell* channels, uint* numchannels);
+  int read(char *line);
 
   /* set/get poll character */
   void set_poll(char* new_poll_char);
   void get_poll(char* ret_poll_char);
-
   /* set/get baud rate */
   void set_baudrate(int new_baudrate) {baudrate = new_baudrate;};
   int get_baudrate() {return baudrate;};
-
   /* set/get buffer size */
   void set_buff_size(int new_buff_size) {buff_size = new_buff_size;};
   int get_buff_size() {return buff_size;};
-
   /* set/get device */
   void set_device(char* new_device);
   void get_device(char* ret_device);
 
 private:
-
   int open_rs232(char* devicename);
   void close_rs232();
 
 private:
-
   char* poll_char;
   int fd;
   int baudrate;
   unsigned int buff_size;
   char* device;
-  
   struct termios oldtio,newtio;
-
   unsigned char *buf;
   unsigned int bufcounter; // an iterator for buffers that weren't polled
 }; 
