@@ -98,13 +98,13 @@ int SimParser::read(DataCell* channels, uint numchannels) {
      // revert the signs of the bias when the values come too close:
      if (channels[i].get()>(upp_lim[i]-incr[i]-bias[i]))  {
               bias[i] -= abs(bias[i]); 
-              channels[i].set_u8val( channels[i].get() -((incr[i]*rand())/RAND_MAX) ); 
+              channels[i].set_u8val( (u_8b)(channels[i].get() -((incr[i]*rand())/RAND_MAX)) ); 
      }
      else if (channels[i].get()<(low_lim[i]+incr[i]+bias[i])) {
               bias[i] = abs(bias[i]); 
-              channels[i].set_u8val( channels[i].get() +((incr[i]*rand())/RAND_MAX) ); 
+              channels[i].set_u8val( (u_8b)(channels[i].get() +((incr[i]*rand())/RAND_MAX)) ); 
      } else
-     channels[i].set_u8val( channels[i].get() + (((2*incr[i]*rand())/RAND_MAX)-incr[i])+bias[i]);
+     channels[i].set_u8val( (u_8b)(channels[i].get() + (((2*incr[i]*rand())/RAND_MAX)-incr[i])+bias[i]));
   }
   return numchannels;
 }
@@ -114,7 +114,7 @@ int SimParser::read(DataCell* channels, uint* numchannels) {
      // invert the signs of the bias when the values come too close:
      if (channels[i].get()>(upp_lim[i]-incr[i]-bias[i])) bias[i] -= abs(bias[i]); 
      if (channels[i].get()<(upp_lim[i]+incr[i]+bias[i])) bias[i] =abs(bias[i]);
-     channels[i].set_u8val( channels[i].get() + (((2*incr[i]*rand())/RAND_MAX)-incr[i])+bias[i]);
+     channels[i].set_u8val( (u_8b)(channels[i].get() + (((2*incr[i]*rand())/RAND_MAX)-incr[i])+bias[i]));
   }
   return *numchannels;
 }
