@@ -41,12 +41,7 @@ int main(int ac, char *argv[]) {
 		return 0;
 	}
 	
-	kp.parse(fp);	
-	if (kp.err!=0) {
-		printf("Error parsing file %s on line %i (code=%i).\n\r", 
-			argv[1], kp.errline, kp.err);
-		return kp.err;
-	}
+	kp.parse(fp);
 	
 	kp.export_dtd(buff);
 	printf("DTD:\n%s\n",buff);
@@ -54,44 +49,43 @@ int main(int ac, char *argv[]) {
 	kp.export_xsd(buff);
 	printf("XSD:\n%s\n",buff);
 	
-	kp.setup_sensordata_parser();	
-	if (kp.err!=0) {
-		printf("Error opening sensor data in %s (code=%i).\n\r", 
-			argv[1], kp.err);
-		return kp.err;
-	}
-
+	kp.setup_sensordata_parser();
+	kp.setup_channels();
+	kp.setup_inputcolumns();
+	
+	if (kp.error()) { kp.export_err(buff); printf("%s",buff); }
+	
 	printf("raw output strings:\n");
 
 		// wait a sec or 2 for sensordata to get ready
 		usleep(200000);
 		// and get a few output strings
 		for (int t=0; t<20; t++) {
-			int ret = kp.sd->read(buff);
-			if (ret>0) {
-				buff[ret]='\0';
+			int ret = kp.read_buffer(buff);
+			if (ret>=0) 
 				printf("%5i:\t'%s'\n\r",t,buff);
-			}
+			else 
+				printf("error(%i)\n\r",ret);
 		}
 
 	printf("\ninterpreted output:\n");
 
 		KVector vect[kp.num_icols];
-		for (unsigned int i=0; i<kp.num_icols; i++) vect[i].createVector(100);
+		for (unsigned int i=0; i<kp.num_icols; i++) 
+			vect[i].createVector(100);		
 		for (int t=0; t<20; t++) {
-			int ret = kp.sd->read(kp.chs, kp.num_chs, 
-			                      kp.icols, kp.filter, kp.num_icols);
+			int ret = kp.read_icols();
 		 	if ( ret <= 0 ) {
 		 		printf("Error: %i\n",ret);
 			} 
 			else
 			{
 				printf("%5i: K[",t);
-				for (unsigned int i=0; i<kp.num_icols; i++) {
+				for (int i=0; i<ret; i++) {
 					vect[i].add_comp(kp.icols[i].get_u8b());
 					printf(" %6i",vect[i].val());
 				}
-				printf("]\n");
+				printf("] (%i)\n",ret);
 			}
 		}
 
