@@ -24,10 +24,11 @@ KSOM::KSOM()
 {
 	//printf("KSOM()1\n");
     	vect = NULL;
-	c=2; 
-	epoch=0;
-	nb_radius=5;
-	exp=2;
+	par.c=2; 
+	par.epoch=1;
+	par.nb_radius=5;
+	par.roh = 100;
+	par.minkexp=2;
     	win_xy = NULL;
     	max_xy = NULL;
 	//printf("KSOM()2\n");
@@ -35,19 +36,20 @@ KSOM::KSOM()
 
 KSOM::KSOM(vei_t x, vei_t y, vei_t n,ve_t distance, ve_t neighbourfct, bool autolearn, ve_t learnfct)
 {
-	c=2; 
-	epoch=0;
-	nb_radius=5;
-	exp=2;
+	par.c=0.5; 
+	par.epoch=1;
+	par.nb_radius=5;
+	par.roh = 100;
+	par.minkexp=2;
 	win_xy = new KVector(2);
 	max_xy = new KVector(2);
 	max_xy->add_comp(x,0);
 	max_xy->add_comp(y,1);
 	max_y = y; max_x = x;
-	dist = distance;
-	nfct = neighbourfct;
-	autol = autolearn;
-	lfct = learnfct;
+	par.dist = distance;
+	par.nfct = neighbourfct;
+	par.autol = autolearn;
+	par.lfct = learnfct;
 	vect = new DVector[_to2(x-1,y)];
 	for (vei_t i=0; i<(_to2(x-1,y)); i++)
 		vect[i].create(n);
@@ -68,10 +70,10 @@ void KSOM::create(vei_t x, vei_t y, vei_t n,ve_t distance, ve_t neighbourfct, bo
     	max_xy->add_comp(x,0);
 	max_xy->add_comp(y,1);
 	max_y = y; max_x = x;
-	dist = distance;
-	nfct = neighbourfct;
-	autol = autolearn;
-	lfct = learnfct;
+	par.dist = distance;
+	par.nfct = neighbourfct;
+	par.autol = autolearn;
+	par.lfct = learnfct;
 	vect = new DVector[_to2(x-1,y)];
 	for (vei_t i=0; i<(_to2(x-1,y)); i++)
 		vect[i].create(n);
@@ -129,40 +131,28 @@ for (vei_t x=0; x<max_xy->pvect[0]; x++)
         	}           
 	}        
 }
-/*printf("\n");
-for (vei_t x=0; x<max_xy->pvect[0]; x++) 
-{
-      	for (vei_t y=0; y<max_xy->pvect[1]; y++) 
-	{
-		printf("vec_%i_%i = vec[%i]",x,y,_to2(x,y));
-		for (vei_t n=0; n<prototyp.get_dim(); n++) 
-			printf("%7.3e ",vect[_to2(x,y)].get_comp(n));
-		printf("\n");
-	}
-}
-printf("\n");*/	
 }
 
 oas_t KSOM::det_dis(DVector& vec1, DVector& vec2)
 {
-	switch (dist)
+	switch (par.dist)
 	{
 		case DIS_MANH:	return vec1.dis_manh(vec2);
 		case DIS_CHEB:	return vec1.dis_cheb(vec2);
 		case DIS_EUCL:	return vec1.dis_eucl(vec2);
-		case DIS_MINK:	return vec1.dis_mink(vec2, exp);
+		case DIS_MINK:	return vec1.dis_mink(vec2, par.minkexp);
 	}
 	return vec1.dis_manh(vec1);
 }
 
 oas_t KSOM::det_dis(KVector& vec1, KVector& vec2)
 {
-	switch (dist)
+	switch (par.dist)
 	{
 		case DIS_MANH:	return vec1.dis_manh(vec2);
 		case DIS_CHEB:	return vec1.dis_cheb(vec2);
 		case DIS_EUCL:	return vec1.dis_eucl(vec2);
-		case DIS_MINK:	return vec1.dis_mink(vec2, exp);
+		case DIS_MINK:	return vec1.dis_mink(vec2, par.minkexp);
 	}
 	return vec1.dis_manh(vec1);
 }
@@ -186,6 +176,8 @@ void KSOM::feed(DVector& vec, float lr)
          		}
       		}
     	}
+	if (par.nfct==MEXNB)
+		par.d=(mindist);
 	winner_x = win_xy->pvect[0];
 	winner_y = win_xy->pvect[1]; 
     	// update the grid
@@ -195,9 +187,8 @@ void KSOM::feed(DVector& vec, float lr)
       		{ 
            		xy.add_comp(x, 0);
 			xy.add_comp(y, 1);
-	   		nb = det_nb(*win_xy, xy);
-			//printf("nb=%7.3e\n",nb);
-	    		if (autol)
+	   		nb = det_nb(*win_xy, xy, par.nfct);
+	    		if (par.autol)
 				vect[_to2(x,y)] +=(det_lr(lr) * nb * (vec - vect[_to2(x,y)]));
 			else
             			vect[_to2(x,y)] +=(lr * nb * (vec - vect[_to2(x,y)]));
@@ -205,24 +196,36 @@ void KSOM::feed(DVector& vec, float lr)
       	}         
 }
 
-oas_t KSOM::det_nb(KVector& vec1, KVector& vec2)
+oas_t KSOM::det_nb(KVector& vec1, KVector& vec2, ve_t fct)
 {
-	switch (nfct)
+	switch (fct)
 	{
-		case LINNB:	return (1.0/(1.0 + vec1.dis_eucl(vec2)));
+		case EUCLNB:	return (1.0/(1.0 + vec1.dis_eucl(vec2)));
 		case MANHNB:	return (1.0/(1.0 + vec1.dis_manh(vec2)));
-		case MEXNB:	return ((-0.5*vec1.dis_manh(vec2))/(2*nb_radius*nb_radius));
-		case GAUSSNB:   return 0.0;
+		case CHEBNB:	return (1.0/(1.0 + vec1.dis_cheb(vec2)));
+		case MINKNB:	return (1.0/(1.0 + vec1.dis_mink(vec2, par.minkexp)));
+		case MEXNB:	if ((vec1.dis_eucl(vec2)) <= par.d)
+					return det_nb(vec1,vec2,GAUSSNB);
+				else if ((par.d < vec1.dis_eucl(vec2)) and (vec1.dis_eucl(vec2) <= (3*par.d+1)))
+					return -(det_nb(vec1,vec2,GAUSSNB)/par.roh); 
+				else if (vec1.dis_eucl(vec2) > (3*par.d+1))
+					return 0.0;
+		case GAUSSNB:   return exp(((-0.5)*vec1.dis_eucl(vec2))/(2*par.nb_radius*par.nb_radius));
 	}
 }
 
 oas_t KSOM::det_lr(oas_t lr)
 {
-	switch (lfct)
+	oas_t temp=0.0;
+	switch (par.lfct)
 	{
-		case LIN:	return (-((1/c) * epoch) + lr);
-		case LOG:	return (1/log(lr * epoch));
-		case EXP:	return (1/(lr*epoch));
+		case LIN:	temp = (-((1/par.c) * par.epoch) + lr);
+				if (temp<0)
+					return 0;
+				else
+					return (-((1/par.c) * par.epoch) + lr);
+		case LOG:	return ((1/(par.c * log(par.epoch))) + lr);
+		case EXP:	return ((1/(par.c * exp(par.epoch))) + lr);
 	}
 }
 
