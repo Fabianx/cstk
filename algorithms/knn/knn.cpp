@@ -68,7 +68,7 @@ vei_t KNN::access(const VectorPoCl& datav, char dist, vei_t expo)
 inline
 vei_t KNN::get_k_dis(const VectorPoCl& datav, char dist, vei_t expo)
 {
-   vei_t max;
+   	vei_t max;
 	f_64b maxdis;
 	max = 0;
 	for (vei_t j=0; j<knn; j++) {
