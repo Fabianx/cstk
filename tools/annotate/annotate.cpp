@@ -78,9 +78,9 @@ int main(int ac, char **args) {
 				mode=DVECTOR_MODE;
 		}
 	}
-	
+
 	input.init(fp); // parse file and setup inputcolumns
-	
+
 	if (input.error()) 
 		{ input.export_err(buff); printf("%s\n",buff); return -1;}
 
@@ -139,6 +139,7 @@ int main(int ac, char **args) {
 		t++; // increment integer timestamp
 	}
 	
+	fclose(fp);
 	return 0; // no error
 }
 
