@@ -337,15 +337,37 @@ int KProf::setup_window() {
 	if (kvect==NULL)
 	{
 		kvect = new KVector[num_icols];
-		for (vei_t i=0; i<(vei_t)num_icols; i++) 
-			kvect[i].createVector(250);         // TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		for (vei_t i=0; i<(vei_t)num_icols; i++) {
+			plotpset = plotset;
+			bool qt = false;
+			while ( (plotpset != NULL) && (qt==false) ) {
+				if ( (plotpset->type==PLOT_TIME_TYPE)
+				     && (plotpset->src==i) ) {
+					kvect[i].createVector(plotpset->res);
+					qt = true;
+				}
+				plotpset = plotpset->next;
+			}
+			if (!qt) kvect[i].createVector(1);
+		}
 	}
 	// plotting kpeaks:
 	if (kpeak==NULL)
 	{
 		kpeak = new Peak[num_icols];
-		for (vei_t i=0; i<(vei_t)num_icols; i++) 
-			kpeak[i].createPeak(15);            // TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		for (vei_t i=0; i<(vei_t)num_icols; i++) {
+			plotpset = plotset;
+			bool qt = false;
+			while ( (plotpset != NULL) && (qt==false) ) {
+				if ( (plotpset->type==PLOT_PEAK_TYPE)
+				     && (plotpset->src==i) ) {
+					kpeak[i].createPeak(plotpset->res);
+					qt = true;
+				}
+				plotpset = plotpset->next;
+			}
+			if (!qt) kpeak[i].createPeak(1);
+		}
 	}
 	return 0;
 }
@@ -397,9 +419,9 @@ int KProf::setup_inputchannels() {
 	 ichs  	= new char[num_ichs];
 	 ichpset = ichset;
 	 while (ichpset != NULL) {
-	 	ichs[ch_ctr] = DC_typecast( ichpset->sign, ichpset->bits, ichpset->format );
+		ichs[ch_ctr] = DC_typecast( ichpset->sign, ichpset->bits, ichpset->format );
 		ichpset = ichpset->next;
-	 	ch_ctr++;
+		ch_ctr++;
 	 }
 	 if (num_ichs!=ch_ctr) err = ERR_CHSET;
 	return err;
