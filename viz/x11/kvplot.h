@@ -26,16 +26,6 @@
   *@author Kristof Van Laerhoven
   */
 
-struct WindowSettings {
-	WindowSettings() {
-		xpos = ypos = width= height=-1;
-		border=framerate=skip = -1;
-		title[0]='\0';
-   }
-   int xpos,ypos,width,height,border,framerate,skip;
-   char title[256];
-};
-
 class KVPlot : public X11Plot {
  public: 
   KVPlot(WindowSettings ws);

@@ -27,6 +27,16 @@
 #include <string.h> // strlen() ,..
 #include <unistd.h> // usleep() in delay function
 
+struct WindowSettings {
+	WindowSettings() {
+		xpos = ypos = width= height=-1;
+		border=framerate=skip = -1;
+		title[0]='\0';
+   }
+   int xpos,ypos,width,height,border,framerate,skip;
+   char title[256];
+};
+
 const int plot_clrs[16][3] = { 
   {0xFFFF, 0x0000, 0x0000}, {0x0000, 0xBFFF, 0x0000},  // red, green
   {0x0000, 0x0000, 0xFFFF}, {0xFFFF, 0xAFFF, 0x1000},  // blue, dyellow

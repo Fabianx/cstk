@@ -20,7 +20,7 @@
 
 #include "setparse.h"
 #include <stdlib.h>  // atoi
-#include "viz/x11/kvplot.h" // windowsettings
+#include "viz/x11/x11plot.h" // windowsettings
 
 #define _SET_WINDOWSET_DEF(a) strcpy(windowset_val[(a)],windowset_defs[(a)])
 
