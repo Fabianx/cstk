@@ -34,14 +34,34 @@ knn_demo: knn_t.o
 knn_t.o: knn.o datacell.o dvector.o  
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 	
+##### SOSDM Demo #################################################################
 
+sosdm_demo:	sosdm_t.o
+	$(CC) sosdm_t.o $(ALG_DIR)/sdm/sosdm.o $(ALG_DIR)/sdm/sdma.o $(VECTOR_DIR)/kvector.o \
+	      $(VECTOR_DIR)/binvector.o $(VECTOR_DIR)/datacell.o -o ./$@
+	
+sosdm_t.o: sosdm.o sdma.o datacell.o binvector.o kvector.o
+	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+	      
 ##### Dependencies: ##############################################################
+
+kvector.o:
+	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
+
+binvector.o:
+	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
 
 dvector.o:
 	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
 
 datacell.o:
 	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
+
+sdma.o:
+	@cd $(BASE_DIR)/algorithms/sdm/; make $@ BASE_DIR=$(BASE_DIR)
+	
+sosdm.o:
+	@cd $(BASE_DIR)/algorithms/sdm/; make $@ BASE_DIR=$(BASE_DIR)
 	
 kmeans.o:
 	@cd $(BASE_DIR)/algorithms/$*; make $@ BASE_DIR=$(BASE_DIR)
