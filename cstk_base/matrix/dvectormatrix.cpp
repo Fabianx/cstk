@@ -64,6 +64,11 @@ void DVectorMatrix::create(vei_t hsize, vei_t vsize)
 		vector[i].create(hsize);
 }
 
+/****************************************************************************************
+*	Matrix transposition that makes out of the column elements row vectors.		*
+*	Result is a Matrix that has instad of various type DVectors rows of homogenous 	*
+*	DVectors that contain only one data type each					*
+****************************************************************************************/ 
 DVectorMatrix DVectorMatrix::T()
 {
 	DVectorMatrix *matrix_T;
@@ -79,6 +84,11 @@ DVectorMatrix DVectorMatrix::T()
 	return *matrix_T;
 }
 
+/****************************************************************************************
+*	Matrix inversion according to the Coleman-Shipley inversion (Kron reduction)	*
+*	algorithm. If one of the pivot elemnts gets zero the determinant inversion	*
+*	is done instead.								*
+****************************************************************************************/
 DVectorMatrix DVectorMatrix::INV()
 {
 	DVectorMatrix *matrix_inv;
@@ -167,8 +177,9 @@ DVectorMatrix DVectorMatrix::detinv(DVectorMatrix& mat)
 	return *matrix_inv;
 }
   
- 
-
+/****************************************************************************************
+*	Straight forward implementation of the math algorithm that multiplies the	*
+*	diagonals of the matrix and adds and subtracts the results			*	****************************************************************************************/
 oas_t  DVectorMatrix::det()
 {
  	oas_t val=0.0;
@@ -210,6 +221,11 @@ oas_t  DVectorMatrix::det()
 		return 0.0;
 }
 
+/****************************************************************************************
+*	This equal operator does the same as the copy constructor, it uses the		*
+*	equal operator of DVector to hand over each DVector of the matrix to 		*
+*	DVectors in the new matrix							*
+****************************************************************************************/
 DVectorMatrix& DVectorMatrix::operator=(const DVectorMatrix& input) 
 {
 	hosize = input.hosize;
@@ -223,6 +239,12 @@ DVectorMatrix& DVectorMatrix::operator=(const DVectorMatrix& input)
 	return *this;
 }
 
+/****************************************************************************************
+*	The multiplication between matrices multiplies each row vector from the		*
+*	first matrix with each row vector of the second matrix using the DVector 	*
+*	operator multiply. Dimensions have to fit and the second matrix has to be 	*
+*	transposed!									*
+****************************************************************************************/
 DVectorMatrix& operator*(const DVectorMatrix& mat1, const DVectorMatrix& mat2_T)
 {
  	DVectorMatrix *mat;
@@ -247,6 +269,11 @@ DVectorMatrix& operator*(const DVectorMatrix& mat1, const DVectorMatrix& mat2_T)
 	return *mat;
 }
 
+/****************************************************************************************
+*	The multiplication between a matrix and a vector multiplies each row vector 	*
+*	from the matrix with the vector using the DVector multiplication operator. 	*
+*	The dimenson of the row vectors and the vector have to be the same		*
+****************************************************************************************/
 DVector& operator*(const DVector& vec, const DVectorMatrix& mat_T)
 {
  	DVector *vect;
@@ -269,6 +296,10 @@ DVector& operator*(const DVectorMatrix& mat, const DVector& vec)
 	return *vect;
 } 
 
+/****************************************************************************************
+*	The plus and minus operators use also the plus and minus operators fom the 	*
+*	DVector class to add and subtract the row vectors.				*
+****************************************************************************************/
 DVectorMatrix& operator+(const DVectorMatrix& mat1, const DVectorMatrix& mat2)
 {
  	DVectorMatrix *mat;
