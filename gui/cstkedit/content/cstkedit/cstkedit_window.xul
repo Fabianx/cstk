@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="cstkedit.css" type="text/css"?>
+
+<window id="cstkedit-input-window" 
+        title="CSTK Editor Input"
+	onload="init_win();"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+   
+  <script type="application/x-javascript" src="cstkedit.js"/>
+
+  <popupset>
+	<popup id="edit-wparams">
+		<menuitem label="Refresh" accesskey="r" oncommand="trefresh('wparams');"/>
+	</popup>
+	<popup id="edit-plots">
+		<menuitem label="Delete" accesskey="d" oncommand="tremove('plots');"/>
+		<menuitem label="Add"    accesskey="a" oncommand="tappend('plots',7);"/>
+		<menuitem label="Edit"   accesskey="e" oncommand="tedit('plots',7);"/>
+		<menuitem label="Clear All" accesskey="c" oncommand="tremove_all('plots');"/>
+		<menuitem label="Refresh" accesskey="r" oncommand="trefresh('plots');"/>
+	</popup>
+  </popupset>
+
+  <vbox flex="1">
+	<groupbox flex="1">
+		<caption label="parameters"/>
+		<tree flex="1" id="wparams" datasources="rdf:null" 
+			context="edit-wparams" ref="urn:window:params">
+			<treecols>
+				<treecol id="att" label="attributes" primary="true" flex="1"/>
+				<treecol id="val" label="values" flex="1"/>
+			</treecols>
+			<template>
+				<rule>
+				<treechildren>
+				<treeitem uri="rdf:*" open="true">
+					<treerow>
+					<treecell label="rdf:cstk-rdf#att" />
+					<treecell label="rdf:cstk-rdf#val" />
+					</treerow>
+				</treeitem>
+				</treechildren>
+				</rule>
+			</template>
+		</tree>
+	</groupbox>
+	<groupbox flex="1">
+		<caption label="plots"/>
+		<tree flex="1" datasources="rdf:null" ref="urn:window:plots" 
+		      context="edit-plots" id="plots" flags="dont-build-content">
+			<treecols>
+				<treecol id="id" label="Id"  flex="1" sortActive="true"/>
+				<treecol id="src" label="Source" flex="1"/>
+				<treecol id="type" label="Type" flex="1"/>
+				<treecol id="title" label="Title" flex="2"/>
+				<treecol id="res" label="Resolution" flex="1"/>
+				<treecol id="scaled" label="Scaled" flex="1"/>
+				<treecol id="color" label="Colour" flex="1"/>
+			</treecols>
+			<template><rule><treechildren>
+				<treeitem uri="rdf:*" open="true"> <treerow>
+					<treecell label="rdf:cstk-rdf#id"/>
+					<treecell label="rdf:cstk-rdf#src"/>
+					<treecell label="rdf:cstk-rdf#type"/>
+					<treecell label="rdf:cstk-rdf#title"/>
+					<treecell label="rdf:cstk-rdf#res"/>
+					<treecell label="rdf:cstk-rdf#scaled"/>
+					<treecell label="rdf:cstk-rdf#color"/>
+				</treerow> </treeitem>
+			</treechildren></rule></template>
+		</tree>
+        </groupbox>
+  </vbox></window>

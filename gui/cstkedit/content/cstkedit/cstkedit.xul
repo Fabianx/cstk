@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="cstkedit.css" type="text/css"?>
+
+<!DOCTYPE window [ 
+<!ENTITY % cstkeditDTD SYSTEM "chrome://cstkedit/locale/cstkedit.dtd">
+%cstkeditDTD; 
+]> 
+
+<window id="cstkedit-main-window" 
+        title="CSTK Editor"
+	persist="screenX screenY width height"
+	onload="init();"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+ <script type="application/x-javascript" src="cstkedit.js"/>
+ 
+ <toolbox>
+  <toolbar id="cstk-toolbar">
+    <spacer flex="1"/>    <toolbarbutton label="Save" oncommand="doSave();"/>
+    <spacer flex="1"/>    <toolbarbutton label="Save As" oncommand="doSaveAs();"/>
+    <spacer flex="1"/>    <toolbarbutton label="Load" oncommand="doLoad();"/>
+    <spacer flex="1"/>    <textbox id="xmlfile" flex="10" />
+    <textbox id="rdffile" hidden="true"/>
+    <spacer flex="1"/>    <toolbarbutton label="Run!" oncommand="doRun();"/>
+    <spacer flex="1"/>    <toolbarbutton label="Exit" oncommand="closeWindow();"/>
+    <spacer flex="1"/>
+  </toolbar>
+ </toolbox>
+ 
+ <vbox flex="1">
+	<!--<editor flex="1" type="content-primary" src="about:blank" 
+		id="sourcecode" editortype="html"/>-->   
+	<textbox multiline="true" value=" " flex="1" id="sourcecode"/>
+	<splitter collapse="before" resizeafter="farthest" state="collapsed"><grippy/></splitter>
+	<tabbox id="sections" orient="vertical" flex="1">
+	<tabs>
+		<tab label="Sensor Data"/>
+		<tab label="Output"/>
+		<tab label="Window"/>
+		<tab label="Parameters"/>
+	</tabs>
+	<tabpanels flex="1">
+		<tabpanel id="inputtab"  flex="1">
+		<iframe name="inputt" id="inputt" src="cstkedit_input.xul" flex="1"/>
+		</tabpanel>
+		<tabpanel id="outputtab">
+		<iframe name="outputt" id="outputt" src="cstkedit_output.xul" flex="1"/>
+		</tabpanel>
+		<tabpanel id="windowtab">
+		<iframe name="windowt" id="windowt" src="cstkedit_window.xul" flex="1"/>
+		</tabpanel>
+		<tabpanel id="paramtab">
+		<iframe name="paramst" id="paramst" src="cstkedit_params.xul" flex="1"/>
+		</tabpanel>
+	</tabpanels> 
+	</tabbox>
+ </vbox>
+	
+</window>

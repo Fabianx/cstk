@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="cstkedit.css" type="text/css"?>
+
+<window id="cstkedit-params-window" 
+        title="CSTK Editor Params"
+	onload="init_par();"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+   
+  <script type="application/x-javascript" src="cstkedit.js"/>
+
+  <popupset>
+	<popup id="edit-params">
+		<menuitem label="Refresh" accesskey="r" oncommand="trefresh('params');"/>
+	</popup>
+  </popupset>
+
+  <vbox flex="1">
+	<groupbox>
+		<caption label="tool"/>
+		<hbox>
+			<textbox id="toolfile" flex="1"/>
+			<button label="Browse" oncommand="getToolFile();"/>
+		</hbox>
+	</groupbox>
+	<groupbox flex="1">
+		<caption label="parameters"/>
+		<tree flex="1" id="params" datasources="rdf:null" 
+			context="edit-params" ref="urn:tool:params">
+			<treecols>
+				<treecol id="att" label="attributes" primary="true" flex="1"/>
+				<treecol id="val" label="values" flex="1"/>
+			</treecols>
+			<template>
+				<rule>
+				<treechildren>
+				<treeitem uri="rdf:*" open="true">
+					<treerow>
+					<treecell label="rdf:cstk-rdf#att" />
+					<treecell label="rdf:cstk-rdf#val" />
+					</treerow>
+				</treeitem>
+				</treechildren>
+				</rule>
+			</template>
+		</tree>
+	</groupbox>
+  </vbox>
+</window>

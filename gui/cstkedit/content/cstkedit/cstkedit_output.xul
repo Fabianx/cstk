@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="cstkedit.css" type="text/css"?>
+
+<!DOCTYPE window [ 
+<!ENTITY % cstkeditDTD SYSTEM "chrome://cstkedit/locale/cstkedit.dtd"> 
+%cstkeditDTD; 
+]> 
+
+<window id="cstkedit-input-window" 
+        title="CSTK Editor Output"
+	onload="init_out();"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+ 
+  <script type="application/x-javascript" src="cstkedit.js"/>
+  
+  <popupset>
+	<popup id="edit-oparams">
+		<menuitem label="Refresh" accesskey="r" oncommand="trefresh('oparams');"/>
+	</popup>
+	<popup id="edit-channel">
+		<menuitem label="Delete" accesskey="d" oncommand="lremove('ochannels');"/>
+		<menuitem label="Add"    accesskey="a" oncommand="lappend('ochannels',5);"/>
+		<menuitem label="Edit"   accesskey="e" oncommand="ledit('ochannels',5);"/>
+		<menuitem label="Clear All" accesskey="c" oncommand="lremove_all('ochannels');"/>
+		<menuitem label="Refresh" accesskey="r" oncommand="trefresh('ochannels');"/>
+	</popup>
+	<popup id="edit-outputcolumn">
+		<menuitem label="Delete" accesskey="d" oncommand="tremove('ocolumns');"/>
+		<menuitem label="Add"    accesskey="a" oncommand="tappend('ocolumns',6);"/>
+		<menuitem label="Edit"   accesskey="e" oncommand="tedit('ocolumns',6);"/>
+		<menuitem label="Clear All" accesskey="c" oncommand="tremove_all('ocolumns');"/>
+		<menuitem label="Refresh" accesskey="r" oncommand="trefresh('ocolumns');"/>
+	</popup>
+  </popupset>
+
+  <vbox flex="1">
+	<hbox>
+		<label control="device" value="Device Name:"/>
+		<menulist id="device" flex="1">
+			<menupopup>
+				<menuitem label="generic rs232"/>
+				<menuitem label="generic logfile"/>
+				<menuitem label="generic udp"/>
+				<menuitem label="generic simulation"/>
+				<menuitem label="generic process"/>
+				<separator style="thin"/>
+				<menuitem label="other..."/>
+			</menupopup>
+		</menulist>
+		<button label="browse..."/>
+	</hbox>
+	<hbox>
+	<groupbox flex="1">
+		<caption label="parameters"/>
+		<tree flex="1" id="oparams"
+			context="edit-oparams" datasources="rdf:null" ref="urn:output:params">
+			<treecols>
+				<treecol id="att" label="attributes" primary="true" flex="1"/>
+				<treecol id="val" label="values" flex="1"/>
+			</treecols>
+			<template>
+				<rule>
+				<treechildren>
+				<treeitem uri="rdf:*" open="true">
+					<treerow>
+					<treecell label="rdf:cstk-rdf#att" />
+					<treecell label="rdf:cstk-rdf#val" />
+					</treerow>
+				</treeitem>
+				</treechildren>
+				</rule>
+			</template>
+		</tree>
+	</groupbox>
+	<splitter collapse="before" resizeafter="farthest"><grippy/></splitter>
+	<groupbox flex="1">
+		<caption label="channels"/>
+		<listbox datasources="rdf:null" ref="urn:output:channels" 
+		         context="edit-channel" id="ochannels" flex="1">
+			<listhead>
+			<listheader id="id" label="Id" primary="true"/>
+			<listheader id="name" label="Name"/>
+			<listheader id="bits" label="Bits"/>
+			<listheader id="signed" label="Signed"/>
+			<listheader id="format" label="Format"/>
+			</listhead>
+			<template><rule>
+				<listitem uri="rdf:*">
+				<listcell label="rdf:cstk-rdf#id" />
+				<listcell label="rdf:cstk-rdf#name" />
+				<listcell label="rdf:cstk-rdf#bits" />
+				<listcell label="rdf:cstk-rdf#sign" />
+				<listcell label="rdf:cstk-rdf#format" />
+				</listitem></rule>
+			</template>
+		</listbox>
+        </groupbox>
+	</hbox>
+	<groupbox flex="1">
+		<caption label="outputcolumns"/>
+		<tree flex="1" datasources="rdf:null" ref="urn:output:columns" 
+		      context="edit-outputcolumn" id="ocolumns">
+			<treecols>
+				<treecol id="id" label="Id"  flex="1" sortActive="true"/>
+				<treecol id="ch" label="Channel" flex="1"/>
+				<treecol id="name" label="Name" flex="1"/>
+				<treecol id="bits" label="Bits" flex="1"/>
+				<treecol id="sign" label="Signed" flex="1"/>
+				<treecol id="format" label="Format" flex="1"/>
+				<treecol id="type" label="Type" flex="1"/>
+			</treecols>
+			<template><rule><treechildren>
+				<treeitem uri="rdf:*" open="true"> <treerow>
+					<treecell label="rdf:cstk-rdf#id"/>
+					<treecell label="rdf:cstk-rdf#ch"/>
+					<treecell label="rdf:cstk-rdf#name"/>
+					<treecell label="rdf:cstk-rdf#bits"/>
+					<treecell label="rdf:cstk-rdf#sign"/>
+					<treecell label="rdf:cstk-rdf#format"/>
+					<treecell label="rdf:cstk-rdf#type"/>
+				</treerow> </treeitem>
+			</treechildren></rule></template>
+		</tree>
+        </groupbox>
+  </vbox>
+</window>

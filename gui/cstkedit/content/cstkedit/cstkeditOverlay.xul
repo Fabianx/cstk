@@ -1,0 +1,20 @@
+<?xml version="1.0"?> 
+
+<!DOCTYPE window SYSTEM "chrome://cstkedit/locale/cstkeditOverlay.dtd"> 
+ 
+<overlay id="cstkeditOverlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"> 
+
+	<script type="application/x-javascript"> 
+	
+		function runCSTKEdit() 
+		{ 
+			window.openDialog('chrome://cstkedit/content/', '_blank', 'chrome,dialog=no'); 
+		} 
+		
+	</script> 
+	
+	<menupopup id="windowPopup"> 
+		<menuitem label="&menu-tasks-cstkedit:label;" oncommand="runCSTKEdit();" insertbefore="sep-window-list"/> 
+	</menupopup> 
+
+</overlay> 

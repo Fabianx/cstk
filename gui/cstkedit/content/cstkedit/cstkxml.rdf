@@ -1,0 +1,147 @@
+<?xml version="1.0"?>
+
+<RDF:RDF xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cstkxml="cstk-rdf#">
+   
+   <RDF:Description RDF:about="urn:input:dev" cstkxml:att="rs232"/>
+       <RDF:Description RDF:about="urn:input:dev:rs232:device" cstkxml:att="device" cstkxml:val="/dev/ttyS1"/>
+       <RDF:Description RDF:about="urn:input:dev:rs232:baudrate" cstkxml:att="baudrate" cstkxml:val="115200"/>
+       <RDF:Description RDF:about="urn:input:dev:rs232:databits" cstkxml:att="databits" cstkxml:val="8"/>
+       <RDF:Description RDF:about="urn:input:dev:rs232:stopbits" cstkxml:att="stopbits" cstkxml:val="1"/>
+       <RDF:Description RDF:about="urn:input:dev:rs232:parity" cstkxml:att="parity" cstkxml:val="no"/>
+       <RDF:Description RDF:about="urn:input:dev:rs232:buffer" cstkxml:att="buffer" cstkxml:val="1024"/>
+       <RDF:Description RDF:about="urn:input:dev:rs232:mode" cstkxml:att="mode" cstkxml:val="ascii"/>
+   <RDF:Description RDF:about="urn:input:poll" cstkxml:att="poll"/>
+       <RDF:Description RDF:about="urn:input:poll:string" cstkxml:att="pollstring" cstkxml:val="G"/>
+
+   <RDF:Description RDF:about="urn:output:dev" cstkxml:att="logfile"/>
+       <RDF:Description RDF:about="urn:output:dev:logfile:filename" cstkxml:att="filename" cstkxml:val="/home/kristof/data.txt"/>
+       <RDF:Description RDF:about="urn:output:dev:logfile:mode" cstkxml:att="mode" cstkxml:val="ascii"/>
+
+   <RDF:Description RDF:about="urn:window" cstkxml:att="window"/>
+       <RDF:Description RDF:about="urn:window:xpos" cstkxml:att="x position" cstkxml:val="1"/>
+       <RDF:Description RDF:about="urn:window:ypos" cstkxml:att="y position" cstkxml:val="1"/>
+       <RDF:Description RDF:about="urn:window:width" cstkxml:att="window width" cstkxml:val="530"/>
+       <RDF:Description RDF:about="urn:window:height" cstkxml:att="window height" cstkxml:val="460"/>
+       <RDF:Description RDF:about="urn:window:title" cstkxml:att="window title" cstkxml:val="CSTK rtplot"/>
+       <RDF:Description RDF:about="urn:window:skip" cstkxml:att="skip read" cstkxml:val="2"/>
+       <RDF:Description RDF:about="urn:window:border" cstkxml:att="border width" cstkxml:val="2"/>
+       <RDF:Description RDF:about="urn:window:frame" cstkxml:att="frame rate" cstkxml:val="15"/>
+
+   <RDF:Description RDF:about="urn:tool" cstkxml:att="realtime plot"/>
+       <RDF:Description RDF:about="urn:tool:param1" cstkxml:att="standard plotting resolution" cstkxml:val="100"/>
+       <RDF:Description RDF:about="urn:tool:param2" cstkxml:att="standard peakplot resolution" cstkxml:val="25"/>
+
+  <RDF:Seq RDF:about="urn:input:params">
+    <RDF:li>
+      <RDF:Seq RDF:about="urn:input:dev">
+        <RDF:li RDF:resource="urn:input:dev:rs232:device"/>
+        <RDF:li RDF:resource="urn:input:dev:rs232:baudrate"/>
+        <RDF:li RDF:resource="urn:input:dev:rs232:databits"/>
+        <RDF:li RDF:resource="urn:input:dev:rs232:stopbits"/>
+        <RDF:li RDF:resource="urn:input:dev:rs232:parity"/>
+        <RDF:li RDF:resource="urn:input:dev:rs232:buffer"/>
+        <RDF:li RDF:resource="urn:input:dev:rs232:mode"/>
+      </RDF:Seq>
+      <RDF:Seq RDF:about="urn:input:poll">
+        <RDF:li RDF:resource="urn:input:poll:string"/>
+      </RDF:Seq>
+    </RDF:li>
+  </RDF:Seq>
+  
+  <RDF:Seq RDF:about="urn:output:params">
+    <RDF:li>
+      <RDF:Seq RDF:about="urn:output:dev">
+        <RDF:li RDF:resource="urn:output:dev:logfile:filename"/>
+        <RDF:li RDF:resource="urn:output:dev:logfile:mode"/>
+      </RDF:Seq>
+    </RDF:li>
+  </RDF:Seq>
+
+  <RDF:Seq RDF:about="urn:window:params">
+    <RDF:li>
+      <RDF:Seq RDF:about="urn:window">
+        <RDF:li RDF:resource="urn:window:xpos"/>
+        <RDF:li RDF:resource="urn:window:ypos"/>
+        <RDF:li RDF:resource="urn:window:width"/>
+        <RDF:li RDF:resource="urn:window:height"/>
+        <RDF:li RDF:resource="urn:window:title"/>
+        <RDF:li RDF:resource="urn:window:skip"/>
+        <RDF:li RDF:resource="urn:window:border"/>
+        <RDF:li RDF:resource="urn:window:frame"/>
+      </RDF:Seq>
+    </RDF:li>
+  </RDF:Seq>
+  
+  <RDF:Seq RDF:about="urn:tool:params">
+    <RDF:li>
+      <RDF:Seq RDF:about="urn:tool">
+        <RDF:li RDF:resource="urn:tool:param1"/>
+        <RDF:li RDF:resource="urn:tool:param2"/>
+      </RDF:Seq>
+    </RDF:li>
+  </RDF:Seq>
+  
+ <RDF:Seq about="urn:input:channels">
+  <RDF:li>
+   <RDF:Description cstkxml:id="0" cstkxml:bits="8"  cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="Preamble"/>
+   <RDF:Description cstkxml:id="1" cstkxml:bits="16" cstkxml:sign="signed"   cstkxml:format="integer" cstkxml:name="Temperature"/>
+   <RDF:Description cstkxml:id="2" cstkxml:bits="32" cstkxml:sign="signed"   cstkxml:format="float"   cstkxml:name="Ambient Light"/>
+   <RDF:Description cstkxml:id="3" cstkxml:bits="16" cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="X Acceleration"/>
+   <RDF:Description cstkxml:id="4" cstkxml:bits="16" cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="Y Acceleration"/>
+   <RDF:Description cstkxml:id="5" cstkxml:bits="8"  cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="Infrared"/>
+   <RDF:Description cstkxml:id="6" cstkxml:bits="32"  cstkxml:sign="signed" cstkxml:format="float" cstkxml:name="Humidity"/>
+   <RDF:Description cstkxml:id="7" cstkxml:bits="8"  cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="CloseChar"/>
+  </RDF:li>
+ </RDF:Seq>
+
+ <RDF:Seq RDF:about="urn:input:columns">
+  <RDF:li>
+    <RDF:Description cstkxml:id="0" cstkxml:ch="1" cstkxml:bits="8" cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="Temp"/>
+    <RDF:Description cstkxml:id="1" cstkxml:ch="2" cstkxml:bits="8" cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="Light"/>
+    <RDF:Description cstkxml:id="2" cstkxml:ch="3" cstkxml:bits="8" cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="XAccel"/>
+    <RDF:Description cstkxml:id="3" cstkxml:ch="4" cstkxml:bits="8" cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="YAccel"/>
+    <RDF:Description cstkxml:id="4" cstkxml:ch="5" cstkxml:bits="8" cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="IR"/>
+    <RDF:Description cstkxml:id="5" cstkxml:ch="6" cstkxml:bits="8" cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="Humidity"/>
+  </RDF:li>
+ </RDF:Seq>
+ 
+ <RDF:Seq about="urn:output:channels">
+  <RDF:li>
+   <RDF:Description cstkxml:id="0" cstkxml:bits="8"  cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="Temp(min)"/>
+   <RDF:Description cstkxml:id="1" cstkxml:bits="8"  cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="Temp(max)"/>
+   <RDF:Description cstkxml:id="2" cstkxml:bits="16" cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="Temp(avg)"/>
+   <RDF:Description cstkxml:id="3" cstkxml:bits="16" cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="Temp(var)"/>
+   <RDF:Description cstkxml:id="4" cstkxml:bits="8"  cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="Humidity(min)"/>
+   <RDF:Description cstkxml:id="5" cstkxml:bits="8"  cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="Humidity(max)"/>
+   <RDF:Description cstkxml:id="6" cstkxml:bits="16" cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="Humidity(avg)"/>
+   <RDF:Description cstkxml:id="7" cstkxml:bits="16" cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="Humidity(var)"/>
+  </RDF:li>
+ </RDF:Seq>
+
+ <RDF:Seq about="urn:output:columns">
+  <RDF:li>
+    <RDF:Description cstkxml:id="0" cstkxml:ch="1" cstkxml:bits="8" cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="Temp(min)" cstkxml:type="minimum"/>
+    <RDF:Description cstkxml:id="1" cstkxml:ch="1" cstkxml:bits="8" cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="Temp(max)" cstkxml:type="maximum"/>
+    <RDF:Description cstkxml:id="2" cstkxml:ch="1" cstkxml:bits="32" cstkxml:sign="unsigned" cstkxml:format="float" cstkxml:name="Temp(avg)" cstkxml:type="average"/>
+    <RDF:Description cstkxml:id="3" cstkxml:ch="1" cstkxml:bits="32" cstkxml:sign="unsigned" cstkxml:format="float" cstkxml:name="Temp(var)" cstkxml:type="variance"/>
+    <RDF:Description cstkxml:id="4" cstkxml:ch="6" cstkxml:bits="8" cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="Humidity(min)" cstkxml:type="minimum"/>
+    <RDF:Description cstkxml:id="5" cstkxml:ch="6" cstkxml:bits="8" cstkxml:sign="unsigned" cstkxml:format="integer" cstkxml:name="Humidity(max)" cstkxml:type="maximum"/>
+    <RDF:Description cstkxml:id="6" cstkxml:ch="6" cstkxml:bits="32" cstkxml:sign="unsigned" cstkxml:format="float" cstkxml:name="Humidity(avg)" cstkxml:type="average"/>
+    <RDF:Description cstkxml:id="7" cstkxml:ch="6" cstkxml:bits="32" cstkxml:sign="unsigned" cstkxml:format="float" cstkxml:name="Humidity(var)" cstkxml:type="variance"/>
+  </RDF:li>
+ </RDF:Seq>
+ 
+ <RDF:Seq about="urn:window:plots">
+  <RDF:li>
+    <RDF:Description cstkxml:id="0" cstkxml:src="0" cstkxml:type="timeseries" cstkxml:title="plot1" cstkxml:res="100" cstkxml:scaled="yes" cstkxml:color="#AA1010"/>
+    <RDF:Description cstkxml:id="1" cstkxml:src="2" cstkxml:type="timeseries" cstkxml:title="plot2" cstkxml:res="100" cstkxml:scaled="yes" cstkxml:color="#10AA10"/>
+    <RDF:Description cstkxml:id="2" cstkxml:src="4" cstkxml:type="timeseries" cstkxml:title="plot3" cstkxml:res="100" cstkxml:scaled="yes" cstkxml:color="#1010AA"/>
+    <RDF:Description cstkxml:id="3" cstkxml:src="1" cstkxml:type="histogram" cstkxml:title="plot4" cstkxml:res="100" cstkxml:scaled="yes" cstkxml:color="#55AA10"/>
+    <RDF:Description cstkxml:id="4" cstkxml:src="3" cstkxml:type="peakplot" cstkxml:title="plot5" cstkxml:res="100" cstkxml:scaled="yes" cstkxml:color="#6610AA"/>
+    <RDF:Description cstkxml:id="5" cstkxml:src="4" cstkxml:type="peakplot" cstkxml:title="plot6" cstkxml:res="100" cstkxml:scaled="yes" cstkxml:color="#FF1066"/>
+  </RDF:li>
+ </RDF:Seq>
+
+
+</RDF:RDF>
+
