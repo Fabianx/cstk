@@ -55,6 +55,7 @@ class X11Plot
 {
  public: 
   X11Plot();
+  X11Plot(WindowSettings ws);
   X11Plot(int x1, int x2, int y1, int y2, int bw, char* window_name=0);
   ~X11Plot();
   void create(int x1, int x2, int y1, int y2, int bw, char* window_name=0);
@@ -65,7 +66,6 @@ class X11Plot
   void drawframe(int x, int y, int width, int height); 
   void drawline(int x1, int y1, int x2, int y2, int clr);
   void delay(unsigned long i);   
- protected: 
   Display* display;
   unsigned int screen_width;
   unsigned int screen_height;
@@ -87,6 +87,7 @@ class X11Plot
   XColor plot_colours[16]; // mapped colours for plotting 
   unsigned int screen_num; // id
   Pixmap buffer;           // double buffer
+ private: 
   XFontStruct* font_info;
   Atom ProtocolAtom, KillAtom; // for destruction
 };

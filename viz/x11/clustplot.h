@@ -25,20 +25,21 @@
   *@author Kristof Van Laerhoven
   */
 
-class ClustPlot : public X11Plot {
+class ClustPlot {
  public: 
-  ClustPlot();
-  ~ClustPlot();
-  void barplot(uint x, uint y, uint max_x, uint max_y, 
-               KVector *vector, int bgcolour=0);
-  void lineplot(uint x, uint y, uint max_x, uint max_y, 
-               KVector *vector, int bgcolour=0);
+	ClustPlot(X11Plot* pwindow=NULL);
+	~ClustPlot() {};
+	void barplot(int x, int y, int max_x, int max_y, 
+		KVector *vector, int bgcolour=0);
+	void lineplot(int x, int y, int max_x, int max_y, 
+		KVector *vector, int bgcolour=0);
  private:
-  unsigned int win_width_old, win_height_old;  
-  unsigned int cell_width;
-  unsigned int bar_width;
-  unsigned int cell_height;
-  unsigned int bar_max;
+	X11Plot *window;
+	unsigned int win_width_old, win_height_old;  
+	int cell_width;
+	int bar_width;
+	int cell_height;
+	int bar_max;
 };
 
 #endif

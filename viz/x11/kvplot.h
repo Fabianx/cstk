@@ -26,32 +26,33 @@
   *@author Kristof Van Laerhoven
   */
 
-class KVPlot : public X11Plot {
+class KVPlot {
  public: 
-  KVPlot(WindowSettings ws);
-  char histogram(uint cscr, uint tscr, KVector& vector, int colour, 
-                 uint num_buckets, char* title=NULL); 
-  char timeseries(uint cscr, uint tscr, KVector& vector, int colour, 
-                  char* title=NULL, bool scaling=1);  
-  char peakplot(uint cscr, uint tscr, Peak& peak, char* title=NULL); 
-  
-  char textplot(uint cscr, uint tscr, KVector& vector);
-
-  char spiketrain(uint cscr, uint tscr, KVector& vector, int colour, 
-                  char* title=NULL);    
-  char impulse(uint cscr, uint tscr, KVector& vector, int colour, 
-               char* title=NULL);  
+	KVPlot(X11Plot* pwindow=NULL);
+	char histogram(uint cscr, uint tscr, KVector& vector, int colour, 
+			uint num_buckets, char* title=NULL); 
+	char timeseries(uint cscr, uint tscr, KVector& vector, int colour, 
+			char* title=NULL, bool scaling=1);  
+	char peakplot(uint cscr, uint tscr, Peak& peak, char* title=NULL); 
+	
+	char textplot(uint cscr, uint tscr, KVector& vector);
+	
+	char spiketrain(uint cscr, uint tscr, KVector& vector, int colour, 
+			char* title=NULL);    
+	char impulse(uint cscr, uint tscr, KVector& vector, int colour, 
+		char* title=NULL);  
   
  private: 
-  XPoint plot_point[1024];
-  // variables for the plots that do not change very often:
-  unsigned int sub_height;
-  unsigned int tot_height;
-  unsigned int bucket_width;
-  vei_t        peak_width;
-    
-  unsigned int old_win_height;
-  unsigned int old_win_width;
+	X11Plot *window;
+	XPoint plot_point[1024];
+	// variables for the plots that do not change very often:
+	unsigned int sub_height;
+	unsigned int tot_height;
+	unsigned int bucket_width;
+	vei_t        peak_width;
+	
+	unsigned int old_win_height;
+	unsigned int old_win_width;
 };
 
 #endif
