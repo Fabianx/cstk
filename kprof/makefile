@@ -17,7 +17,8 @@ iparse.o: datacell.o binvector.o kvector.o dvector.o bufferparser.o \
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 wparse.o: kvector.o peak.o plotsetparse.o windowsetparse.o \
-	windowsetparse.o plotsetparse.o 
+	windowsetparse.o plotsetparse.o \
+	ksomsetparse.o 
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 kprof.o:	peak.o

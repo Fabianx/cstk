@@ -14,6 +14,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+#ifndef PLOTSETPARSE_H
+#define PLOTSETPARSE_H
 
 /**Parser for CSTK plots
   *@author Kristof Van Laerhoven
@@ -88,3 +90,6 @@ class PlotSetParse: public SetParse {
 	PlotSettings* plot_set;
 	char plotset_val[NUM_PLOT_ATTR][256];
 };
+
+#endif // PLOTSETPARSE_H
+

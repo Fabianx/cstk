@@ -14,6 +14,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+#ifndef IPARSE_H
+#define IPARSE_H
 
 #include "cstk_base/vector/binvector.h"
 #include "cstk_base/vector/kvector.h"
@@ -132,3 +134,5 @@ class IParse {
 	 InputColumnSettings   	*icolset, *icolpset; 
 	//-----------------------------------------------------
 };
+
+#endif // IPARSE_H

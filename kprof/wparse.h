@@ -14,6 +14,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+#ifndef WPARSE_H
+#define WPARSE_H
 
 #include "kprof/setparse.h"
 #include "kprof/windowsetparse.h"
@@ -110,4 +112,6 @@ class WParse {
 	 WindowSettings 	*winset;
 	//-----------------------------------------------------
 };
+
+#endif // WPARSE_H
 
