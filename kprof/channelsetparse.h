@@ -77,3 +77,4 @@ class ChannelSetParse: public SetParse {
 	ChannelSettings* ch_set;
 	char chset_val[NUM_CH_ATTR][256];
 };
+

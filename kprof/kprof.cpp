@@ -21,6 +21,7 @@ KProf::KProf() {
 	err = 0;
 	errline = 0;
 	line = 1;
+	sd      	= NULL;
 	sp      	= NULL; sp_size=0;
 	rs232set	= NULL;
 	udpset  	= NULL;
@@ -28,33 +29,43 @@ KProf::KProf() {
 	simset  	= NULL;
 	chset   	= NULL;
 	icolset 	= NULL;
+	chs     	= NULL;
+	icols   	= NULL;
+	filter  	= NULL;
 }
 
 KProf::~KProf() {
+	// delete all elements separately from sp:
+	   // TODO
 	if (sp!=NULL) delete []sp;
+	if (sd!=NULL) delete sd;
+	if (chs!=NULL) delete []chs;
+	if (icols!=NULL) delete []icols;
+	if (filter!=NULL) delete []filter;
 }
 
 int KProf::parse(FILE* fp) {
 	unsigned int max_tags=1024;
+	err=0;
+	num_chs=0;
+	num_icols=0;
 	sp = new SetParse*[max_tags];
 	if (!fp) 
 		return ERR_NOFILE;
 	else while (!feof(fp))
 	{	
 		int t=0;
-		err=0;
 		char ch;
-		bool valid_att_tag = false;
-		bool valid_sub_tag = false;
+		bool valid_att_tag = false, valid_sub_tag = false;
 		char tmpstr[MAX_TAG_LENGTH];
 		do {
 		   do { ch=getc(fp); if (ch=='\n') line++;
-		   } while ((ch!='<')&&(!feof(fp)));
+		   } while ((ch!='<')&&(!feof(fp))); // wait for a '<'
 		   t=0;		   
 		   do { ch=getc(fp); tmpstr[t++]=ch; if (ch=='\n') line++;
 		   } while ((ch!=' ')&&(ch!='\t')&&
 		  	    (ch!='\n')&&(ch!='\r')&&(ch!='>')&&(!feof(fp)));
-		   tmpstr[t-1]='\0';
+		   tmpstr[t-1]='\0'; // extract the word following the '<'
 		   int i;
 		   for (i=0; i<NUM_A_ITAGS; i++)
 			if (strcasecmp(tmpstr,input_att_tags[i])==0)
@@ -85,23 +96,21 @@ int KProf::parse(FILE* fp) {
 			if ((sp_size)>0) sp_size--;
 		  }
 		  else if (strcasecmp(tmpstr,"channel")==0) {
-			// i_chset = add_channel();
-			// setparse[parser_counter] = new ChannelSetParse(i_chset);
 			chset = new ChannelSettings;
 			sp[sp_size] = new ChannelSetParse(chset);
+			num_chs++; // count the number of channels
 		  }
 		  else if (strcasecmp(tmpstr,"inputcolumn")==0) {
-			// i_icolset = add_inputcolumn();
-			// setparse[parser_counter] = new InputColumnSetParse(i_icolset);
 			icolset = new InputColumnSettings;
 			sp[sp_size] = new InputColumnSetParse(icolset);
+			num_icols++; // count the number of inputcolumns
 		  }
-		  else if (!feof(fp)&&(!valid_sub_tag)) {
+		  else if (!feof(fp)&&(!valid_sub_tag)) { // currently not used.. 
 			err = ERR_INVTAG; // wrong tag
 			errline = line;
 		  }
 		  if (valid_att_tag){
-		  	// parse attributes
+			// parse all attributes
 			if (sp[sp_size]->read_set(fp)!=0) {
 				err = ERR_INVATTR; // wrong attribute
 				errline = line;
@@ -120,7 +129,11 @@ int KProf::parse(FILE* fp) {
 		}
 	}
 	fclose(fp);
-	return err; // all is well?
+	// update chanel and inputcolums:
+	chs   	= new char[num_chs];
+	icols 	= new DataCell[num_icols];
+	filter	= new int[num_icols];
+	return err; // got error?
 }
 
 int KProf::export_dtd(char* buffer) {
@@ -143,10 +156,10 @@ int KProf::export_dtd(char* buffer) {
 
 int KProf::export_xsd(char* buffer) {
 	err=0;
-	char tmpstr[256];
-	char last_mode[256]; 
-	char last_tag[256];
-	char curr_tag[256];
+	char tmpstr[MAX_XSD_LENGTH];
+	char last_mode[MAX_TAG_LENGTH]; 
+	char last_tag[MAX_TAG_LENGTH];
+	char curr_tag[MAX_TAG_LENGTH];
 	last_mode[0]='\0';
 	last_tag[0]='\0';
 	strcpy(buffer,"\t<input>\n");
@@ -181,6 +194,8 @@ int KProf::setup_sensordata_parser() {
 	char tmpstr[MAX_TAG_LENGTH];
 	tmpstr[0]=0;
 	err = 0;
+	unsigned int ch_ctr=0; 
+	unsigned int icol_ctr=0; 
 	for (unsigned int t=0; t<sp_size; t++) {
 		sp[t]->write_tag(tmpstr);
 		if (strcasecmp(tmpstr,"rs232")==0) {
@@ -195,12 +210,21 @@ int KProf::setup_sensordata_parser() {
 		} else if (strcasecmp(tmpstr,"sim")==0) {
 			if (simset) 	sd = new SimParser(*simset);
 			else err = ERR_NOSET;
-		} 
+		} /*else if (strcasecmp(tmpstr,"channel")==0) {
+			chs[ch_ctr] = DC_typecast( sp[t]->chset.sign, sp[t]->chset.bits, 
+			                           sp[t]->chset.format );
+			ch_ctr++;
+		} else if (strcasecmp(tmpstr,"inputcolumn")==0) {
+			filter[icol_ctr] = sp[t]->icolset.channel;
+			icols[icol_ctr].set_type(DC_typecast( sp[t]->icolset.sign, 
+			                                      sp[t]->icolset.bits, 
+			                                      sp[t]->icolset.format ));
+			icols[icol_ctr].set_bits(sp[t]->icolset.bits);
+			icol_ctr++;
+		} */
 	}
 	return err; // should return err_code from specific parser
 }
-
-
 
 
 

@@ -40,6 +40,7 @@
 
 #define MAX_TAG_LENGTH   255
 #define MAX_DTD_LENGTH   2048
+#define MAX_XSD_LENGTH   1024
 
 // CSTK tags linked to settings:
 #define NUM_A_ITAGS 7
@@ -49,9 +50,7 @@ const char input_att_tags[NUM_A_ITAGS][16] = {
 	};
 // valid but empty CSTK tags:
 #define NUM_S_ITAGS 2
-const char input_sub_tags[NUM_S_ITAGS][16] = {
-	"!--", "packet" };
-
+const char input_sub_tags[NUM_S_ITAGS][16] = { "!--", "packet" };
 
 class KProf {
  public:	
@@ -61,10 +60,17 @@ class KProf {
 	int export_dtd(char* buffer);
 	int export_xsd(char* buffer);
 	int setup_sensordata_parser();
+	
 	SensorData *sd; // this will point at the device!
 	int err;
 	unsigned int errline;
 	unsigned int line;
+	
+	char *chs;             	// array of types (char) in channels
+	unsigned int num_chs;  	// number of channels
+	DataCell *icols;       	// datacell array of all input columns 
+	int *filter;            	// array of mapping filter
+	unsigned int num_icols;	// number of input columns
  private:
 	SetParse* *sp; 	// dynamic array of all settings tags
 	unsigned int sp_size; 	// 
@@ -73,13 +79,10 @@ class KProf {
 	 UDPParserSettings     	*udpset;
 	 LogFileParserSettings 	*logfileset;
 	 SimParserSettings     	*simset;
-	 ChannelSettings       	*chset;    // list
-	 InputColumnSettings   	*icolset;  // list
+	 ChannelSettings       	*chset; 
+	 InputColumnSettings   	*icolset;
 	//-----------------------------------------------------
 };
-
-
-
 
 
 
