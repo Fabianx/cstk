@@ -26,7 +26,7 @@
 #include <stdlib.h>  //strcmp()
 #include "algorithms/gng/gng.h"   
 
-#define border1 7
+#define border1 60
 
 int main(int ac, char **args) {
 
@@ -114,30 +114,34 @@ int main(int ac, char **args) {
 		case OMODE_PIPE  : break;
 		case OMODE_UDP   : break;
 	}
-
+	usleep(2000000);
 	// prepare the SOM:
 	//DVector vect(kprof.is.numcols); // no stats-keeping please
 	DVector *vect, *vec1, *vec2;
 	KVector kvect(kprof.is.numcols); // no stats-keeping please
 	
 	vec1 = new DVector(kprof.is.numcols);	
-	if ( sd->read(channel_types, kprof.is.numchs, columns, select, kprof.is.numcols)) 
+	/*if ( sd->read(channel_types, kprof.is.numchs, columns, select, kprof.is.numcols)) 
 		for (i=0; i<kprof.is.numcols; i++) 
-				vec1->set_comp(columns[i].get_u8b(),U8B_TYPE,i);
+				vec1->set_comp(columns[i].get_u8b(),U8B_TYPE,i);*/
 	 
 	vec2 = new DVector(kprof.is.numcols);
-	if ( sd->read(channel_types, kprof.is.numchs, columns, select, kprof.is.numcols)) 
+	/*if ( sd->read(channel_types, kprof.is.numchs, columns, select, kprof.is.numcols)) 
 		for (i=0; i<kprof.is.numcols; i++) 
-				vec2->set_comp(columns[i].get_u8b(),U8B_TYPE,i);
+				vec2->set_comp(columns[i].get_u8b(),U8B_TYPE,i);*/
 				
-	gng.create(*vec1,*vec2,2,0.95,0.8,0.01);
+	vec1->set_comp(345,U8B_TYPE,0);	
+	vec1->set_comp(456,U8B_TYPE,1);		
+	vec2->set_comp(569,U8B_TYPE,0);	
+	vec2->set_comp(455,U8B_TYPE,0);	
+	gng.create(*vec1,*vec2,5,0.05,0.8,0.005,0.001);
 	delete vec1;
 	delete vec2;	
 	
 	DVector *nodeT, *edgeT;
 	int x_max=100, y_max=100;
 	
-	int count=0, countlin=1;
+	int count=0, countlin=border1,countlin2=1;
 	int clr=0;
 	int nodes, nodes_old;
   	// Loop until the task is interrupted:
@@ -159,9 +163,12 @@ int main(int ac, char **args) {
 				if ((int)(columns[1].get_u8b())>y_max)
 					y_max = (int)(columns[1].get_u8b()); //printf("y_max=%i\n",y_max);
 					
+				//printf("%7.3e %7.3e\n",vect->get_comp(0),vect->get_comp(1));
+				//printf("%i %i\n",columns[0].get_u8b(),columns[1].get_u8b());
 				kp.drawframe((int)(((float)(columns[0].get_u8b())/x_max)*kprof.win.width), (int)(((float)(columns[1].get_u8b())/y_max)*kprof.win.height), 3, 3);
-			} 
-			gng.feed(*vect);
+			}  
+			if ((vect->get_comp(0)!=0) and (vect->get_comp(1)!=0))
+				gng.feed(*vect);
 			delete vect;
 		}
 		if (gng.getFirst_node() != NULL)
@@ -218,15 +225,19 @@ int main(int ac, char **args) {
 				} while (kp.eventloop()!=54);
 				break;
 		}
-		if (count<(border1*(countlin/log(countlin+2))))
+		if (count<(countlin*countlin2))
 			count++;
 		else
 		{
 			count=0;
-			countlin++;
+			countlin2++;
+			countlin = 10;
 			gng.newNode();
 		}
 	}
-	
+	if (sd!=NULL) delete sd;
+   	if (channel_types!=NULL) delete []channel_types;
+   	if (select!=NULL) delete []select;
+   	if (columns!=NULL) delete []columns;
 	return 0;
 }
