@@ -46,7 +46,6 @@ class LogFileSetParse : public SetParse {
 	int write_set(char* buffer);            // write to xsd 
 	int write_dtd(char* buffer);            // write to dtd
 	int write_tag(char* buffer) {strcpy(buffer,"logfile");return 0;}
-	int write_set(void** set) {*set = logfile_set;return 0;}
 
  private:
 	LogFileParserSettings* logfile_set;

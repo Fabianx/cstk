@@ -39,7 +39,7 @@ const char chset_defs[NUM_CH_ATTR][16] = {
 	"0", "unknown", "8", "unsigned", "integer"};
 
 // channel:
-struct ChannelSettings{
+struct ChannelSettings {
    ChannelSettings() {
 	id = -1;
 	name[0]='\0';
@@ -53,7 +53,7 @@ struct ChannelSettings{
    int bits;
    bool sign;
    char format;
-   ChannelSettings *next;
+   ChannelSettings* next;
 };
 
 class ChannelSetParse: public SetParse {
@@ -73,7 +73,6 @@ class ChannelSetParse: public SetParse {
 	int write_set(char* buffer);            // write to xsd
 	int write_dtd(char* buffer);            // write to dtd
 	int write_tag(char* buffer) {strcpy(buffer,"channel");return 0;}
-	int write_set(void** set) {*set = ch_set;return 0;}
  private:
 	ChannelSettings* ch_set;
 	char chset_val[NUM_CH_ATTR][256];

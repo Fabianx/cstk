@@ -20,7 +20,6 @@
 KProf::KProf() {
 	err = 0;
 	errline = 0;
-	line = 1;
 	sd      	= NULL;
 	sp      	= NULL; sp_size=0;
 	rs232set	= NULL;
@@ -45,6 +44,7 @@ KProf::~KProf() {
 }
 
 int KProf::parse(FILE* fp) {
+	unsigned int line = 1;
 	unsigned int max_tags=1024;
 	err=0;
 	num_chs=0;
@@ -93,47 +93,45 @@ int KProf::parse(FILE* fp) {
 			sp[sp_size] = new SimSetParse(simset);
 		  }
 		  else if (strcasecmp(tmpstr,"poll")==0) {
-			if ((sp_size)>0) sp_size--;
+			if ((sp_size)>0) sp_size--; // go back to previous tag
 		  }
 		  else if (strcasecmp(tmpstr,"channel")==0) {
-			// store first list pointer, put a NULL isn't necessary?
-			chset = new ChannelSettings;
-			sp[sp_size] = new ChannelSetParse(chset);
+			if (chset==NULL) { // first addition
+				chset = new ChannelSettings; chpset = chset;
+			}
+			else { 
+				ChannelSettings *chnset = new ChannelSettings;
+				chpset->next = chnset; chpset = chnset;
+			}
+			sp[sp_size] = new ChannelSetParse(chpset);
 			num_chs++; // count the number of channels
 		  }
 		  else if (strcasecmp(tmpstr,"inputcolumn")==0) {
-			icolset = new InputColumnSettings;
-			sp[sp_size] = new InputColumnSetParse(icolset);
+			if (icolset==NULL) { // first addition
+				icolset = new InputColumnSettings; icolpset = icolset;
+			}
+			else { 
+				InputColumnSettings *icolnset = new InputColumnSettings;
+				icolpset->next = icolnset; icolpset = icolnset;
+			}
+			sp[sp_size] = new InputColumnSetParse(icolpset);
 			num_icols++; // count the number of inputcolumns
 		  }
-		  else if (!feof(fp)&&(!valid_sub_tag)) { // currently not used.. 
-			err = ERR_INVTAG; // wrong tag
-			errline = line;
-		  }
 		  if (valid_att_tag){
-			// parse all attributes
-			if (sp[sp_size]->read_set(fp)!=0) {
-				err = ERR_INVATTR; // wrong attribute
-				errline = line;
+			if (sp[sp_size]->read_set(fp)!=0) { // parse all attributes
+				err = ERR_INVATTR; errline = line;
 			}
-			// update values in set
-			if (sp[sp_size]->update_set()!=0) {
-				err = ERR_UPDATE; // update error
-				errline = line;
+			if (sp[sp_size]->update_set()!=0) { // update values in set
+				err = ERR_UPDATE; errline = line;
 			}
 			sp_size++;
 		  }
 		}
 		else { // too many tags: array is overflowing!setparse
-			err = ERR_TAGOVERFLOW;
-			errline = line;
+			err = ERR_TAGOVERFLOW; errline = line;
 		}
 	}
 	fclose(fp);
-	// update chanel and inputcolums:
-	chs   	= new char[num_chs];
-	icols 	= new DataCell[num_icols];
-	filter	= new unsigned int[num_icols];
 	return err; // got error?
 }
 
@@ -192,45 +190,67 @@ int KProf::export_xsd(char* buffer) {
 }
 
 int KProf::setup_sensordata_parser() {
-	char tmpstr[MAX_TAG_LENGTH];
-	tmpstr[0]=0;
-	err = 0;
-	unsigned int ch_ctr=0; 
-	unsigned int icol_ctr=0; 
-	for (unsigned int t=0; t<sp_size; t++) {
-		sp[t]->write_tag(tmpstr);
-		if (strcasecmp(tmpstr,"rs232")==0) {
-			if (rs232set) 	sd = new Rs232Parser(*rs232set);
-			else err = ERR_NOSET;
-		} else if (strcasecmp(tmpstr,"udp")==0) {
-			if (udpset) 	sd = new UDPParser(*udpset);
-			else err = ERR_NOSET;
-		} else if (strcasecmp(tmpstr,"logfile")==0) {
-			if (logfileset)	sd = new LogFileParser(*logfileset);
-			else err = ERR_NOSET;
-		} else if (strcasecmp(tmpstr,"sim")==0) {
-			if (simset) 	sd = new SimParser(*simset);
-			else err = ERR_NOSET;
-		} else if (strcasecmp(tmpstr,"channel")==0) {
-			ChannelSettings* cs=NULL;
-			sp[t]->write_set(&cs);
-			if (cs!=NULL) {
-				chs[ch_ctr] = DC_typecast( cs->sign, cs->bits, cs->format );
-				ch_ctr++;
-			}
-			else err = ERR_CHSET; 
-		} else if (strcasecmp(tmpstr,"inputcolumn")==0) {
-			InputColumnSettings* is=NULL;
-			sp[t]->write_set(&is);
-			if (is!=NULL) {
-				filter[icol_ctr] = is->channel;
-				icols[icol_ctr].set_type(DC_typecast( is->sign, is->bits, 
-			                                      is->format ));
-				icols[icol_ctr].set_bits(is->bits);
-				icol_ctr++;
-			}
-			else err = ERR_ICOLSET;
-		} 
-	}
+	err = 0; // reset errors
+	// set device parser:
+	 if (rs232set)   	sd = new Rs232Parser(*rs232set); 	else 
+	 if (udpset)     	sd = new UDPParser(*udpset);     	else
+	 if (logfileset) 	sd = new LogFileParser(*logfileset);	else
+	 if (simset)     	sd = new SimParser(*simset);     	else
+	 err = ERR_NOSET;
+	return err;
+}
+
+int KProf::setup_channels() {
+	err = 0; // reset errors
+	 unsigned int ch_ctr=0; 
+	 chs   	= new char[num_chs];
+	 chpset = chset;
+	 while (chpset != NULL) {
+	 	chs[ch_ctr] = DC_typecast( chpset->sign, chpset->bits, chpset->format );
+	 	chpset = chpset->next;
+	 	ch_ctr++;
+	 }
+	 if (num_chs!=ch_ctr) err = ERR_CHSET;
+	return err;
+}
+
+int KProf::setup_inputcolumns() {
+	err = 0; // reset errors
+	 unsigned int icol_ctr=0; 
+	 icols 	= new DataCell[num_icols];
+	 filter	= new unsigned int[num_icols];
+	 icolpset = icolset;
+	 while (icolpset != NULL) {
+	 	filter[icol_ctr] = icolpset->channel;
+	 	icols[icol_ctr].set_type(DC_typecast( icolpset->sign, icolpset->bits, 
+	 	                                      icolpset->format ));
+	 	icols[icol_ctr].set_bits(icolpset->bits);
+	 	icolpset = icolpset->next;
+	 	icol_ctr++;
+	 }
+	 if (num_icols!=icol_ctr) err = ERR_ICOLSET;
 	return err; // should return err_code from specific parser
 }
+
+int KProf::read_buffer(char* buff) {
+	int ret = sd->read(buff);
+	if (ret>=0) 	buff[ret]='\0'; 
+	else        	err=-ret;
+	return ret;
+}
+
+int KProf::read_icols(void) {
+	int ret = sd->read(chs, num_chs, icols, filter, num_icols);
+	if (ret<0)	err=-ret;
+	return ret;
+}
+
+void KProf::export_err(char* buffer) {
+	if (err==0)
+		buffer[0] = '\0'; // empty string
+	else if (err<NUM_KPERRS) 
+		sprintf(buffer, "%s. Line %i.\n\r", kperr_strings[err], errline);
+	else 
+		sprintf(buffer, "Device Error %i\n\r",err);
+}
+

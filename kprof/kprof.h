@@ -28,21 +28,34 @@
 #include "sensordata/udpparser/udpparser.h"
 #include "sensordata/simparser/simparser.h"
 
- 
-#define ERR_INVATTR      12
-#define ERR_INVTAG       13
-#define ERR_INVCH        14
-#define ERR_TAGOVERFLOW  15
-#define ERR_NOINPUT      16
-#define ERR_UPDATE       17
-#define ERR_NOFILE       20
-#define ERR_NOSET        21
-#define ERR_CHSET        30
-#define ERR_ICOLSET		 31
+#define ERR_INVATTR      1
+#define ERR_INVTAG       2
+#define ERR_INVCH        3
+#define ERR_TAGOVERFLOW  4
+#define ERR_NOINPUT      5
+#define ERR_UPDATE       6
+#define ERR_NOFILE       7
+#define ERR_NOSET        8
+#define ERR_CHSET        9
+#define ERR_ICOLSET      10
 
 #define MAX_TAG_LENGTH   255
 #define MAX_DTD_LENGTH   2048
 #define MAX_XSD_LENGTH   1024
+
+#define NUM_KPERRS       11
+const char kperr_strings[NUM_KPERRS][32] = 
+	{ "No error found.",
+	  "Invalid attribute found.",
+	  "Invalid tag found.",
+	  "Invalid channel found.",
+	  "Tag overflow (too many tags).",
+	  "No input.",
+	  "Error during updating.",
+	  "No such file!",
+	  "No parser encountered.",
+	  "Error setting channels.",
+	  "Error setting inputcolumns."};
 
 // CSTK tags linked to settings:
 #define NUM_A_ITAGS 7
@@ -55,25 +68,38 @@ const char input_att_tags[NUM_A_ITAGS][16] = {
 const char input_sub_tags[NUM_S_ITAGS][16] = { "!--", "packet" };
 
 class KProf {
- public:	
+ public:
 	KProf();
 	~KProf();
+	
 	int parse(FILE* fp);
+	
 	int export_dtd(char* buffer);
 	int export_xsd(char* buffer);
+	
 	int setup_sensordata_parser();
+	int setup_channels();
+	int setup_inputcolumns();
 	
-	SensorData *sd; // this will point at the device!
-	int err;
-	unsigned int errline;
-	unsigned int line;
+	int read_buffer(char* buff);
+	int read_icols(void);
 	
+	void export_err(char* buffer); // print error string in buffer
+	bool error() {return err;}
+	
+	SensorData *sd; // this will point to the device!
+	
+	DataCell *icols;       	// datacell array of all input columns 
+	unsigned int num_icols;	// number of input columns
+	
+ private:
 	char *chs;             	// array of types (char) in channels
 	unsigned int num_chs;  	// number of channels
-	DataCell *icols;       	// datacell array of all input columns 
 	unsigned int *filter;   // array of mapping filter
-	unsigned int num_icols;	// number of input columns
- private:
+	
+	int err;
+	unsigned int errline;
+	
 	SetParse* *sp; 	// dynamic array of all settings tags
 	unsigned int sp_size; 	// 
 	//----- These are valid settings lists: ---------------
@@ -81,7 +107,8 @@ class KProf {
 	 UDPParserSettings     	*udpset;
 	 LogFileParserSettings 	*logfileset;
 	 SimParserSettings     	*simset;
-	 ChannelSettings       	*chset; 
-	 InputColumnSettings   	*icolset;
+	 ChannelSettings       	*chset, *chpset;   
+	 InputColumnSettings   	*icolset, *icolpset; 
 	//-----------------------------------------------------
 };
+
