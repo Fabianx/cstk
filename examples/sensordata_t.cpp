@@ -57,10 +57,12 @@ int main(int ac, char *argv[]) {
   {
       if (sd->read(buffer))
         printf("msg: \"%s\"\n\r", buffer);
+      else
+        printf("msg: <nothing>\n\r");
   }
     
   if (sd != NULL) delete sd;
     
   return 0;
 }
- 
+

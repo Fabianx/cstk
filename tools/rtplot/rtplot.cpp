@@ -59,7 +59,7 @@ int main(int ac, char **args) {
     if (res!=0) {
        printf("Parse error in file '%s' on line %i.\n\r", args[1], res);
        exit(1);
-    };
+    }
     sprintf(window_name,"rtplot:%s,%s", imodes[kprof.input_mode], 
                                         omodes[kprof.output_mode]);
    
@@ -89,10 +89,9 @@ int main(int ac, char **args) {
    
   // set up the input:
    switch (kprof.input_mode) {
-     case IMODE_RS232 : printf("*** %s,%s.\n\r",kprof.is.poll, kprof.is.serport);
+     case IMODE_RS232 : 
             sd = new Rs232Parser(kprof.is.baudrate, kprof.is.buffsize,
                                  kprof.is.poll, kprof.is.serport);
-            printf("***-\n\r");
             break;
      case IMODE_FILE  : 
             sd = new LogFileParser(kprof.is.filename); 
@@ -105,7 +104,7 @@ int main(int ac, char **args) {
             break;
      case IMODE_PIPE  : break;
      case IMODE_INT   : break;
-   }   
+   }
      
   // set up the output:
    switch (kprof.output_mode) {

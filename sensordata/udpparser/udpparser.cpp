@@ -56,7 +56,8 @@ char UDPParser::createGet() {
   return 0;
 }
           
-int UDPParser::getmsg() {
+int UDPParser::getmsg() 
+{
     int n;
     socklen_t clientLen; // length of client's addr.
     
@@ -75,7 +76,8 @@ int UDPParser::getmsg() {
     }    
 }
 
-char UDPParser::createSend(char* targethost) {
+char UDPParser::createSend(char* targethost) 
+{
   int rc;
   
   // get server IP address (no check if IP address or DNS name 
@@ -108,7 +110,8 @@ char UDPParser::createSend(char* targethost) {
   return 0;
 }
   
-char UDPParser::sendmsg() {
+char UDPParser::sendmsg() 
+{
   int rc;
   
   rc = sendto(sdd, msg, strlen(msg), 0,
@@ -124,6 +127,7 @@ char UDPParser::sendmsg() {
 int UDPParser::read(char* channel_types, uint numchannels, 
                     DataCell* columns,  uint* filter, uint numcolumns)
 {
+  
   return 0;
 }
 
