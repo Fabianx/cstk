@@ -39,7 +39,7 @@ class Rs232Parser : virtual public SensorData {
 
 public:
   Rs232Parser();
-  Rs232Parser(int baud, int buff, char* poll, char* dev) {set_baudrate(baud);set_buff_size(buff);set_poll(poll);set_device(dev);};
+  Rs232Parser(int baud, int buff, char* poll, char* dev);
   ~Rs232Parser();
 
   /* read values from rs232 port, see SensorData class for more info */
@@ -52,7 +52,7 @@ public:
   /* read all from rs232 port, see SensorData class for more info */
     int read(DataCell* channels, uint* numchannels);
 
-	int read(char *line);
+    int read(char *line);
 
   /* set/get poll character */
   void set_poll(char* new_poll_char);

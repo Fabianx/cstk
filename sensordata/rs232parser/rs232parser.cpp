@@ -30,6 +30,16 @@ Rs232Parser::Rs232Parser() {
    device = NULL;
 }
 
+Rs232Parser::Rs232Parser(int baud, int buff, char* poll, char* dev) 
+{
+   poll_char = NULL;
+   device    = NULL;
+   set_baudrate(baud);
+   set_buff_size(buff);
+   set_poll(poll);
+   set_device(dev);
+}
+
 Rs232Parser::~Rs232Parser() { 
    close_rs232();
    if (device!=NULL) {
