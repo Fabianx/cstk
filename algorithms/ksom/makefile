@@ -2,7 +2,7 @@
 #
 
 CC=g++ -Wall -O3 -g
-BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ..;pwd)
+BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ../..;pwd)
 
 all:	ksom.o
 
