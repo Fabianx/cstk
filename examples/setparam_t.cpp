@@ -15,7 +15,9 @@
  *                                                                         * 
  ***************************************************************************/
 
+#include "kprof/setparse.h"
 #include "kprof/rs232setparse.h"
+#include "kprof/logfilesetparse.h"
 #include "sensordata/rs232parser/rs232parser.h"
 #include "sensordata/logfileparser/logfileparser.h"
 #include "sensordata/udpparser/udpparser.h"
@@ -33,10 +35,15 @@ int main(int ac, char *argv[]) {
 		printf("\n\n");
 		exit(0);
 	}
-
+	
 	Rs232ParserSettings rs232set;
-
-	Rs232SetParse setparse(&rs232set);
+	LogFileParserSettings logfileset;
+	
+	SetParse*	setparse[256];
+	int		parser_counter=0;
+	//Rs232SetParse    setrs232parse(&rs232set);
+	//LogFileSetParse  setlogfileparse(&logfileset);
+	
 	/*
 	this is how you can easily set parameters:
 	setparse.read_set("baudrate","38400");
@@ -46,14 +53,14 @@ int main(int ac, char *argv[]) {
 	setparse.read_set("command","G");
 	*/
 	
-    FILE* fp = fopen(argv[1],"r");
+	FILE* fp = fopen(argv[1],"r");
 	char tmpstr[1024];
 	if (!fp) {
 		printf("error opening file!\n");
 		exit(0);
 	}
 	else while (!feof(fp))
-	{
+	{	
 		int t=0;
 		char ch;
 		do {
@@ -63,22 +70,40 @@ int main(int ac, char *argv[]) {
 		   } while ((ch!=' ')&&(ch!='\t')&&
 			  	    (ch!='\n')&&(ch!='\r')&&(ch!='>')&&(!feof(fp)));
 		   tmpstr[t-1]='\0';
-		} while ((strcasecmp(tmpstr,"rs232")!=0)&&
-				 (strcasecmp(tmpstr,"poll")!=0)&&(!feof(fp)));
-		if (setparse.read_set(fp)!=0) 
-			printf("error reading rs232 parameters!\n");
+		} while ( (strcasecmp(tmpstr,"rs232")!=0)&&
+		          (strcasecmp(tmpstr,"logfile")!=0)&&
+		          (strcasecmp(tmpstr,"poll")!=0)&&(!feof(fp)));
+		if ((strcasecmp(tmpstr,"rs232")==0)||(strcasecmp(tmpstr,"poll")==0)) {
+			// if it doesn't exist already - stub
+			setparse[parser_counter] = new Rs232SetParse(&rs232set);
+			if (setparse[parser_counter]->read_set(fp)!=0) 
+				printf("error reading parameters!\n");
+			parser_counter++;
+		}
+		else if (strcasecmp(tmpstr,"logfile")==0) {
+			setparse[parser_counter] = new LogFileSetParse(&logfileset);
+			if (setparse[parser_counter]->read_set(fp)!=0) 
+				printf("error reading parameters!\n");
+			parser_counter++;
+		}
 	}
 	fclose(fp);
-
-	if (setparse.update_set()!=0)
-		printf("error updating rs232 vars\n");
 	
-	setparse.write_set(tmpstr);
-	printf("---- XSD: --------------------------------\n%s\n", tmpstr);
-  
-	setparse.write_dtd(tmpstr);
-	printf("---- DTD: --------------------------------\n%s\n", tmpstr);
+	printf("<!-- ***** DTD section ************************* -->\n");
+	for (int t=0; t<parser_counter; t++) {
+		if (setparse[t]->update_set()!=0)
+			printf("error updating vars in section %i.\n",t);
+		setparse[t]->write_dtd(tmpstr);
+		printf("%s\n", tmpstr);
+	}
 
+	printf("<!-- ***** XSD section ************************* -->\n");
+	for (int t=0; t<parser_counter; t++) {
+		if (setparse[t]->update_set()!=0)
+			printf("error updating vars in section %i.\n",t);
+		setparse[t]->write_set(tmpstr);
+		printf("%s\n", tmpstr);
+	}
+	
 	return 0;
 }
-
