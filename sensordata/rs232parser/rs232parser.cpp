@@ -37,7 +37,7 @@ Rs232Parser::Rs232Parser(int baud, int buff, char* poll, char* dev, short mod)
    rs232_param.baudrate = baud;
    rs232_param.buff_size = buff;
    int i=-1;
-   do { i++;rs232_param.poll_char[i] = poll[i]; } while (poll[i]!='\0');
+   do { i++;rs232_param.poll_char[i] = poll[i];} while (poll[i]!='\0');
    i=-1; do { i++;rs232_param.device[i] = dev[i]; } while (dev[i]!='\0');
    rs232_param.mode = mod;
 }
@@ -135,24 +135,26 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
 	if (fd==0) {
 		err = open_rs232(rs232_param.device);
 		if (err!=0) {
-			return err;
+			return -err;
 		}
 	}
     
 	if (rs232_param.poll_char[0]!=0) 
-	{
+	{   
 		res = write(fd,rs232_param.poll_char,1);
 		if (res==-1) {
 			err = RS232ERR_CANTWRITE;
-			return 0;
+			return -err;
 		}
 	}
 	
 	usleep(100);
-	res = ::read(fd,buf,rs232_param.buff_size);  // read buffer   
+	res = ::read(fd,buf,rs232_param.buff_size);  // read buffer
+	
+	buf[res]=0;   
 	if (res==-1) {
 		err = RS232ERR_CANTREAD;
-		return 0;
+		return -err;
 	}
 	else { 
 		i=0;  // counter for the buffer array
@@ -168,7 +170,7 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
      
 		j=0;  // counter for the datacells
 		k=0;  // temp counter
-		while (i<(unsigned int)res) {  
+		while ((i<(unsigned int)res)&&(j<numchannels)) {  
 			switch(channel_types[j]) {
 				case U8B_TYPE: 
 					for (k=0; k<numcolumns; k++) 
@@ -232,8 +234,7 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
      
 			j++;
 		}//while
-   
-	} //if..else 
+  	} //if..else 
 	return res+1;
 }
 
@@ -256,7 +257,7 @@ int Rs232Parser::read(char *line) {
 		if (err!=0)
          return err;
    }
- 
+   
 	if (rs232_param.poll_char[0]!='\0') 
 	{
 		res = write(fd,rs232_param.poll_char,1);
@@ -264,8 +265,8 @@ int Rs232Parser::read(char *line) {
 			return RS232ERR_CANTWRITE;
 		}
 	}
-	usleep(100);
-   
+	usleep(100); // wait a bit for the buffer to fill up
+ 
 	res = ::read(fd,buf,rs232_param.buff_size);  
 	if (res==-1) {
 		return RS232ERR_CANTREAD;
@@ -281,7 +282,6 @@ int Rs232Parser::read(char *line) {
 	return res+1;
 }
 
-
 int Rs232Parser::open_rs232(char* devicename) {
   
   if (fd!=0) {  // close previous connection if there is one
@@ -294,20 +294,25 @@ int Rs232Parser::open_rs232(char* devicename) {
   buf = new unsigned char [rs232_param.buff_size];
 
   // open the device to be non-blocking (read will return immediatly)
-   fd = open(devicename, O_RDWR | O_NDELAY); //  | | O_NOCTTY
+   fd = open(devicename, O_RDWR | O_NONBLOCK | O_NOCTTY); //
 	if (fd ==-1) {     // error:
 		return RS232ERR_CANTOPEN;
 	}
 	else 
-	{ // set parameters: 
+	{ // ???
+	  // if( fcntl(fd, F_SETFL, 0) ==-1 ) return -1;
+	  // set parameters: 
        tcgetattr(fd,&oldtio); // save current port settings
        tcgetattr(fd,&newtio); // fill with old port settings
-       newtio.c_cflag = rs232_param.baudrate | CS8 | CLOCAL | CREAD;
-       newtio.c_iflag = IGNPAR ;
-       newtio.c_oflag = 0;
-       newtio.c_lflag = 0;
-       newtio.c_cc[VMIN]  = 0;
-       newtio.c_cc[VTIME] = 0;
+	   cfmakeraw(&newtio);
+	   //newtio.c_cflag = rs232_param.baudrate | CS8 | CLOCAL | CREAD;
+       newtio.c_cflag |= CS8 | CLOCAL | CREAD;
+       cfsetspeed(&newtio,rs232_param.baudrate);
+	   newtio.c_iflag = IGNPAR ;
+       //newtio.c_oflag = 0;
+       //newtio.c_lflag = 0;
+	   newtio.c_cc[VMIN] = 1;
+	   newtio.c_cc[VTIME] = 10;
        if (tcflush(fd, TCIFLUSH)!=0) return RS232ERR_CANTFLUSH;
        if (tcsetattr(fd,TCSANOW,&newtio)!=0) return RS232ERR_CANTSET;
 	}
