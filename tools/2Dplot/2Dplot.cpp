@@ -26,7 +26,7 @@
 #include <stdlib.h>  //strcmp()
 #include "algorithms/gng/gng.h"   
 
-#define border1 20
+#define border1 25
 
 int main(int ac, char **args) {
 
@@ -130,7 +130,7 @@ int main(int ac, char **args) {
 		for (i=0; i<kprof.is.numcols; i++) 
 				vec2->set_comp(columns[i].get_u8b(),U8B_TYPE,i);
 				
-	gng.create(*vec1,*vec2,10,0.8,0.8,0.01);
+	gng.create(*vec1,*vec2,4,0.8,0.8,0.01);
 	delete vec1;
 	delete vec2;	
 	
