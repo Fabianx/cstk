@@ -74,10 +74,10 @@
  {
  public:
  	GNG();
-	GNG(DVector& NodeA, DVector& NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonVals);
+	GNG(DVector& NodeA, DVector& NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonValB, oas_t EpsilonValN);
 	~GNG();
  	
-	void create(DVector& NodeA, DVector& NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonVals);
+	void create(DVector& NodeA, DVector& NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonValB, oas_t EpsilonValN);
 	void feed(DVector& input);
 	void decreaseErrors();
 	

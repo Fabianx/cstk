@@ -79,7 +79,12 @@ typedef struct KSOM_PARAM
 	/*-------------------------------------------------------*/
 };
 
-
+/****************************************************************************************
+*	Kohonen Self Organizing Map (2-dimensional) implementation with several 	*
+*	different neighborhood functions, automatically determination of the 		*
+*	learning rate and different measurements for the distances of neurons in 	*
+*	the grid. 									*
+****************************************************************************************/
 class KSOM {
  public: 
   	KSOM();
@@ -112,12 +117,19 @@ class KSOM {
   	DVector *vect;
 };
 
+/****************************************************************************************
+*	This is a child class of the KSOM class that implements different		*
+*	functions to improve the KSOM algorithm. 					*
+****************************************************************************************/
 class KSOMfct : public KSOM 
 {
  public:
- 	//KSOMfct();
-	//~KSOMfct();
-	
+ 	/****************************************************************************************
+	*	This method realizes a different way of training the neuron grid using		*
+	*	the distance of the input vector to the neurons in the grid to distribute 	*
+	*	the data over the map. No determination of a winner neuron is needed in 	*
+	*	this case. The new feed method works only on a pre trained map.			*
+	****************************************************************************************/
  	void feed_NoWinner(DVector& vec, float lr);
  private: 
  	oas_t det_nb(oas_t dist, ve_t fct);

@@ -26,18 +26,18 @@
 	par.epsilon_n = 0.5 * par.epsilon_b;
  }
  
- GNG::GNG(DVector& NodeA, DVector& NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonVals)
+ GNG::GNG(DVector& NodeA, DVector& NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonValB, oas_t EpsilonValN)
  {
- 	create(NodeA, NodeB, MaximumAge, DecreaseError, AlphaVal, EpsilonVals);
+ 	create(NodeA, NodeB, MaximumAge, DecreaseError, AlphaVal, EpsilonValB, EpsilonValN);
  }
  
- void GNG::create(DVector& NodeA, DVector& NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonVals)
+ void GNG::create(DVector& NodeA, DVector& NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonValB, oas_t EpsilonValN)
  {
  	par.age_max = MaximumAge;
 	par.d = DecreaseError;
 	par.alpha = AlphaVal;
-	par.epsilon_b = EpsilonVals;
-	par.epsilon_n = 0.5 * par.epsilon_b;
+	par.epsilon_b = EpsilonValB;
+	par.epsilon_n = EpsilonValN;
 	//create first node in neural gas network
 	NodeListElement *nodeA;
 	nodeA = new NodeListElement;
@@ -273,72 +273,6 @@
 			edge = edge->next;
 	} 
  }
- 
- /* void GNG::removeEdgeandNode(NodeListElement* nodeA, NodeListElement* nodeB)
- {
- 	printf("Remove edge\n");
-	EdgeListElement *edge,*tmp1,*tmp2;
-	if (nodeA != NULL)
-		edge = nodeA->firstEdge;
-	else
-		edge = NULL;
-	while (edge!=NULL)
-	{
-		if (edge->connectB == nodeB)
-		{
-			tmp1 = edge->next;
-			tmp2 = edge->last;
-			if ((tmp2 == NULL) and (tmp1 == NULL))
-				 if (nodeA != first)
-				 	removeNode(nodeA);
-				 else
-					nodeA->firstEdge = NULL;
-			else
-				if (nodeA->firstEdge == edge) 
-					nodeA->firstEdge = edge->next;
-			
-			delete edge;
-			edge = NULL;
-			if (tmp1 != NULL)
-				tmp1->last = tmp2;
-			if (tmp2 != NULL)	
-				tmp2->next = tmp1;
-			edge = tmp1;
-		}	
-		else
-				edge = edge->next;
-	} 
-	if (nodeB != NULL)
-		edge = nodeB->firstEdge;
-	else
-		edge = NULL;
-	while (edge!=NULL)
-	{
-		if (edge->connectB == nodeA)
-		{
-			tmp1 = edge->next;
-			tmp2 = edge->last;
-			if ((tmp2 == NULL) and (tmp1 == NULL))
-				if (nodeB != first)
-					removeNode(nodeB);	
-				else
-					nodeB->firstEdge = NULL;	
-			else
-				if (nodeB->firstEdge == edge) 
-					nodeB->firstEdge = edge->next;
-				
-			delete edge;
-			edge = NULL;
-			if (tmp1 != NULL)
-				tmp1->last = tmp2;
-			if (tmp2 != NULL)	
-				tmp2->next = tmp1;
-			edge = tmp1;
-		}	
-		else
-				edge = edge->next;
-	} 
- }*/
  
  void GNG::removeEdge(NodeListElement* nodeA, NodeListElement* nodeB, bool DelNodeIfNecessary)
  {

@@ -26,7 +26,7 @@
 #include <stdlib.h>  //strcmp()
 #include "algorithms/gng/gng.h"   
 
-#define border1 60
+#define border1 10
 
 int main(int ac, char **args) {
 
@@ -114,7 +114,6 @@ int main(int ac, char **args) {
 		case OMODE_PIPE  : break;
 		case OMODE_UDP   : break;
 	}
-	usleep(2000000);
 	// prepare the SOM:
 	//DVector vect(kprof.is.numcols); // no stats-keeping please
 	DVector *vect, *vec1, *vec2;
@@ -134,7 +133,7 @@ int main(int ac, char **args) {
 	vec1->set_comp(456,U8B_TYPE,1);		
 	vec2->set_comp(569,U8B_TYPE,0);	
 	vec2->set_comp(455,U8B_TYPE,0);	
-	gng.create(*vec1,*vec2,5,0.05,0.8,0.005,0.001);
+	gng.create(*vec1,*vec2,10,0.05,0.8,0.007,0.001);
 	delete vec1;
 	delete vec2;	
 	
@@ -184,7 +183,7 @@ int main(int ac, char **args) {
 		{	
 			nodes++;
 			kp.drawframe((int)(((float)(nodeT->get_comp(0))/x_max)*kprof.win.width), (int)(((float)(nodeT->get_comp(1))/y_max)*kprof.win.height), 5, 5);
-			if (clr<16)
+			if (clr<15)
 				clr++;
 			else
 				clr=0;
@@ -224,6 +223,8 @@ int main(int ac, char **args) {
 					kp.delay(kprof.win.framespersec);
 				} while (kp.eventloop()!=54);
 				break;
+			case 80: usleep(200000);
+				break;
 		}
 		if (count<(countlin*countlin2))
 			count++;
@@ -231,7 +232,7 @@ int main(int ac, char **args) {
 		{
 			count=0;
 			countlin2++;
-			countlin = 10;
+			countlin = 5;
 			gng.newNode();
 		}
 	}

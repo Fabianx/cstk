@@ -118,7 +118,7 @@ for (vei_t x=0; x<max_xy->pvect[0]; x++)
 				case F32B_TYPE: if (floor(2.0*rand()/(RAND_MAX+1.0))==1)
 							vect[_to2(x,y)].set_comp(((f_32b_max)*((double)(rand())/(double)(RAND_MAX+1))),  F32B_TYPE,n); 
 						else
-				//printf("KSOM()2\n");				vect[_to2(x,y)].set_comp(((f_32b_min)*((double)(rand())/(double)(RAND_MAX+1))),  F32B_TYPE,n);  
+							vect[_to2(x,y)].set_comp(((f_32b_min)*((double)(rand())/(double)(RAND_MAX+1))),  F32B_TYPE,n);  
 						break;
 				case F64B_TYPE: if (floor(2.0*rand()/(RAND_MAX+1.0))==1)
 							vect[_to2(x,y)].set_comp(((f_64b_max)*((double)(rand())/(double)(RAND_MAX+1))),  F64B_TYPE,n); 
