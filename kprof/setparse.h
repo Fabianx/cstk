@@ -34,8 +34,9 @@ struct SetParse {
 	virtual int read_set(char* attr, char* value)=0;  // read <attribute> <value> pair
 	int read_set(FILE* fp);                 // read from a file stream
 	virtual int update_set()=0;                       // flush to logfile
- 	virtual int write_set(char* buffer)=0;            // write to xsd 
- 	virtual int write_dtd(char* buffer)=0;            // write to dtd
+	virtual int write_set(char* buffer)=0;            // write to xsd 
+	virtual int write_dtd(char* buffer)=0;            // write to dtd
+	virtual int write_tag(char* buffer)=0;            // write the tag
 };
 
 #endif

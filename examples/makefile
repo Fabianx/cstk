@@ -116,11 +116,18 @@ setparam_demo: setparam_t.o
 	      $(SD_DIR)/logfileparser/logfileparser.o \
 	      $(SD_DIR)/udpparser/udpparser.o \
 	      $(SD_DIR)/simparser/simparser.o \
+	      $(BASE_DIR)/kprof/setparse.o \
 	      $(BASE_DIR)/kprof/rs232setparse.o \
+	      $(BASE_DIR)/kprof/udpsetparse.o \
+	      $(BASE_DIR)/kprof/logfilesetparse.o \
+	      $(BASE_DIR)/kprof/simsetparse.o \
+	      $(BASE_DIR)/kprof/channelsetparse.o \
+	      $(BASE_DIR)/kprof/inputcolumnsetparse.o \
 	      setparam_t.o -o ./$@
 	
 setparam_t.o: rs232parser.o logfileparser.o udpparser.o simparser.o \
-	rs232setparse.o datacell.o
+	rs232setparse.o udpsetparse.o logfilesetparse.o simsetparse.o \
+	channelsetparse.o inputcolumnsetparse.o datacell.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### KVPlot Demo ################################################################
@@ -177,6 +184,24 @@ kvplot.o:
 rs232setparse.o:
 	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
 		
+udpsetparse.o:
+	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
+		
+logfilesetparse.o:
+	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
+		
+simsetparse.o:
+	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
+		
+channelsetparse.o:
+	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
+		
+inputcolumnsetparse.o:
+	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
+		
+setparse.o:
+	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
+
 
 ###################################################################################
 

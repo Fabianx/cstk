@@ -4,7 +4,8 @@
 CC=g++ -Wall -O3 -g
 BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ..;pwd)
 
-all:	kprof.o setparse.o rs232setparse.o logfilesetparse.o
+all:	kprof.o setparse.o rs232setparse.o udpsetparse.o \
+	logfilesetparse.o simsetparse.o channelsetparse.o
 
 kprof.o:
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
@@ -12,7 +13,19 @@ kprof.o:
 rs232setparse.o: setparse.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
+udpsetparse.o: setparse.o
+	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+
 logfilesetparse.o: setparse.o
+	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+
+simsetparse.o: setparse.o
+	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+
+channelsetparse.o: setparse.o
+	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+
+inputcolumnsetparse.o: setparse.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 clean:

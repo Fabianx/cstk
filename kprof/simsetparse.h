@@ -1,7 +1,7 @@
 /***************************************************************************
-                           logfilesetparse.h  -  v.0.1
-                           ---------------------------
-    begin                : Tue Nov 30 2004
+                           simsetparse.h  -  v.0.1
+                             -------------------
+    begin                : Wed Dec 1 2004
     copyright            : (C) 2004 by Kristof Van Laerhoven
     email                : 
  ***************************************************************************/
@@ -15,40 +15,41 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef LOGFILESETPARSE_H
-#define LOGFILESETPARSE_H
+#ifndef SIMSETPARSE_H
+#define SIMSETPARSE_H
 
 #include "setparse.h"
-#include "sensordata/logfileparser/logfileparser.h" // for the settings
+#include <stdlib.h>  // atoi
+#include "sensordata/simparser/simparser.h" // for the settings
 
-#define _SET_LOGFILESET_DEF(a) strcpy(logfileset_val[(a)],logfileset_defs[(a)])
+#define _SET_SIMSET_DEF(a) strcpy(simset_val[(a)],simset_defs[(a)])
 
-#define NUM_LOGFILE_ATTR 2
-const char logfileset_attr[NUM_LOGFILE_ATTR][16] = {"filename", "mode"};
-const char logfileset_type[NUM_LOGFILE_ATTR][16] = {"CDATA", "(ascii|binary)"};
-const char logfileset_defs[NUM_LOGFILE_ATTR][16] = {"data.txt", "ascii"};
+#define NUM_SIM_ATTR 1
+const char simset_attr[NUM_SIM_ATTR][16] = {"size"};
+const char simset_type[NUM_SIM_ATTR][16] = {"CDATA"};
+const char simset_defs[NUM_SIM_ATTR][16] = {"5"};
 
-/**Class for parsing logfile settings 
+/**Class for parsing sim settings 
   *@author Kristof Van Laerhoven
   */
 
-class LogFileSetParse : public SetParse {
+class SimSetParse: public SetParse {
  public:
-	LogFileSetParse(LogFileParserSettings* logfile_set)
+	SimSetParse(SimParserSettings* sim_set)
 	{
-		this->logfile_set = logfile_set;
-		if (logfile_set->filename!=NULL)	_SET_LOGFILESET_DEF(0);
-		if (!logfile_set->mode)	_SET_LOGFILESET_DEF(1);
+		this->sim_set = sim_set;
+		if (!sim_set->size)     	_SET_SIMSET_DEF(0);
 	};
-	~LogFileSetParse() {};
+	~SimSetParse() {};
 	int read_set(char* attr, char* value);  // read <attribute> <value> pair
-	int update_set();                       // flush to logfile
+	int update_set();                       // flush to sim
  	int write_set(char* buffer);            // write to xsd 
  	int write_dtd(char* buffer);            // write to dtd
-	int write_tag(char* buffer) {strcpy(buffer,"logfile");return 0;}
+	int write_tag(char* buffer) {strcpy(buffer,"sim");return 0;}
+
  private:
-	LogFileParserSettings* logfile_set;
-	char logfileset_val[NUM_LOGFILE_ATTR][1024];
+	SimParserSettings* sim_set;
+	char simset_val[NUM_SIM_ATTR][256];
 };
 
 #endif
