@@ -45,35 +45,15 @@ class SDMA
 {
  public:
  	SDMA();
-  	SDMA(vei_t nsize, vei_t nasize, vei_t ndsize, oas_t thp=0);
+  	SDMA(SDMA_PARAM param);
   	~SDMA();
  	
-	/********************************************************************************
-	*	Method to create the SDMA with specification for the size of the 	*
-	*	data and address vectors, size of the memory in entries and 		*
-	*	threshold percentage for the distribution of the input data.		*
-	********************************************************************************/
-	void create(vei_t nsize, vei_t nasize, vei_t ndsize, oas_t thp=0);
-	/********************************************************************************
-	*	This method initializes the data and address vectors of the memory	*
-	*	with random bits.							*
-	********************************************************************************/
+	void create(SDMA_PARAM param);
+
 	void random_init();
 	
-	/********************************************************************************
-	*	With this method address and data vector tupels are deleted from	*
-	*	the memory according to the usage value.				*
-	********************************************************************************/
 	vei_t remove(oas_t usage);
-	/********************************************************************************
-	*	Method to store data vectors in the memory according to the address	*
-	*	vector distances.							*	
-	********************************************************************************/
  	vei_t store(BinVector& v1, BinVector& b1, bool det_radius);
-	/********************************************************************************
-	*	Method to retrieve data vectors out of the memory according to the 	*
-	*	address	vector distances.						*
-	********************************************************************************/
 	vei_t retrieve(BinVector& v1, BinVector& tsum, 
 	               BVector<oas_t>& tempsum, bool det_radius);
 
@@ -82,8 +62,6 @@ class SDMA
 	BVector<oas_t> *av_tmp; // temporary data vectors
 	BVector<oas_t> *dvd; // all the data vectors are vectors of counters
 	
-	// determines the smallest distance of input address and memory addresses
-	// for relative distribution of the data vector
 	vei_t radius(BinVector& v1);
 	
 	oas_t tmp;

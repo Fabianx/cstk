@@ -23,12 +23,9 @@ SDMA::SDMA()
    dvd = NULL;
 }
 
-SDMA::SDMA(vei_t nsize, vei_t nasize, vei_t ndsize, oas_t thp) 
+SDMA::SDMA(SDMA_PARAM param) 
 {
-   par.size = nsize;
-   par.asize = nasize;
-   par.dsize = ndsize;
-   par.thresholdp = thp;
+   par = param;
    av = new BinVector[par.size];
    dvd = new BVector<oas_t>[par.size];
 }
@@ -39,16 +36,22 @@ SDMA::~SDMA()
   if (dvd!=NULL) delete []dvd;
 }
 
-void SDMA::create(vei_t nsize, vei_t nasize, vei_t ndsize, oas_t thp) 
+/********************************************************************************
+*	Method to create the SDMA with specification for the size of the 	*
+*	data and address vectors, size of the memory in entries and 		*
+*	threshold percentage for the distribution of the input data.		*
+********************************************************************************/
+void SDMA::create(SDMA_PARAM param) 
 {
-   par.size = nsize;
-   par.asize = nasize;
-   par.dsize = ndsize;
-   par.thresholdp = thp;
+   par = param;
    av = new BinVector[par.size];
    dvd = new BVector<oas_t>[par.size];
 }
 
+/********************************************************************************
+*	This method initializes the data and address vectors of the memory	*
+*	with random bits.							*
+********************************************************************************/
 void SDMA::random_init() 
 {
   for (vei_t j=0;j<par.size;j++) {
@@ -61,6 +64,10 @@ void SDMA::random_init()
   }
 }
 
+/********************************************************************************
+*	Method to retrieve data vectors out of the memory according to the 	*
+*	address	vector distances.						*
+********************************************************************************/
 vei_t SDMA::retrieve(BinVector& v1, BinVector& tsum, BVector<oas_t>& tempsum, bool det_radius) 
 { 
   vei_t c=0,h=0;
@@ -89,7 +96,10 @@ vei_t SDMA::retrieve(BinVector& v1, BinVector& tsum, BVector<oas_t>& tempsum, bo
   return c;
 }
 
-
+/********************************************************************************
+*	With this method address and data vector tupels are deleted from	*
+*	the memory according to the usage value.				*
+********************************************************************************/
 vei_t SDMA::remove(oas_t usage)
 {
 	vei_t h, count=0;
@@ -133,6 +143,10 @@ vei_t SDMA::remove(oas_t usage)
 	return par.size;
 }
 
+/********************************************************************************
+*	This private method determines the smallest distance of input address	* 
+*	and memory addresses for relative distributions of the data vector.	*
+********************************************************************************/
 vei_t SDMA::radius(BinVector& v1)
 {
 	vei_t hold = 100;
@@ -144,6 +158,10 @@ vei_t SDMA::radius(BinVector& v1)
 	return hold;
 }
 
+/********************************************************************************
+*	Method to store data vectors in the memory according to the address	*
+*	vector distances.							*	
+********************************************************************************/
 vei_t SDMA::store(BinVector& v1, BinVector& b1, bool det_radius) 
 { 
 	vei_t c=0, h=0;
