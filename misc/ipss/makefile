@@ -10,6 +10,7 @@ all:	ipss
 clean:
 	@-rm -f ./*.o
 	@-rm -f ./*~
+	@-rm -f ./ipss
 
 ipss:	
 	$(CC) ipss.cpp -o ./ipss	
