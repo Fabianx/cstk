@@ -26,7 +26,7 @@ int main(int ac, char *argv[]) {
     printf("\n  This demo will show how sensordata gets abstracted \n");
     printf("  throughout most of the program, no matter where it \n");
     printf("  comes from (0:serial port, 1:simulation, 2:udp, and\n");
-    printf("  3:file).\n\r");
+    printf("  3:file - see the sourcecode).\n\r");
     printf("\n   syntax:");
     printf("\n     %s <nr>", argv[0]);
     printf("\n");
