@@ -121,6 +121,28 @@ kprof_t.o: rs232parser.o logfileparser.o udpparser.o simparser.o \
 	kvplot.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
+##### IParse Demo ################################################################
+
+iparse_demo: iparse_t.o
+	$(CC) $(BASE_DIR)/kprof/iparse.o \
+	      $(BASE_DIR)/kprof/setparse.o \
+	      $(SD_DIR)/rs232parser/rs232parser.o $(BASE_DIR)/kprof/rs232setparse.o \
+	      $(SD_DIR)/udpparser/udpparser.o $(BASE_DIR)/kprof/udpsetparse.o \
+	      $(SD_DIR)/logfileparser/logfileparser.o $(BASE_DIR)/kprof/logfilesetparse.o \
+	      $(SD_DIR)/simparser/simparser.o $(BASE_DIR)/kprof/simsetparse.o \
+	      $(BASE_DIR)/kprof/channelsetparse.o $(BASE_DIR)/kprof/inputcolumnsetparse.o \
+	      $(VECTOR_DIR)/datacell.o \
+	      $(VECTOR_DIR)/binvector.o $(VECTOR_DIR)/kvector.o $(VECTOR_DIR)/dvector.o \
+	      $(SD_DIR)/bufferparser.o \
+	      iparse_t.o -o ./$@
+
+iparse_t.o: rs232parser.o logfileparser.o udpparser.o simparser.o \
+	rs232setparse.o logfilesetparse.o udpsetparse.o simsetparse.o \
+	channelsetparse.o inputcolumnsetparse.o bufferparser.o \
+	datacell.o binvector.o kvector.o dvector.o \
+	iparse.o 
+	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+
 ##### BPNN Demo ##################################################################
 
 bpnn_demo: bpnn_t.o
@@ -226,6 +248,9 @@ peak.o:
 	
 kvplot.o:
 	@cd $(BASE_DIR)/viz/x11; make $@ BASE_DIR=$(BASE_DIR)
+
+iparse.o:
+	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
 
 rs232setparse.o:
 	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
