@@ -162,8 +162,10 @@ int main(int ac, char *argv[]) {
 		// is it a different tag than the previous?
 		if ((strcasecmp(last_tag,curr_tag)!=0)
 			&&(last_tag[0]!='\0')
-			&&(strcasecmp(last_tag,last_mode)!=0))
-				printf("\t\t</%s>\n", last_mode); 
+			&&(strcasecmp(last_tag,last_mode)!=0)) {
+				printf("\t\t</%s>\n", last_mode);
+				last_mode[0]='\0';
+		} 
 		// is it a tag that needs closing immediately?
 		if ((strcasecmp(curr_tag,"channel")==0)||
 		    (strcasecmp(curr_tag,"inputcolumn")==0) ||
@@ -176,6 +178,7 @@ int main(int ac, char *argv[]) {
 		} 
 		strcpy (last_tag, curr_tag);
 	  }
+	  if (last_mode[0]!='\0') printf("\t\t</%s>\n", last_mode);
 	  printf("\t</input>\n");
 	}
 	
