@@ -75,7 +75,7 @@ vei_t KNN::get_k_dis(VectorPoCl& datav, char dist, vei_t expo)
 
 	/* determine the vector's class by going through the list
 	   and fetch the k smallest distances*/
-	VectorPoCl* current = first;
+	current = first;
 	while (current != NULL) // distances between vector and list vectors
 	{
 		maxdis = 0;

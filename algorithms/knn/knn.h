@@ -47,6 +47,7 @@ class KNN {
 	private:
 		ve_t knn;
 		VectorPoCl* first;
+		VectorPoCl* current;
 		f_64b det_rad(VectorPoCl& datav, char seldis, vei_t exp);
 		vei_t *kclasses;     
 		f_64b *kdist;
