@@ -32,6 +32,8 @@ Rs232Parser::Rs232Parser() {
 
 Rs232Parser::Rs232Parser(int baud, int buff, char* poll, char* dev) 
 {
+   fd = 0;
+   buf = NULL;
    poll_char = NULL;
    device    = NULL;
    set_baudrate(baud);
@@ -85,13 +87,12 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
                       DataCell* columns,  uint* filter, uint numcolumns) {
    int res=-2;
    uint i, j, k;
-   
    // if rs232=closed, open it:
    if (fd==0) {
         res = open_rs232(device);
-	if (res) {
-	    return 0;
-	}
+        if (res) {
+           return 0;
+        }
    }
     
    if (poll_char[0]!='\0') res = write(fd,poll_char,1);
