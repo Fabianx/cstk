@@ -17,54 +17,18 @@
 
 #include "rs232setparse.h"
 
-/**Class for parsing rs232 settings 
+/**Class for parsing rs232 settings
   *@author Kristof Van Laerhoven
   */
 
-// read a specific attribute's value as a string  
+// read a specific attribute's value as a string
 int Rs232SetParse::read_set(char* attr, char* value) {
- printf("%s %s\n",attr,value);
 	for (int i=0; i<NUM_RS232_ATTR; i++) 
 		if (strcasecmp(attr,rs232set_attr[i])==0) { 
 			strcpy(rs232set_val[i],value);
 			return 0;
 		}
 	return -1;
-}
-	
-// read all attributes from file and store (attribute,value) pairs
-int Rs232SetParse::read_set(FILE* fp) {
-	// read till '>'
-	char c=0;
-	char att[TOK_MAX];
-	char val[TOK_MAX];
-	unsigned int token_counter = 0;
-	int err=0;
-	while (!feof(fp)&&(c!='>')) {
-		c = fgetc(fp);
-		if ((c==' ')||(c=='\t')||(c=='\n')||(c=='\r')||(c=='=')) { 
-			if (token_counter>0)
-				att[token_counter]='\0'; // stop attribute
-		} 
-		else {
-			if (c=='"') {  // get value:
-				token_counter=0;
-				do {
-					c = getc(fp);
-					val[token_counter++] = c;
-					if ((c=='>')||(feof(fp))||(token_counter>TOK_MAX-1)) 
-						return -1; // error!!!
-				} while (c!='"');
-				val[token_counter-1] = '\0';
-				// read in the attribute-value pair
-				err = read_set(att,val);
-				if (err!=0) return err;
-				token_counter=0;
-			} else
-				att[token_counter++] = c;
-		}
-	}
-	return 0;
 }
 	
 // update settings from (attribute,value) table, convert from strings

@@ -18,13 +18,9 @@
 #ifndef RS232SETPARSE_H
 #define RS232SETPARSE_H
 
-#include <string.h>
+#include "setparse.h"
 #include <stdlib.h>  // atoi
 #include "sensordata/rs232parser/rs232parser.h" // for the settings
-
-#define LINEBUFFER_MAX  1024
-#define TOK_MAX 256
-#define XML_SEPARATOR   " \t"
 
 #define _SET_RS323SET_DEF(a) strcpy(rs232set_val[(a)],rs232set_defs[(a)])
 
@@ -49,7 +45,7 @@ const char rs232set_defs[NUM_RS232_ATTR][16] = {
   *@author Kristof Van Laerhoven
   */
 
-class Rs232SetParse {
+class Rs232SetParse: public SetParse {
  public:
 	Rs232SetParse(Rs232ParserSettings* rs232_set)
 	{
@@ -65,7 +61,6 @@ class Rs232SetParse {
 	};
 	~Rs232SetParse() {};
 	int read_set(char* attr, char* value);  // read <attribute> <value> pair
-	int read_set(FILE* fp);                 // read from a file stream
 	int update_set();                       // flush to rs232
  	int write_set(char* buffer);            // write to xsd 
  	int write_dtd(char* buffer);            // write to dtd
