@@ -15,7 +15,11 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "kprof/kprof.h"
+#include "cstk_base/vector/datacell.h"
+#include "cstk_base/vector/kvector.h"
+#include "cstk_base/vector/dvector.h"
+#include "kprof/iparse.h"
+#include "kprof/wparse.h"
 
 int main(int ac, char **args) {
   
@@ -30,23 +34,42 @@ int main(int ac, char **args) {
 		exit(0);
 	}
   
-	char buff[0x10000]; // for error msgs
-	KProf kp;           // reads xml file and plots
+	IParse input;                 // read the profile from an XSD file
+	WParse window;
+	
+	char buff[0x10000];           // buffer for error msgs
+	bool quit=false;              // wanna quit?
+	int ret=0;                    // generic return variable
 	
 	FILE* fp = fopen(args[1],"r");
 	if (!fp) {printf("Error opening file %s.\n", args[1]); return -1;}
-	
-	kp.init(fp);
-	if (kp.error()) { kp.export_err(buff); printf("%s",buff); exit(-1);}
-	
-	bool quit = false;
-	while (!quit) {
-		kp.read_kvects();
-		kp.kvplot();
-		if (kp.check_events()==0) 
-			quit = true; 
+
+	input.init(fp);   // parse file and setup inputcolumns
+
+	if (input.error()) 
+		{ input.export_err(buff); printf("Input: %s\n",buff); return -1;}
+
+	fp = freopen(args[1],"r",fp);
+	window.init(fp);  // parse file for visualisation settings & display
+
+	if (window.error()) 
+		{ window.export_err(buff); printf("Window: %s\n",buff); return -1;}
+
+	while (!quit)
+	{
+		ret = input.read_kvect();
+		if ( ret <= 0 ) 
+			printf("Input error(%i)\n",ret);
+		else
+		{
+			//printf("%s\n", input.kvect->to_string("%i "));
+			window.kvplot(input.kvect);
+		}
+		
+		if (!window.check_events()) quit=true;
 	}
 
-	return 0; // no error
+	if (fp) fclose(fp);
+	return 0;
 }
 
