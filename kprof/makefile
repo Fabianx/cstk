@@ -8,9 +8,12 @@ VECTOR_DIR=$(BASE_DIR)/cstk_base/vector
 all:	kprof.o setparse.o rs232setparse.o udpsetparse.o \
 	logfilesetparse.o simsetparse.o channelsetparse.o \
 	windowsetparse.o plotsetparse.o ksomsetparse.o \
-	iparse.o
+	iparse.o wparse.o
 
 iparse.o: datacell.o binvector.o kvector.o dvector.o
+	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+
+wparse.o: kvector.o peak.o plotsetparse.o windowsetparse.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 kprof.o:	peak.o
@@ -84,4 +87,4 @@ simparser.o:
 clean:
 	@-rm -f ./*.o
 	@-rm -f ./*~
-	
+
