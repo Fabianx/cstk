@@ -3,7 +3,6 @@
 
 <window id="cstkedit-input-window" 
         title="CSTK Editor Input"
-	onload="init_win();"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
    
   <script type="application/x-javascript" src="cstkedit.js"/>
@@ -24,50 +23,64 @@
   <vbox flex="1">
 	<groupbox flex="1">
 		<caption label="parameters"/>
-		<tree flex="1" id="wparams" datasources="rdf:null" 
-			context="edit-wparams" ref="urn:window:params">
+		<tree id="wparams" seltype="single" flex="1"
+			datasources="rdf:null" ref="http://cstk.sf.net/wparams#list"
+			containment="http://cstk.sf.net/wparams#child" context="edit-wparams" >
 			<treecols>
-				<treecol id="att" label="attributes" primary="true" flex="1"/>
-				<treecol id="val" label="values" flex="1"/>
+				<treecol id="att" label="attributes" primary="true" persist="width ordinal hidden" flex="1"/>
+				<splitter class="tree-splitter"/>
+				<treecol id="val" label="values" persist="width ordinal hidden" flex="1"/>
 			</treecols>
 			<template>
-				<rule>
 				<treechildren>
 				<treeitem uri="rdf:*" open="true">
 					<treerow>
-					<treecell label="rdf:cstk-rdf#att" />
-					<treecell label="rdf:cstk-rdf#val" />
+					<treecell label="rdf:http://cstk.sf.net/wparams#att" />
+					<treecell label="rdf:http://cstk.sf.net/wparams#val" />
 					</treerow>
 				</treeitem>
 				</treechildren>
-				</rule>
 			</template>
 		</tree>
 	</groupbox>
+	<splitter collapse="before" resizeafter="farthest"><grippy/></splitter>
 	<groupbox flex="1">
 		<caption label="plots"/>
-		<tree flex="1" datasources="rdf:null" ref="urn:window:plots" 
-		      context="edit-plots" id="plots" flags="dont-build-content">
+		<tree id="plots" seltype="single" flex="1" 
+			datasources="rdf:null" ref="http://cstk.sf.net/plots#list"
+			containment="http://cstk.sf.net/plots#child" context="edit-plots">
 			<treecols>
-				<treecol id="id" label="Id"  flex="1" sortActive="true"/>
-				<treecol id="src" label="Source" flex="1"/>
-				<treecol id="type" label="Type" flex="1"/>
-				<treecol id="title" label="Title" flex="2"/>
-				<treecol id="res" label="Resolution" flex="1"/>
-				<treecol id="scaled" label="Scaled" flex="1"/>
-				<treecol id="color" label="Colour" flex="1"/>
+				<treecol id="id" label="Id" persist="width ordinal hidden" flex="1"/>
+				<splitter class="tree-splitter"/>
+				<treecol id="src" label="Source" persist="width ordinal hidden" flex="1"/>
+				<splitter class="tree-splitter"/>
+				<treecol id="type" label="Type" persist="width ordinal hidden" flex="1"/>
+				<splitter class="tree-splitter"/>
+				<treecol id="title" label="Title" persist="width ordinal hidden" flex="2"/>
+				<splitter class="tree-splitter"/>
+				<treecol id="res" label="Resolution" persist="width ordinal hidden" flex="1"/>
+				<splitter class="tree-splitter"/>
+				<treecol id="scaled" label="Scaled" persist="width ordinal hidden" flex="1"/>
+				<splitter class="tree-splitter"/>
+				<treecol id="color" label="Colour" persist="width ordinal hidden" flex="1"/>
 			</treecols>
-			<template><rule><treechildren>
-				<treeitem uri="rdf:*" open="true"> <treerow>
-					<treecell label="rdf:cstk-rdf#id"/>
-					<treecell label="rdf:cstk-rdf#src"/>
-					<treecell label="rdf:cstk-rdf#type"/>
-					<treecell label="rdf:cstk-rdf#title"/>
-					<treecell label="rdf:cstk-rdf#res"/>
-					<treecell label="rdf:cstk-rdf#scaled"/>
-					<treecell label="rdf:cstk-rdf#color"/>
-				</treerow> </treeitem>
-			</treechildren></rule></template>
+			<template>
+				<treechildren>
+				<treeitem uri="rdf:*" open="true"> 
+					<treerow>
+					<treecell label="rdf:http://cstk.sf.net/plots#id"/>
+					<treecell label="rdf:http://cstk.sf.net/plots#src"/>
+					<treecell label="rdf:http://cstk.sf.net/plots#type"/>
+					<treecell label="rdf:http://cstk.sf.net/plots#title"/>
+					<treecell label="rdf:http://cstk.sf.net/plots#res"/>
+					<treecell label="rdf:http://cstk.sf.net/plots#scaled"/>
+					<treecell label="rdf:http://cstk.sf.net/plots#color"/>
+					</treerow> 
+				</treeitem>
+				</treechildren>
+			</template>
 		</tree>
         </groupbox>
-  </vbox></window>
+  </vbox>
+  
+</window>

@@ -25,7 +25,7 @@
        <RDF:Description RDF:about="urn:window:title" cstkxml:att="window title" cstkxml:val="CSTK rtplot"/>
        <RDF:Description RDF:about="urn:window:skip" cstkxml:att="skip read" cstkxml:val="2"/>
        <RDF:Description RDF:about="urn:window:border" cstkxml:att="border width" cstkxml:val="2"/>
-       <RDF:Description RDF:about="urn:window:frame" cstkxml:att="frame rate" cstkxml:val="15"/>
+       <RDF:Description RDF:about="urn:window:framerate" cstkxml:att="frame rate" cstkxml:val="15"/>
 
    <RDF:Description RDF:about="urn:tool" cstkxml:att="realtime plot"/>
        <RDF:Description RDF:about="urn:tool:param1" cstkxml:att="standard plotting resolution" cstkxml:val="100"/>
@@ -67,7 +67,7 @@
         <RDF:li RDF:resource="urn:window:title"/>
         <RDF:li RDF:resource="urn:window:skip"/>
         <RDF:li RDF:resource="urn:window:border"/>
-        <RDF:li RDF:resource="urn:window:frame"/>
+        <RDF:li RDF:resource="urn:window:framerate"/>
       </RDF:Seq>
     </RDF:li>
   </RDF:Seq>

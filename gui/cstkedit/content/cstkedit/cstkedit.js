@@ -1,6 +1,4 @@
 
-var tool_mainfile = "/home/kristof/Documents/Sources/cstk/sourcecode/tools/rtplot/rtplot";
-
 /* *******************************************************************************************
 	Init functions
    *******************************************************************************************/
@@ -9,7 +7,7 @@ function init()
 {
 	// should be replaced with user pref:
 	document.getElementById('xmlfile').value = 
-		"/home/kristof/Documents/Sources/cstk/cstk_settings/xbow.xml";
+		"/home/kristof/Documents/Sources/cstk/cstk_settings/smartit_demo.xml";
 	document.getElementById('rdffile').value = 
 	//	"file:///usr/lib/mozilla-1.6/chrome/cstkedit/content/cstkedit/cstkxml.rdf";
 		"chrome://cstkedit/content/cstkxml.rdf";
@@ -19,50 +17,10 @@ function init()
 	loadFile(file);
 }
 
-function init_in()
-{
-}
-
-function init_out()
-{
-}
-
-function init_win()
-{
-}
-
 function init_par()
 {
-	document.getElementById('toolfile').value = tool_mainfile;
-}
-
-/* *******************************************************************************************
-	RDF reading / writing functions
-   *******************************************************************************************/
-
-function rebuildFromRDF(frame_id, item_id, datasource)
-{
-        try {
-		var tree;
-		if (frame_id=='')
-			tree = document.getElementById(item_id);
-		else 
-			tree = frames[frame_id].document.getElementById(item_id);
-		tree.database.AddDataSource(datasource);
-		tree.builder.rebuild();
-	} catch(e) { alert(e); }
-}
-
-function refreshRDF(filename)
-{
-	try{
-		const RDF = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(
-						Components.interfaces.nsIRDFService);
-		var datasource = RDF.GetDataSource(filename);
-		datasource.QueryInterface(Components.interfaces.nsIRDFRemoteDataSource
-					).Refresh(false);
-		return datasource;
-	} catch (e) { alert(e); }
+	document.getElementById('toolfile').value =
+	 "/home/kristof/Documents/Sources/cstk/sourcecode/tools/rtplot/rtplot";
 }
 
 /* *******************************************************************************************
@@ -85,7 +43,7 @@ function tremove_all(tree_id)
 		var tree_id = tree_id?tree_id:"tree";
 		var tree = document.getElementById(tree_id);
 		//while (tree.hasChildNodes()) 	tree.removeChild(tree.lastChild); 
-		while (tree.view.rowCount) {	
+		while (tree.view.rowCount) {
 			item = tree.view.getItemAtIndex(0); 
 			item.parentNode.removeChild(item);
 		}
@@ -112,50 +70,12 @@ function tedit(tree_id)
 function trefresh(tree_id)
 {
 	try{	// rdfs are always local:
-		rdf_mainfile = window.parent.document.getElementById( 'rdffile' ).value;
-		ds = refreshRDF(rdf_mainfile);
-		rebuildFromRDF('',tree_id,ds);
+// 		rdf_mainfile = window.parent.document.getElementById( 'rdffile' ).value;
+// 		ds = refreshRDF(rdf_mainfile);
+// 		rebuildFromRDF('',tree_id,ds);
 	} catch (e) { alert(e); }
 }
 
-function lremove(list_id)
-{
-  list_id = list_id?list_id:"list";
-  var listbox=document.getElementById(list_id);
-  listbox.removeItemAt(2+document.getElementById(list_id).selectedIndex);
-}
-
-function lremove_all(list_id)
-{
-  list_id = list_id?list_id:"list";
-  var listbox=document.getElementById(list_id);
-  while (listbox.getRowCount()>0) {
-  	listbox.removeItemAt(1);
-  }
-}
-
-function lappend(list_id, num_cols)
-{
-  list_id = list_id?list_id:"list";
-  var listbox=document.getElementById(list_id);
-  var new_id = listbox.getRowCount();
-  var i;
-  item=listbox.appendItem(new_id);
-  for (i = 0; i < num_cols-1; i++)
-  	item.appendChild(document.createElement('listcell')).setAttribute('label', ' ');
-  listbox.selectItem(item);
-  listbox.ensureElementIsVisible(item);
-}
-
-function ledit(list_id, num_cols)
-{
-  list_id = list_id?list_id:"list";
-  var listbox=document.getElementById(list_id);
-  var i;
-  item=document.getElementById(list_id).selectedIndex;
-  for (i = 0; i < num_cols-1; i++)
-  	item.appendChild(document.createElement('listcell')).setAttribute('label', ' ');
-}
 
 /* *******************************************************************************************
 	Main UI buttons
@@ -184,7 +104,7 @@ function doSaveAs()
 									nsIFilePicker);
 		fp.init(window, "Select a File", nsIFilePicker.modeSave);
 		var defaultdir = Components.classes["@mozilla.org/file/local;1"].
-				createInstance(Components.interfaces.nsILocalFile);
+					createInstance(Components.interfaces.nsILocalFile);
 		defaultdir.initWithPath(document.getElementById('xmlfile').value);
 		try { fp.displayDirectory = defaultdir.parent; } catch(ex) {;}
 		fp.appendFilters(nsIFilePicker.filterXML | nsIFilePicker.filterAll);
@@ -225,14 +145,13 @@ function loadFile(file)
 	if(file.exists()) 
 	try {
 		document.getElementById('xmlfile').value = file.path;
-		var data = "";
 		var fstream = Components.classes["@mozilla.org/network/file-input-stream;1"]
 			.createInstance(Components.interfaces.nsIFileInputStream);
 		var sstream = Components.classes["@mozilla.org/scriptableinputstream;1"]
 			.createInstance(Components.interfaces.nsIScriptableInputStream);
 		fstream.init(file, 1, 0, false);
 		sstream.init(fstream); 
-		data += sstream.read(-1);
+		var data = sstream.read(file.fileSize);
 		sstream.close();
 		fstream.close();
 		if (data=="")
@@ -241,13 +160,135 @@ function loadFile(file)
 			updateSource(file, data);   // update source code in editor
 			doParseXML(data);           // parse the xml file 
 		}
-		doRefresh(); // refresh trees and lists in the UI 
 	} catch(e) { alert(e); }
 }
 
 function doParseXML(data)
 {
-	// parse parse parse
+	var domParser=Components.classes["@mozilla.org/xmlextras/domparser;1"]
+			.createInstance(Components.interfaces.nsIDOMParser); 
+	var xmldoc = domParser.parseFromString(data, "text/xml");
+
+	var imode = window.frames['inputt'].document.getElementById('device');
+	imode.removeItemAt(6); // last
+	imode.appendItem(xmldoc.getElementsByTagName("input").item(0).attributes.item(0).nodeValue,-1);
+	imode.selectedIndex=6; // last
+
+	if ( xmldoc.getElementsByTagName("rs232").length > 0 )
+	if ( xmldoc.getElementsByTagName("rs232").item(0).parentNode.nodeName =="input")
+	{
+		parseAtts(xmldoc.getElementsByTagName("rs232"),'inputt','iparams',
+					"http://cstk.sf.net/iparams#","rs232");
+		parseAtts(xmldoc.getElementsByTagName("poll"),'inputt','iparams',
+					"http://cstk.sf.net/iparams#","poll");
+	}
+
+	//parseAtts(xmldoc.getElementsByTagName("logfile"),'outputt','oparams',
+	//		"http://cstk.sf.net/oparams#","logfile");
+
+	parseAtts(xmldoc.getElementsByTagName("window"),'windowt','wparams',
+				"http://cstk.sf.net/wparams#", "window");
+				
+	ch_cols = ["id", "name", "bits", "sign", "format"];
+	ch_xmlcols = ["id", "name", "bits", "sign", "format"];
+	parseCols(xmldoc.getElementsByTagName("channel"),'inputt','ichannels',
+			"http://cstk.sf.net/ichannels#", ch_cols, ch_xmlcols);
+	
+	icol_cols = ["id", "ch", "name", "bits", "sign", "format"];
+	icol_xmlcols = ["id", "channel", "name", "bits", "sign", "format"];
+	parseCols(xmldoc.getElementsByTagName("inputcolumn"),'inputt','icolumns',
+			"http://cstk.sf.net/icolumns#", icol_cols, icol_xmlcols);
+	
+	plot_cols = ["id", "src", "type", "title", "res", "scaled", "color"];
+	plot_xmlcols = ["id", "src", "type", "title", "res", "scale", "color"];
+	parseCols(xmldoc.getElementsByTagName("plot"),'windowt','plots',
+			"http://cstk.sf.net/plots#", plot_cols, plot_xmlcols);
+}
+
+function parseAtts(tag, tab_id, tree_id, schema, rootname)
+{
+	var rdf  = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(
+						Components.interfaces.nsIRDFService);
+	var root = rdf.GetResource(schema + "list");
+	var child= rdf.GetResource(schema + "child");
+
+	var tree = window.frames[tab_id].document.getElementById(tree_id);
+
+	var datasource = Components.classes["@mozilla.org/rdf/datasource;1?name=in-memory-datasource"].
+				createInstance(Components.interfaces.nsIRDFInMemoryDataSource);
+	tree.database.AddDataSource(datasource);
+
+	var ds = tree.database.GetDataSources();
+	ds = (ds.getNext(),ds.getNext());
+	ds = ds.QueryInterface(Components.interfaces.nsIRDFDataSource);
+
+	var sub, pred, obj;
+
+	obj  = rdf.GetResource( schema+"node-"+rootname );
+	ds.Assert(root, child, obj, true);
+	sub  = obj;
+	ds.Assert(sub, rdf.GetResource(schema+"att"), rdf.GetLiteral(rootname), true);
+ 
+	if (tag.length>0)
+	{
+		for (var i=0; i<tag.item(0).attributes.length; i++) 
+		{
+			sub  = rdf.GetResource(schema+"node-"+rootname);
+			pred = child;
+			obj  = rdf.GetResource( schema+"node-"+rootname+"child"+i );
+			ds.Assert(sub, pred, obj, true);		
+			sub  = obj;
+			pred = rdf.GetResource(schema+"att");
+			obj  = rdf.GetLiteral(tag.item(0).attributes.item(i).nodeName);
+			ds.Assert(sub, pred, obj, true);
+			pred = rdf.GetResource(schema+"val");
+			obj  = rdf.GetLiteral(tag.item(0).attributes.item(i).nodeValue);
+			ds.Assert(sub, pred, obj, true);
+		}
+	}
+
+	tree.builder.rebuild();
+}
+
+function parseCols(tag, tab_id, tree_id, schema, cols, xmlcols)
+{
+	var rdf  = Components.classes["@mozilla.org/rdf/rdf-service;1"].getService(
+						Components.interfaces.nsIRDFService);
+	var root = rdf.GetResource(schema + "list");
+	var child= rdf.GetResource(schema + "child");
+
+	var tree = window.frames[tab_id].document.getElementById(tree_id);
+	
+	//tree.view is null here.. !
+	
+	var datasource = Components.classes["@mozilla.org/rdf/datasource;1?name=in-memory-datasource"].
+				createInstance(Components.interfaces.nsIRDFInMemoryDataSource);
+	tree.database.AddDataSource(datasource);
+
+	var ds = tree.database.GetDataSources();
+	ds = (ds.getNext(),ds.getNext());
+	ds = ds.QueryInterface(Components.interfaces.nsIRDFDataSource);
+
+	var sub, pred, obj;
+
+	for (var j=0; j<tag.length; j++)
+	{
+		obj  = rdf.GetResource( schema+"node-"+j );
+		ds.Assert(root, child, obj, true);
+		sub  = obj;
+		for (var i=0; i<tag.item(j).attributes.length; i++) 
+		{
+			var nodename = tag.item(j).attributes.item(i).nodeName;
+			for (var z=0; z<cols.length; z++)
+				if (nodename == xmlcols[z])
+					pred = rdf.GetResource(schema+cols[z]);
+			obj  = rdf.GetLiteral(tag.item(j).attributes.item(i).nodeValue);
+			ds.Assert(sub, pred, obj, true);
+		}
+	}
+
+	tree.builder.rebuild();
+
 }
 
 function saveFile(file)
@@ -262,23 +303,6 @@ function saveFile(file)
 		foStream.write(data, data.length);
 		foStream.close();
         } catch (e) { alert(e); } 
-}
-
-function doRefresh()
-{
-	try {
-		rdf_mainfile = document.getElementById('rdffile').value;
-		ds = refreshRDF(rdf_mainfile);
-		rebuildFromRDF('inputt' ,'iparams',  ds); 
-		rebuildFromRDF('inputt' ,'ichannels',ds); 
-		rebuildFromRDF('inputt' ,'icolumns', ds);
-		rebuildFromRDF('outputt','oparams',  ds); 
-		rebuildFromRDF('outputt','ochannels',ds); 
-		rebuildFromRDF('outputt','ocolumns', ds); 
-		rebuildFromRDF('windowt','wparams',  ds); 
-		rebuildFromRDF('windowt','plots',    ds);
-		rebuildFromRDF('paramst','params',   ds);
-	} catch (e) { alert(e); }
 }
 
 function doRun()

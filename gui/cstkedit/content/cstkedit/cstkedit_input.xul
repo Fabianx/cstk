@@ -8,7 +8,6 @@
 
 <window id="cstkedit-input-window" 
         title="CSTK Editor Input"
-	onload="init_in();"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <script type="application/x-javascript" src="cstkedit.js"/>
@@ -18,10 +17,10 @@
 		<menuitem label="Refresh" accesskey="r" oncommand="trefresh('iparams');"/>
 	</popup>
 	<popup id="edit-channel">
-		<menuitem label="Delete" accesskey="d" oncommand="lremove('ichannels');"/>
-		<menuitem label="Add"    accesskey="a" oncommand="lappend('ichannels',5);"/>
-		<menuitem label="Edit"   accesskey="e" oncommand="ledit('ichannels',5);"/>
-		<menuitem label="Clear All" accesskey="c" oncommand="lremove_all('ichannels');"/>
+		<menuitem label="Delete" accesskey="d" oncommand="tremove('ichannels');"/>
+		<menuitem label="Add"    accesskey="a" oncommand="tappend('ichannels',5);"/>
+		<menuitem label="Edit"   accesskey="e" oncommand="tedit('ichannels',5);"/>
+		<menuitem label="Clear All" accesskey="c" oncommand="tremove_all('ichannels');"/>
 		<menuitem label="Refresh" accesskey="r" oncommand="trefresh('ichannels');"/>
 	</popup>
 	<popup id="edit-inputcolumn">
@@ -49,77 +48,96 @@
 		</menulist>
 		<button label="browse..."/>
 	</hbox>
-	<hbox>
+	<hbox flex="2">
 	<groupbox flex="1">
 		<caption label="parameters"/>
 		<tree id="iparams" flex="1" seltype="single"
-			context="edit-iparams" datasources="rdf:null" ref="urn:input:params">
+			datasources="rdf:null" ref="http://cstk.sf.net/iparams#list"
+			containment="http://cstk.sf.net/iparams#child" context="edit-iparams" >
 			<treecols>
-				<treecol id="att" label="attributes" primary="true" flex="1"/>
-				<treecol id="val" label="values" flex="1"/>
+				<treecol id="att" label="attributes" primary="true" persist="width ordinal hidden" flex="1"/>
+				<splitter class="tree-splitter"/>
+				<treecol id="val" label="values" persist="width ordinal hidden" flex="1"/>
 			</treecols>
 			<template>
-				<rule>
 				<treechildren>
 				<treeitem uri="rdf:*" open="true">
 					<treerow>
-					<treecell label="rdf:cstk-rdf#att" />
-					<treecell label="rdf:cstk-rdf#val" />
+					<treecell label="rdf:http://cstk.sf.net/iparams#att" />
+					<treecell label="rdf:http://cstk.sf.net/iparams#val" />
 					</treerow>
 				</treeitem>
 				</treechildren>
-				</rule>
 			</template>
 		</tree>
 	</groupbox>
 	<splitter collapse="before" resizeafter="farthest"><grippy/></splitter>
 	<groupbox flex="1">
 		<caption label="channels"/>
-		<listbox datasources="rdf:null" ref="urn:input:channels" 
-		         context="edit-channel" id="ichannels"  flex="1">
-			<listhead>
-			<listheader id="id" label="Id" primary="true"/>
-			<listheader id="name" label="Name"/>
-			<listheader id="bits" label="Bits"/>
-			<listheader id="signed" label="Signed"/>
-			<listheader id="format" label="Format"/>
-			</listhead>
-			<template><rule>
-				<listitem uri="rdf:*">
-				<listcell label="rdf:cstk-rdf#id" />
-				<listcell label="rdf:cstk-rdf#name" />
-				<listcell label="rdf:cstk-rdf#bits" />
-				<listcell label="rdf:cstk-rdf#sign" />
-				<listcell label="rdf:cstk-rdf#format" />
-				</listitem></rule>
-			</template>
-		</listbox>
-        </groupbox>
-	</hbox>
-	<groupbox flex="1">
-		<caption label="inputcolumns"/>
-		<tree flex="1" datasources="rdf:null" ref="urn:input:columns" 
-		      context="edit-inputcolumn" id="icolumns" seltype="single"
-		      enableColumnDrag="true" alternatingbackground="true">
+		<tree  id="ichannels" flex="1" seltype="single"
+			datasources="rdf:null" ref="http://cstk.sf.net/ichannels#list" 
+		        containment="http://cstk.sf.net/ichannels#child" context="edit-channel">
 			<treecols>
-				<treecol id="id" label="Id"  flex="1" sortActive="true"/>
-				<treecol id="ch" label="Channel" flex="1"/>
-				<treecol id="name" label="Name" flex="1"/>
-				<treecol id="bits" label="Bits" flex="1"/>
-				<treecol id="sign" label="Signed" flex="1"/>
-				<treecol id="format" label="Format" flex="1"/>
+				<treecol id="id" label="Id" primary="true" persist="width ordinal hidden" flex="1"/>
+				<splitter class="tree-splitter"/>
+				<treecol id="name" label="Name" persist="width ordinal hidden" flex="1"/>
+				<splitter class="tree-splitter"/>
+				<treecol id="bits" label="Bits" persist="width ordinal hidden" flex="1"/>
+				<splitter class="tree-splitter"/>
+				<treecol id="signed" label="Signed" persist="width ordinal hidden" flex="1"/>
+				<splitter class="tree-splitter"/>
+				<treecol id="format" label="Format" fpersist="width ordinal hidden" lex="1"/>
 			</treecols>
-			<template><rule><treechildren>
-				<treeitem uri="rdf:*" open="true"> <treerow>
-					<treecell label="rdf:cstk-rdf#id"/>
-					<treecell label="rdf:cstk-rdf#ch"/>
-					<treecell label="rdf:cstk-rdf#name"/>
-					<treecell label="rdf:cstk-rdf#bits"/>
-					<treecell label="rdf:cstk-rdf#sign"/>
-					<treecell label="rdf:cstk-rdf#format"/>
-				</treerow> </treeitem>
-			</treechildren></rule></template>
+			<template>
+				<treechildren>
+				<treeitem uri="rdf:*" open="true">
+					<treerow>
+					<treecell label="rdf:http://cstk.sf.net/ichannels#id" />
+					<treecell label="rdf:http://cstk.sf.net/ichannels#name" />
+					<treecell label="rdf:http://cstk.sf.net/ichannels#bits" />
+					<treecell label="rdf:http://cstk.sf.net/ichannels#sign" />
+					<treecell label="rdf:http://cstk.sf.net/ichannels#format" />
+					</treerow>
+				</treeitem>
+				</treechildren>
+			</template>
 		</tree>
         </groupbox>
+	</hbox>
+	<splitter collapse="before" resizeafter="farthest"><grippy/></splitter>
+	<groupbox flex="1">
+		<caption label="inputcolumns"/>
+		<tree  id="icolumns" seltype="single" flex="1" 
+			datasources="rdf:null" ref="http://cstk.sf.net/icolumns#list" 
+			containment="http://cstk.sf.net/icolumns#child" context="edit-inputcolumn">
+			<treecols>
+				<treecol id="id" label="Id" persist="width ordinal hidden" flex="1" sortActive="true"/>
+				<splitter class="tree-splitter"/>
+				<treecol id="ch" label="Channel" persist="width ordinal hidden" flex="1"/>
+				<splitter class="tree-splitter"/>
+				<treecol id="name" label="Name" persist="width ordinal hidden" flex="1"/>
+				<splitter class="tree-splitter"/>
+				<treecol id="bits" label="Bits" persist="width ordinal hidden" flex="1"/>
+				<splitter class="tree-splitter"/>
+				<treecol id="sign" label="Signed" persist="width ordinal hidden" flex="1"/>
+				<splitter class="tree-splitter"/>
+				<treecol id="format" label="Format" persist="width ordinal hidden" flex="1"/>
+			</treecols>
+			<template>
+				<treechildren>
+				<treeitem uri="rdf:*" open="true">
+					<treerow>
+					<treecell label="rdf:http://cstk.sf.net/icolumns#id"/>
+					<treecell label="rdf:http://cstk.sf.net/icolumns#ch"/>
+					<treecell label="rdf:http://cstk.sf.net/icolumns#name"/>
+					<treecell label="rdf:http://cstk.sf.net/icolumns#bits"/>
+					<treecell label="rdf:http://cstk.sf.net/icolumns#sign"/>
+					<treecell label="rdf:http://cstk.sf.net/icolumns#format"/>
+					</treerow>
+				</treeitem>
+				</treechildren>
+			</template>
+		</tree>
+	</groupbox>
   </vbox>
 </window>

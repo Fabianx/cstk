@@ -7,8 +7,7 @@
 ]> 
 
 <window id="cstkedit-input-window" 
-        title="CSTK Editor Output"
-	onload="init_out();"
+	title="CSTK Editor Output"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
  
   <script type="application/x-javascript" src="cstkedit.js"/>
