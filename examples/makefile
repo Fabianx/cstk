@@ -180,7 +180,7 @@ kvplot_demo: kvplot_t.o
 	      $(BASE_DIR)/viz/x11/kvplot.o \
 	      -L/usr/X11R6/lib/ -lX11 -o ./$@
 	
-kvplot_t.o: datacell.o kprof.o kvector.o peak.o kvplot.o
+kvplot_t.o: datacell.o kvector.o peak.o kvplot.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### Dependencies: ##############################################################
