@@ -91,5 +91,13 @@ int main(int ac, char *argv[]) {
 			}
 		}
 
+	kp.setup_window();
+	for (int x=0; x<2000; x++) {
+		kp.read_kvect();
+		kp.kvplot();
+	}
+	
+	usleep(1000000); // wait a sec
+	
 	return 0; // no error
 }

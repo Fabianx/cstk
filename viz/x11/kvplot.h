@@ -26,10 +26,17 @@
   *@author Kristof Van Laerhoven
   */
 
+struct WindowSettings {
+	WindowSettings() {
+		xpos = ypos = width= height=-1;
+		border=framerate=skip = -1;
+   }
+   int xpos,ypos,width,height,border,framerate,skip;
+};
+
 class KVPlot : public X11Plot {
  public: 
-  KVPlot();
-  ~KVPlot();
+  KVPlot(WindowSettings ws);
   char histogram(uint cscr, uint tscr, KVector& vector, int colour, 
                  uint num_buckets, char* title=NULL); 
   char timeseries(uint cscr, uint tscr, KVector& vector, int colour, 

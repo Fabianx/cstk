@@ -17,10 +17,9 @@
 
 #include "kvplot.h"
 
-KVPlot::KVPlot(){
-}
-
-KVPlot::~KVPlot(){
+KVPlot::KVPlot(WindowSettings ws)
+{
+  create(ws.xpos, ws.width, ws.ypos, ws.height, ws.border, "");
 }
 
 char KVPlot::histogram(uint cscr, uint tscr, KVector& vector, int colour, 
