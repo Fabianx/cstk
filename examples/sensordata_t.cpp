@@ -43,16 +43,16 @@ int main(int ac, char *argv[]) {
   {
         case 0: sd = new Rs232Parser(B38400,1024,"G","/dev/ttyS0");  
                 break;
-        case 1: sd = new LogFileParser("./logfile.txt");
+        case 1: sd = new SimParser(2);
                 break;
-        case 2: sd = new SimParser(2);
+        case 2: sd = new UDPParser(2221,100);
                 break;
-        case 3: sd = new UDPParser(2221,100);
+        case 3: sd = new LogFileParser("./logfile.txt");   
                 break; 
-        default:sd = new SimParser(2);   
+        default:sd = new SimParser(2);    
   }    
     
-  char buffer[1024];
+  char buffer[1024];      
   while (1)
   {
       if (sd->read(buffer))
