@@ -79,11 +79,13 @@
  	
 	void create(DVector& NodeA, DVector& NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonValB, oas_t EpsilonValN);
 	
-	void savetoFile();
-	int restorefromFile();
+	void savetoFile(char filename1[50], char filename2[50]);
+	int restorefromFile(char filename1[50], char filename2[50]);
 	
 	void feed(DVector& input);
 	void decreaseErrors();
+	
+	DVector* getWinner_node(DVector& input);
 	
 	DVector* getFirst_node();
 	DVector* getNext_node();

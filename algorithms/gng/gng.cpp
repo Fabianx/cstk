@@ -75,10 +75,10 @@
 	}
  }
  
- void GNG::savetoFile()
+ void GNG::savetoFile(char filename1[50], char filename2[50])
  {
- 	FILE *f1 = fopen("node.sav","w");
-	FILE *f2 = fopen("edge.sav","w");
+ 	FILE *f1 = fopen(filename1,"w");
+	FILE *f2 = fopen(filename2,"w");
 	NodeListElement *currNode;
 	EdgeListElement *currEdge;
 	currNode = first;
@@ -103,11 +103,10 @@
 	fclose(f1);
 	fclose(f2);
  }
- 
- int GNG::restorefromFile()
+ int GNG::restorefromFile(char filename1[50], char filename2[50])
  {
  	this->~GNG();
- 	FILE *f = fopen("node.sav","r");
+ 	FILE *f = fopen(filename1,"r");
 	int tempcount=0;
 	if (!ferror(f))
 	{
@@ -142,7 +141,7 @@
 		}
 		fclose(f);
 	}
-	f = fopen("edge.sav","r");
+	f = fopen(filename2,"r");
 	NodeListElement *currNode;
 	NodeListElement *currNodeA;
 	NodeListElement *currNodeB;
@@ -237,6 +236,24 @@
 		currNode = NULL;	
 	}
 	removeEdgeNode();
+ }
+ 
+ DVector* GNG::getWinner_node(DVector& input)
+ {
+ 	NodeListElement *currNode, *mindisel;
+	mindisel = NULL;
+	oas_t MinDis=(2.0 * DBL_MAX), tmp;
+	currNode = first;
+	while (currNode != NULL)
+	{
+		if (input.dis_eucl(*((*currNode).vector)) < MinDis)
+		{
+			MinDis = input.dis_eucl(*((*currNode).vector));
+			mindisel = currNode;
+		}	
+		currNode = (*currNode).next;
+	}
+	return mindisel->vector;
  }
  
  void GNG::newNode()

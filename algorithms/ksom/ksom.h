@@ -92,8 +92,8 @@ class KSOM {
   	KSOM(vei_t x, vei_t y, vei_t n, ve_t distance=DIS_EUCL, ve_t neighbourfct=EUCLNB, bool autolearn=false, ve_t learnfct=LIN);
   	~KSOM();
 	
-	void savetoFile();
-	int restorefromFile();
+	void savetoFile(char filename[50]);
+	int restorefromFile(char filename[50]);
 	
   	/* create the map with the right dimensions and all parameters*/
   	void create(vei_t x, vei_t y, vei_t n, ve_t distance=DIS_EUCL, ve_t neighbourfct=EUCLNB, bool autolearn=false, ve_t learnfct=LIN);

@@ -77,18 +77,18 @@ void KSOM::create(vei_t x, vei_t y, vei_t n,ve_t distance, ve_t neighbourfct, bo
 		vect[i].create(n);
 }
 
-void KSOM::savetoFile()
+void KSOM::savetoFile(char filename[50])
 {
-	FILE *f = fopen("grid.sav","w");
+	FILE *f = fopen(filename,"w");
 	for (vei_t i=0; i<(_to2(max_x-1,max_y)); i++)
 		for (vei_t j=0; j<vect[i].get_dim(); j++)
 			fprintf(f,"(%i,%i,%i)%lf ",i,j,vect[i].get_type(j),vect[i].get_comp(j));
 	fclose(f);
 }
 
-int KSOM::restorefromFile()
+int KSOM::restorefromFile(char filename[50])
 {
-	FILE *f = fopen("grid.sav","r");
+	FILE *f = fopen(filename,"r");
 	if (!ferror(f))
 	{
 		double out;	
@@ -250,7 +250,7 @@ oas_t KSOM::det_lr(oas_t lr)
 				if (temp<0)
 					return 0;
 				else
-					return (-((1/par.c) * par.epoch) + lr);
+					return temp;
 		case LOG:	return ((1/(par.c * log(par.epoch))) + lr);
 		case EXP:	return ((1/(par.c * exp(par.epoch))) + lr);
 	}
