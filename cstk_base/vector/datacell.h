@@ -57,7 +57,7 @@
 /* return a format descriptor, using sign (0=unsigned, 1=signed) 
    number of bits (1-64), and format (integer, float)
   */
-char DC_typecast(bool sign, char bits, char format);
+char DC_typecast(bool sign, int bits, char format);
  
 
 /** DataCell, to be used for converting sensor data packets from 
@@ -97,8 +97,8 @@ class DataCell {
   void set_s64val(u_8b b1, u_8b b2, u_8b b3, u_8b b4,
                   u_8b b5, u_8b b6, u_8b b7, u_8b b8);
   // specify a number of bits used by the value
-  void set_bits(char newbits);
-  char get_bits();
+  void set_bits(int newbits);
+  int get_bits();
   // common operators: 
   void operator +=(s_16b value);
   void operator +=(f_32b value);
@@ -114,7 +114,7 @@ class DataCell {
     f_32b	f32val;  	f_64b	f64val;
     char	charval;	char*   stringval;
   } val;
-  char bits; // the accurate number of bits (for scaling later on)
+  int bits; // the accurate number of bits (for scaling later on)
 };
 
 #endif

@@ -20,7 +20,7 @@
 /* return a format descriptor, using sign (0=unsigned, 1=signed)
    number of bits (1-64), and format (integer, float)
 */
-char DC_typecast(bool sign, char bits, char format){
+char DC_typecast(bool sign, int bits, char format){
     
   if (format==DF_INTEGER) {
     if (!sign) {
@@ -389,11 +389,11 @@ void DataCell::set_s64val(u_8b b1, u_8b b2, u_8b b3, u_8b b4,
 #endif
 }
 
-void DataCell::set_bits(char newbits) {
+void DataCell::set_bits(int newbits) {
    bits = newbits;
 }
 
-char DataCell::get_bits() {
+int DataCell::get_bits() {
    return bits;
 }
 

@@ -1,8 +1,8 @@
 # CSTK examples makefile, by kristof:
 #
 
-CC=g++ -Wall -O3 -g
-BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ..;pwd)
+CC= g++ -Wall -O3 -g
+BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ../..;pwd)
 
 clean:
 	@-rm -f ./*.o
