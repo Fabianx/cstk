@@ -19,11 +19,11 @@
 
 #include "kprof/tags.h"
 #include "kprof/setparse.h"
+#include "viz/x11/kvplot.h"
+#include "viz/x11/clustplot.h"
 #include "kprof/windowsetparse.h"
 #include "kprof/plotsetparse.h"
-#include "viz/x11/kvplot.h"
 #include "algorithms/peak/peak.h"
-
 
 /***************************************************************************
  WParse parses CSTK settings (formatted as an XML file) for window and plot

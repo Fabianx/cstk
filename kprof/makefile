@@ -1,4 +1,5 @@
-# CSTK kprof makefile, by kristof:
+###################################################################################
+# CSTK parser classes makefile, by kristof:
 #
 
 CC=g++ -Wall -O3 -g
@@ -10,16 +11,25 @@ all:	kprof.o setparse.o rs232setparse.o udpsetparse.o \
 	windowsetparse.o plotsetparse.o ksomsetparse.o \
 	iparse.o wparse.o
 
+clean:
+	@-rm -f ./*.o
+	@-rm -f ./*~
+
+##### Input Parsing ###############################################################
+
 iparse.o: datacell.o binvector.o kvector.o dvector.o bufferparser.o \
 	rs232parser.o udpparser.o logfileparser.o simparser.o \
 	rs232setparse.o udpsetparse.o logfilesetparse.o simsetparse.o \
 	channelsetparse.o inputcolumnsetparse.o 
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
+##### Window Parsing ##############################################################
+
 wparse.o: kvector.o peak.o plotsetparse.o windowsetparse.o \
-	windowsetparse.o plotsetparse.o \
-	ksomsetparse.o 
+	ksomsetparse.o kvplot.o clustplot.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+
+###################################################################################
 
 kprof.o:	peak.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
@@ -87,8 +97,10 @@ udpparser.o:
 simparser.o:
 	@cd $(BASE_DIR)/sensordata/$*; make $@ BASE_DIR=$(BASE_DIR)
 
+clustplot.o:
+	@cd $(BASE_DIR)/viz/x11; make $@ BASE_DIR=$(BASE_DIR)
 
-clean:
-	@-rm -f ./*.o
-	@-rm -f ./*~
+kvplot.o:
+	@cd $(BASE_DIR)/viz/x11; make $@ BASE_DIR=$(BASE_DIR)
+
 
