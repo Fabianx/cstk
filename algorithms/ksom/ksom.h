@@ -33,19 +33,21 @@
 #define LOG 1
 #define EXP 2
 
-#define LINNB 0
+#define EUCLNB 0
 #define MANHNB 1
-#define MEXNB 2
-#define GAUSSNB 3
+#define CHEBNB 2
+#define MINKNB 3
+#define MEXNB 4
+#define GAUSSNB 5
 
 class KSOM {
  public: 
   	KSOM();
   	/* create the map with the right dimensions and all parameters*/
-  	KSOM(vei_t x, vei_t y, vei_t n, ve_t distance=DIS_EUCL, ve_t neighbourfct=LINNB, bool autolearn=false, ve_t learnfct=LIN);
+  	KSOM(vei_t x, vei_t y, vei_t n, ve_t distance=DIS_EUCL, ve_t neighbourfct=EUCLNB, bool autolearn=false, ve_t learnfct=LIN);
   	~KSOM();
   	/* create the map with the right dimensions and all parameters*/
-  	void create(vei_t x, vei_t y, vei_t n, ve_t distance=DIS_EUCL, ve_t neighbourfct=LINNB, bool autolearn=false, ve_t learnfct=LIN);
+  	void create(vei_t x, vei_t y, vei_t n, ve_t distance=DIS_EUCL, ve_t neighbourfct=EUCLNB, bool autolearn=false, ve_t learnfct=LIN);
   	/* randomize the contents of the map's cells, prototyp vector spezializes the range of each dimension*/
   	void initRandom(DVector& prototyp);
   	/* feed a vector into the map, lr specifies the learning rate when autolearn=false*/
@@ -63,6 +65,8 @@ class KSOM {
 	vei_t epoch;
 	/*neighbourhood radius*/
 	oas_t nb_radius;
+	/*exponent for Minkowski distance*/
+	vei_t minkexp;
 	
  private:
   	oas_t det_dis(DVector& vec1, DVector& vec2);
@@ -72,8 +76,7 @@ class KSOM {
   	DVector *vect;
   	KVector  *max_xy;  
   	ve_t nfct;
-  	ve_t dist;
-	ve_t exp;
+  	ve_t dist;;
   	bool autol;
   	ve_t lfct;
 };
