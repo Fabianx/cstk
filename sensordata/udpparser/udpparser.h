@@ -28,6 +28,7 @@
 #include <string.h> /* memset() */
 #include "cstk_base/types.h"
 #include "sensordata/sensordata.h"
+#include "sensordata/bufferparser.h"
 
 #define UDPERR_CANNOTOPEN -11
 #define UDPERR_CANNOTBIND -12
@@ -95,6 +96,7 @@ class UDPParser : virtual public SensorData {
   struct sockaddr_in clientAddr, serverAddr; // client and server adresses
   struct sockaddr_in remoteServerAddr; // remote Server to send things to
   struct hostent *h;
+  BufferParser bp;
   UDPParserSettings udp_param;
   int err;
 };
