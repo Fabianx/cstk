@@ -37,33 +37,39 @@ class WParse {
  public:
 	WParse();
 	~WParse();
-	
+
 	int parse(FILE* fp);
-	
+
 	int export_dtd(char* buffer);
 	int export_xsd(char* buffer);
-	
+
 	int setup_window();
-	int kvplot(KVector *kvect, Peak *kpeak);
+	int kvplot(KVector *kvect);
+	int ktplot(KVector *kvect, int x, int y, int max_x, int max_y);
 	int check_events();
-	
+
 	void init(FILE* fp);
-	
+
 	void export_err(char* buffer); // print error string in buffer
 	bool error() {return err;}
-	
+
 	KVPlot *kp;     	// KVectorPlot generating the plots
-	Pk pk;          	// Peak struct
-	
+	ClustPlot *cp;     	// ClusterPlot generating the plots
+	X11Plot *wn;
+
 	unsigned int num_plots;	// number of plots
-	
+
+
  private:
 	void parse_window(FILE* fp, char* tmpstr, unsigned int line, 
 	                 bool valid_sub_tag, bool valid_att_tag);
-	
+
 	int err;
 	unsigned int errline;
-	
+	KVector *kvect_hist;
+	Peak *kpeak_hist;
+	unsigned int num_icols;
+
 	SetParse* *sp; 	// dynamic array of all settings tags
 	unsigned int sp_size; 	// 
 	//----- These are valid settings lists: ---------------

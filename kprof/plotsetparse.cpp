@@ -46,6 +46,10 @@ int PlotSetParse::update_set() {
 			plot_set->type = PLOT_IMPL_TYPE;
 	else if (strcasecmp(plotset_val[1],"spiketrain")==0)
 			plot_set->type = PLOT_SPIK_TYPE;
+	else if (strcasecmp(plotset_val[1],"bar")==0)
+			plot_set->type = PLOT_T_BR_TYPE;
+	else if (strcasecmp(plotset_val[1],"line")==0)
+			plot_set->type = PLOT_T_LN_TYPE;
 	else return -1;
 	strcpy(plot_set->title, plotset_val[2]);
 	plot_set->src = strtol(plotset_val[3],NULL,0);
