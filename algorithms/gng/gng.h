@@ -78,6 +78,10 @@
 	~GNG();
  	
 	void create(DVector& NodeA, DVector& NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonValB, oas_t EpsilonValN);
+	
+	void savetoFile();
+	int restorefromFile();
+	
 	void feed(DVector& input);
 	void decreaseErrors();
 	

@@ -338,16 +338,46 @@ DVector& DVector::operator+=(const DVector& vec)
 			{
 		 		switch (vec.types[i]) 
 				{
-					case U8B_TYPE:  set_comp((*((u_8b*)vec.vct[i]))+(*((u_8b*)vct[i])),U8B_TYPE,i); break;
-					case U16B_TYPE: set_comp((*((u_16b*)vec.vct[i]))+(*((u_16b*)vct[i])),U16B_TYPE,i); break;
-					case U32B_TYPE: set_comp((*((u_32b*)vec.vct[i]))+(*((u_32b*)vct[i])),U32B_TYPE,i); break;
-					case U64B_TYPE: set_comp((*((u_64b*)vec.vct[i]))+(*((u_64b*)vct[i])),U64B_TYPE,i); break;
-					case S8B_TYPE:  set_comp((*((s_8b*)vec.vct[i]))+(*((s_8b*)vct[i])),S8B_TYPE,i); break;
-					case S16B_TYPE: set_comp((*((s_16b*)vec.vct[i]))+(*((s_16b*)vct[i])),S16B_TYPE,i); break;
-					case S32B_TYPE: set_comp((*((s_32b*)vec.vct[i]))+(*((s_32b*)vct[i])),S32B_TYPE,i); break;
-					case S64B_TYPE: set_comp((*((s_64b*)vec.vct[i]))+(*((s_64b*)vct[i])),S64B_TYPE,i); break;
-					case F32B_TYPE: set_comp((*((f_32b*)vec.vct[i]))+(*((f_32b*)vct[i])),F32B_TYPE,i); break;
-					case F64B_TYPE: set_comp((*((f_64b*)vec.vct[i]))+(*((f_64b*)vct[i])),F64B_TYPE,i); break;
+					case U8B_TYPE:  set_comp((*((u_8b*)vec.vct[i]))+(*((u_8b*)vct[i])),
+								FL_typecast((*((u_8b*)vec.vct[i]))+(*((u_8b*)vct[i])), vec.types[i]),
+								i); 
+								break;
+					case U16B_TYPE: set_comp((*((u_16b*)vec.vct[i]))+(*((u_16b*)vct[i])),
+								FL_typecast((*((u_16b*)vec.vct[i]))+(*((u_16b*)vct[i])), vec.types[i]),
+								i); 
+								break;
+					case U32B_TYPE: set_comp((*((u_32b*)vec.vct[i]))+(*((u_32b*)vct[i])),
+								FL_typecast((*((u_32b*)vec.vct[i]))+(*((u_32b*)vct[i])), vec.types[i]),
+								i); 
+								break;
+					case U64B_TYPE: set_comp((*((u_64b*)vec.vct[i]))+(*((u_64b*)vct[i])),
+								FL_typecast((*((u_64b*)vec.vct[i]))+(*((u_64b*)vct[i])), vec.types[i]),
+								i); 
+								break;
+					case S8B_TYPE:  set_comp((*((s_8b*)vec.vct[i]))+(*((s_8b*)vct[i])),
+								FL_typecast((*((s_8b*)vec.vct[i]))+(*((s_8b*)vct[i])), vec.types[i]),
+								i); 
+								break;
+					case S16B_TYPE: set_comp((*((s_16b*)vec.vct[i]))+(*((s_16b*)vct[i])),
+								FL_typecast((*((s_16b*)vec.vct[i]))+(*((s_16b*)vct[i])), vec.types[i]),
+								i); 
+								break;
+					case S32B_TYPE: set_comp((*((s_32b*)vec.vct[i]))+(*((s_32b*)vct[i])),
+								FL_typecast((*((s_32b*)vec.vct[i]))+(*((s_32b*)vct[i])), vec.types[i]),
+								i); 
+								break;
+					case S64B_TYPE: set_comp((*((s_64b*)vec.vct[i]))+(*((s_64b*)vct[i])),
+								FL_typecast((*((s_64b*)vec.vct[i]))+(*((s_64b*)vct[i])), vec.types[i]),
+								i); 
+								break;
+					case F32B_TYPE: set_comp((*((f_32b*)vec.vct[i]))+(*((f_32b*)vct[i])),
+								FL_typecast((*((f_32b*)vec.vct[i]))+(*((f_32b*)vct[i])), vec.types[i]),
+								i); 
+								break;
+					case F64B_TYPE: set_comp((*((f_64b*)vec.vct[i]))+(*((f_64b*)vct[i])),
+								FL_typecast((*((f_64b*)vec.vct[i]))+(*((f_64b*)vct[i])), vec.types[i]),
+								i); 
+								break;
 				}
 			}
 			else
@@ -367,16 +397,46 @@ DVector& DVector::operator-=(const DVector& vec)
 			{
 		 		switch (vec.types[i]) 
 				{
-					case U8B_TYPE:  set_comp((*((u_8b*)vec.vct[i]))-(*((u_8b*)vct[i])),U8B_TYPE,i); break;
-					case U16B_TYPE: set_comp((*((u_16b*)vec.vct[i]))-(*((u_16b*)vct[i])),U16B_TYPE,i); break;
-					case U32B_TYPE: set_comp((*((u_32b*)vec.vct[i]))-(*((u_32b*)vct[i])),U32B_TYPE,i); break;
-					case U64B_TYPE: set_comp((*((u_64b*)vec.vct[i]))-(*((u_64b*)vct[i])),U64B_TYPE,i); break;
-					case S8B_TYPE:  set_comp((*((s_8b*)vec.vct[i]))-(*((s_8b*)vct[i])),S8B_TYPE,i); break;
-					case S16B_TYPE: set_comp((*((s_16b*)vec.vct[i]))-(*((s_16b*)vct[i])),S16B_TYPE,i); break;
-					case S32B_TYPE: set_comp((*((s_32b*)vec.vct[i]))-(*((s_32b*)vct[i])),S32B_TYPE,i); break;
-					case S64B_TYPE: set_comp((*((s_64b*)vec.vct[i]))-(*((s_64b*)vct[i])),S64B_TYPE,i); break;
-					case F32B_TYPE: set_comp((*((f_32b*)vec.vct[i]))-(*((f_32b*)vct[i])),F32B_TYPE,i); break;
-					case F64B_TYPE: set_comp((*((f_64b*)vec.vct[i]))-(*((f_64b*)vct[i])),F64B_TYPE,i); break;
+					case U8B_TYPE:  set_comp((*((u_8b*)vec.vct[i]))-(*((u_8b*)vct[i])),
+								FL_typecast((*((u_8b*)vec.vct[i]))-(*((u_8b*)vct[i])), vec.types[i]),
+								i); 
+								break;
+					case U16B_TYPE: set_comp((*((u_16b*)vec.vct[i]))-(*((u_16b*)vct[i])),
+								FL_typecast((*((u_16b*)vec.vct[i]))-(*((u_16b*)vct[i])), vec.types[i]),
+								i); 
+								break;
+					case U32B_TYPE: set_comp((*((u_32b*)vec.vct[i]))-(*((u_32b*)vct[i])),
+								FL_typecast((*((u_32b*)vec.vct[i]))-(*((u_32b*)vct[i])), vec.types[i]),
+								i); 
+								break;
+					case U64B_TYPE: set_comp((*((u_64b*)vec.vct[i]))-(*((u_64b*)vct[i])),
+								FL_typecast((*((u_64b*)vec.vct[i]))-(*((u_64b*)vct[i])), vec.types[i]),
+								i); 
+								break;
+					case S8B_TYPE:  set_comp((*((s_8b*)vec.vct[i]))-(*((s_8b*)vct[i])),
+								FL_typecast((*((s_8b*)vec.vct[i]))-(*((s_8b*)vct[i])), vec.types[i]),
+								i); 
+								break;
+					case S16B_TYPE: set_comp((*((s_16b*)vec.vct[i]))-(*((s_16b*)vct[i])),
+								FL_typecast((*((s_16b*)vec.vct[i]))-(*((s_16b*)vct[i])), vec.types[i]),
+								i); 
+								break;
+					case S32B_TYPE: set_comp((*((s_32b*)vec.vct[i]))-(*((s_32b*)vct[i])),
+								FL_typecast((*((s_32b*)vec.vct[i]))-(*((s_32b*)vct[i])), vec.types[i]),
+								i); 
+								break;
+					case S64B_TYPE: set_comp((*((s_64b*)vec.vct[i]))-(*((s_64b*)vct[i])),
+								FL_typecast((*((s_64b*)vec.vct[i]))-(*((s_64b*)vct[i])), vec.types[i]),
+								i); 
+								break;
+					case F32B_TYPE: set_comp((*((f_32b*)vec.vct[i]))-(*((f_32b*)vct[i])),
+								FL_typecast((*((f_32b*)vec.vct[i]))-(*((f_32b*)vct[i])), vec.types[i]),
+								i); 
+								break;
+					case F64B_TYPE: set_comp((*((f_64b*)vec.vct[i]))-(*((f_64b*)vct[i])),
+								FL_typecast((*((f_64b*)vec.vct[i]))-(*((f_64b*)vct[i])), vec.types[i]),
+								i); 
+								break;
 				}
 			}
 			else
@@ -398,16 +458,46 @@ DVector operator+(const DVector& vec1, const DVector& vec2)
 			{
 		 		switch (vec1.types[i]) 
 				{
-					case U8B_TYPE:  vec.set_comp((*((u_8b*)vec1.vct[i]))+(*((u_8b*)vec2.vct[i])),U8B_TYPE,i); break;
-					case U16B_TYPE: vec.set_comp((*((u_16b*)vec1.vct[i]))+(*((u_16b*)vec2.vct[i])),U16B_TYPE,i); break;
-					case U32B_TYPE: vec.set_comp((*((u_32b*)vec1.vct[i]))+(*((u_32b*)vec2.vct[i])),U32B_TYPE,i); break;
-					case U64B_TYPE: vec.set_comp((*((u_64b*)vec1.vct[i]))+(*((u_64b*)vec2.vct[i])),U64B_TYPE,i); break;
-					case S8B_TYPE:  vec.set_comp((*((s_8b*)vec1.vct[i]))+(*((s_8b*)vec2.vct[i])),S8B_TYPE,i); break;
-					case S16B_TYPE: vec.set_comp((*((s_16b*)vec1.vct[i]))+(*((s_16b*)vec2.vct[i])),S16B_TYPE,i); break;
-					case S32B_TYPE: vec.set_comp((*((s_32b*)vec1.vct[i]))+(*((s_32b*)vec2.vct[i])),S32B_TYPE,i); break;
-					case S64B_TYPE: vec.set_comp((*((s_64b*)vec1.vct[i]))+(*((s_64b*)vec2.vct[i])),S64B_TYPE,i); break;
-					case F32B_TYPE: vec.set_comp((*((f_32b*)vec1.vct[i]))+(*((f_32b*)vec2.vct[i])),F32B_TYPE,i); break;
-					case F64B_TYPE: vec.set_comp((*((f_64b*)vec1.vct[i]))+(*((f_64b*)vec2.vct[i])),F64B_TYPE,i); break;
+					case U8B_TYPE:  vec.set_comp((*((u_8b*)vec1.vct[i]))+(*((u_8b*)vec2.vct[i])),
+									FL_typecast((*((u_8b*)vec1.vct[i]))+(*((u_8b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
+					case U16B_TYPE: vec.set_comp((*((u_16b*)vec1.vct[i]))+(*((u_16b*)vec2.vct[i])),
+									FL_typecast((*((u_16b*)vec1.vct[i]))+(*((u_16b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
+					case U32B_TYPE: vec.set_comp((*((u_32b*)vec1.vct[i]))+(*((u_32b*)vec2.vct[i])),
+									FL_typecast((*((u_32b*)vec1.vct[i]))+(*((u_32b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
+					case U64B_TYPE: vec.set_comp((*((u_64b*)vec1.vct[i]))+(*((u_64b*)vec2.vct[i])),
+									FL_typecast((*((u_64b*)vec1.vct[i]))+(*((u_64b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
+					case S8B_TYPE:  vec.set_comp((*((s_8b*)vec1.vct[i]))+(*((s_8b*)vec2.vct[i])),
+									FL_typecast((*((s_8b*)vec1.vct[i]))+(*((s_8b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
+					case S16B_TYPE: vec.set_comp((*((s_16b*)vec1.vct[i]))+(*((s_16b*)vec2.vct[i])),
+									FL_typecast((*((s_16b*)vec1.vct[i]))+(*((s_16b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
+					case S32B_TYPE: vec.set_comp((*((s_32b*)vec1.vct[i]))+(*((s_32b*)vec2.vct[i])),
+									FL_typecast((*((s_32b*)vec1.vct[i]))+(*((s_32b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
+					case S64B_TYPE: vec.set_comp((*((s_64b*)vec1.vct[i]))+(*((s_64b*)vec2.vct[i])),
+									FL_typecast((*((s_64b*)vec1.vct[i]))+(*((s_64b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
+					case F32B_TYPE: vec.set_comp((*((f_32b*)vec1.vct[i]))+(*((f_32b*)vec2.vct[i])),
+									FL_typecast((*((f_32b*)vec1.vct[i]))+(*((f_32b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
+					case F64B_TYPE: vec.set_comp((*((f_64b*)vec1.vct[i]))+(*((f_64b*)vec2.vct[i])),
+									FL_typecast((*((f_64b*)vec1.vct[i]))+(*((f_64b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
 				}
 			}
 			else
@@ -429,16 +519,46 @@ DVector operator-(const DVector& vec1, const DVector& vec2)
 			{
 		 		switch (vec1.types[i]) 
 				{
-					case U8B_TYPE:  vec.set_comp((*((u_8b*)vec1.vct[i]))-(*((u_8b*)vec2.vct[i])),U8B_TYPE,i); break;
-					case U16B_TYPE: vec.set_comp((*((u_16b*)vec1.vct[i]))-(*((u_16b*)vec2.vct[i])),U16B_TYPE,i); break;
-					case U32B_TYPE: vec.set_comp((*((u_32b*)vec1.vct[i]))-(*((u_32b*)vec2.vct[i])),U32B_TYPE,i); break;
-					case U64B_TYPE: vec.set_comp((*((u_64b*)vec1.vct[i]))-(*((u_64b*)vec2.vct[i])),U64B_TYPE,i); break;
-					case S8B_TYPE:  vec.set_comp((*((s_8b*)vec1.vct[i]))-(*((s_8b*)vec2.vct[i])),S8B_TYPE,i); break;
-					case S16B_TYPE: vec.set_comp((*((s_16b*)vec1.vct[i]))-(*((s_16b*)vec2.vct[i])),S16B_TYPE,i); break;
-					case S32B_TYPE: vec.set_comp((*((s_32b*)vec1.vct[i]))-(*((s_32b*)vec2.vct[i])),S32B_TYPE,i); break;
-					case S64B_TYPE: vec.set_comp((*((s_64b*)vec1.vct[i]))-(*((s_64b*)vec2.vct[i])),S64B_TYPE,i); break;
-					case F32B_TYPE: vec.set_comp((*((f_32b*)vec1.vct[i]))-(*((f_32b*)vec2.vct[i])),F32B_TYPE,i); break;
-					case F64B_TYPE: vec.set_comp((*((f_64b*)vec1.vct[i]))-(*((f_64b*)vec2.vct[i])),F64B_TYPE,i); break;
+					case U8B_TYPE:  vec.set_comp((*((u_8b*)vec1.vct[i]))-(*((u_8b*)vec2.vct[i])),
+									FL_typecast((*((u_8b*)vec1.vct[i]))-(*((u_8b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
+					case U16B_TYPE: vec.set_comp((*((u_16b*)vec1.vct[i]))-(*((u_16b*)vec2.vct[i])),
+									FL_typecast((*((u_16b*)vec1.vct[i]))-(*((u_16b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
+					case U32B_TYPE: vec.set_comp((*((u_32b*)vec1.vct[i]))-(*((u_32b*)vec2.vct[i])),
+									FL_typecast((*((u_32b*)vec1.vct[i]))-(*((u_32b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
+					case U64B_TYPE: vec.set_comp((*((u_64b*)vec1.vct[i]))-(*((u_64b*)vec2.vct[i])),
+									FL_typecast((*((u_64b*)vec1.vct[i]))-(*((u_64b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
+					case S8B_TYPE:  vec.set_comp((*((s_8b*)vec1.vct[i]))-(*((s_8b*)vec2.vct[i])),
+									FL_typecast((*((s_8b*)vec1.vct[i]))-(*((s_8b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
+					case S16B_TYPE: vec.set_comp((*((s_16b*)vec1.vct[i]))-(*((s_16b*)vec2.vct[i])),
+									FL_typecast((*((s_16b*)vec1.vct[i]))-(*((s_16b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
+					case S32B_TYPE: vec.set_comp((*((s_32b*)vec1.vct[i]))-(*((s_32b*)vec2.vct[i])),
+									FL_typecast((*((s_32b*)vec1.vct[i]))-(*((s_32b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
+					case S64B_TYPE: vec.set_comp((*((s_64b*)vec1.vct[i]))-(*((s_64b*)vec2.vct[i])),
+									FL_typecast((*((s_64b*)vec1.vct[i]))-(*((s_64b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
+					case F32B_TYPE: vec.set_comp((*((f_32b*)vec1.vct[i]))-(*((f_32b*)vec2.vct[i])),
+									FL_typecast((*((f_32b*)vec1.vct[i]))-(*((f_32b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
+					case F64B_TYPE: vec.set_comp((*((f_64b*)vec1.vct[i]))-(*((f_64b*)vec2.vct[i])),
+									FL_typecast((*((f_64b*)vec1.vct[i]))-(*((f_64b*)vec2.vct[i])), vec1.types[i]),
+									i); 
+									break;
 				}
 			}
 			else
@@ -462,10 +582,14 @@ oas_t operator*(const DVector& vec1, const DVector& vec2)
 DVector operator*(const oas_t val, const DVector& vec1)
 {
 	DVector vec;
+	oas_t t;
 	vec.create(vec1.vctsize);
-	for (vei_t i=0; i<vec1.vctsize; i++)
-		vec.set_comp(val * get(vec1,i), F64B_TYPE, i);
-
+	if (modf(val,&t)==0.0)
+		for (vei_t i=0; i<vec1.vctsize; i++)
+			vec.set_comp((val * get(vec1,i)), FL_typecast((val * get(vec1,i)), vec1.types[i]), i);
+	else 
+		for (vei_t i=0; i<vec1.vctsize; i++)
+			vec.set_comp((val * get(vec1,i)), F64B_TYPE, i);
 	return vec;
 }   
    

@@ -46,6 +46,41 @@ char DC_typecast(bool sign, int bits, char format){
                            return ERR_TYPE;
 }
 
+char FL_typecast(double value, char format){
+    
+	if (format<20)
+	{
+		if (fmod((double)(format),2.0)==0)
+		{
+			if (value<=(double)(u_8b_max))	return U8B_TYPE;  
+			else if (value<=(double)(u_16b_max))	return U16B_TYPE; 
+			else if (value<=(double)(u_32b_max))	return U32B_TYPE; 
+			#ifdef U64
+			else if ((unsigned long int)(value)<=u_64b_max)	return U64B_TYPE; 
+			#endif
+			else
+				return ERR_TYPE;
+		}
+		else 
+		{
+			if ((value<=(double)(s_8b_max)) && ((double)(value)>=s_8b_min))		return S8B_TYPE;  
+			else if ((value<=(double)(s_16b_max)) && ((double)(value)>=s_16b_min))	return S16B_TYPE; 
+			else if ((value<=(double)(s_32b_max)) && ((double)(value)>=s_32b_min))	return S32B_TYPE; 
+			#ifdef S64
+			else if (((long int)(value)<=s_64b_max) && ((int)(value)>=s_64b_min))	return S64B_TYPE; 
+			#endif	
+			else
+				return ERR_TYPE;
+		}
+  	} 
+  	else 
+	{
+		if ((value<=f_32b_max) && (value>=f_32b_min))	return F32B_TYPE; else
+		if ((value<=f_64b_max) && (value>=f_64b_min))	return F64B_TYPE; else
+								return ERR_TYPE;
+	}
+}
+
 DataCell::DataCell(){
     type = ERR_TYPE;
 }

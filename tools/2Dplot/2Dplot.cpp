@@ -26,7 +26,7 @@
 #include <stdlib.h>  //strcmp()
 #include "algorithms/gng/gng.h"   
 
-#define border1 10
+#define border1 8
 
 int main(int ac, char **args) {
 
@@ -120,25 +120,25 @@ int main(int ac, char **args) {
 	KVector kvect(kprof.is.numcols); // no stats-keeping please
 	
 	vec1 = new DVector(kprof.is.numcols);	
-	/*if ( sd->read(channel_types, kprof.is.numchs, columns, select, kprof.is.numcols)) 
+	if ( sd->read(channel_types, kprof.is.numchs, columns, select, kprof.is.numcols)) 
 		for (i=0; i<kprof.is.numcols; i++) 
-				vec1->set_comp(columns[i].get_u8b(),U8B_TYPE,i);*/
+				vec1->set_comp(columns[i].get_u8b(),U8B_TYPE,i);
 	 
 	vec2 = new DVector(kprof.is.numcols);
-	/*if ( sd->read(channel_types, kprof.is.numchs, columns, select, kprof.is.numcols)) 
+	if ( sd->read(channel_types, kprof.is.numchs, columns, select, kprof.is.numcols)) 
 		for (i=0; i<kprof.is.numcols; i++) 
-				vec2->set_comp(columns[i].get_u8b(),U8B_TYPE,i);*/
+				vec2->set_comp(columns[i].get_u8b(),U8B_TYPE,i);
 				
-	vec1->set_comp(345,U8B_TYPE,0);	
+	/*vec1->set_comp(345,U8B_TYPE,0);	
 	vec1->set_comp(456,U8B_TYPE,1);		
 	vec2->set_comp(569,U8B_TYPE,0);	
-	vec2->set_comp(455,U8B_TYPE,0);	
-	gng.create(*vec1,*vec2,10,0.05,0.8,0.007,0.001);
+	vec2->set_comp(455,U8B_TYPE,0);	*/
+	gng.create(*vec1,*vec2,25,0.1,0.3,0.006,0.0008);
 	delete vec1;
 	delete vec2;	
 	
 	DVector *nodeT, *edgeT;
-	int x_max=100, y_max=100;
+	int x_max=255, y_max=255;
 	
 	int count=0, countlin=border1,countlin2=1;
 	int clr=0;
@@ -183,7 +183,7 @@ int main(int ac, char **args) {
 		{	
 			nodes++;
 			kp.drawframe((int)(((float)(nodeT->get_comp(0))/x_max)*kprof.win.width), (int)(((float)(nodeT->get_comp(1))/y_max)*kprof.win.height), 5, 5);
-			if (clr<15)
+			if (clr<14)
 				clr++;
 			else
 				clr=0;
@@ -225,6 +225,12 @@ int main(int ac, char **args) {
 				break;
 			case 80: usleep(200000);
 				break;
+			case 39:gng.savetoFile();
+				printf("GNG web saved to file web.sav\n");
+				break;
+			case 41:if (!gng.restorefromFile())
+					printf("KSOM grid restored from file grid.sav\n");
+				break;
 		}
 		if (count<(countlin*countlin2))
 			count++;
@@ -232,7 +238,7 @@ int main(int ac, char **args) {
 		{
 			count=0;
 			countlin2++;
-			countlin = 5;
+			countlin = countlin * 1.2;
 			gng.newNode();
 		}
 	}

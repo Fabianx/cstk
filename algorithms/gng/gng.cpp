@@ -75,6 +75,70 @@
 	}
  }
  
+ void GNG::savetoFile()
+ {
+ 	FILE *f1 = fopen("node.sav","w");
+	FILE *f2 = fopen("edge.sav","w");
+	NodeListElement *currNode;
+	EdgeListElement *currEdge;
+	currNode = first;
+	int i=0;
+	fprintf(f1,"MaximumAge=%i, DecreaseError=%lf, AlphaVal=%lf, EpsilonValB=%lf, EpsilonValN=%lf, VecDim=%i\n",
+		    par.age_max, par.d, par.alpha, par.epsilon_b, par.epsilon_n, first->vector->get_dim());
+	while (currNode != NULL)
+	{
+		for (vei_t j=0; j<currNode->vector->get_dim(); j++)
+			fprintf(f1,"(%i)(%i,%i,%i)%lf\n",currNode,i,j,currNode->vector->get_type(j),currNode->vector->get_comp(j));
+		
+		currEdge = (*currNode).firstEdge;
+		while (currEdge != NULL)
+		{
+			fprintf(f2,"(%i,%i,%i)\n",i,currEdge->connectA,currEdge->connectB);
+			currEdge = (*currEdge).next;
+		}	
+		
+		i++;
+		currNode = (*currNode).next;
+	}
+	fclose(f1);
+	fclose(f2);
+ }
+ 
+ int GNG::restorefromFile()
+ {
+ 	FILE *f = fopen("node.sav","r");
+	NodeListElement *currNode;
+	if (!ferror(f))
+	{
+		oas_t out;	
+		vei_t i, j, t, nodenum, n;
+		first = NULL;
+		fscanf(f,"MaximumAge=%i, DecreaseError=%lf, AlphaVal=%lf, EpsilonValB=%lf, EpsilonValN=%lf, VecDim=%i\n",
+		    &par.age_max, &par.d, &par.alpha, &par.epsilon_b, &par.epsilon_n, &n);
+		while (!feof(f))
+		{
+			
+			NodeListElement *node;
+			node = new NodeListElement;
+			(*node).next = first;
+			(*node).vector = new DVector(n);
+			while ((i<n) or (!feof(f)))
+			{
+				fscanf(f,"(%i)(%i,%i,%i)%lf\n",&nodenum,&i,&j,&t,&out);
+				(*node).vector->set_comp(out,t,j);
+			}
+			(*node).DeltaError = 0;
+			(*node).firstEdge = NULL;
+			(*node).last = NULL;
+			if (first!=NULL)
+				(*first).last = node;
+			first = node;
+		}
+		fclose(f);
+	}
+	return ferror(f);
+ }
+ 
  void GNG::feed(DVector& input)
  {
  	NodeListElement *currNode, *mindisel0, *mindisel1;

@@ -57,8 +57,10 @@
 /* return a format descriptor, using sign (0=unsigned, 1=signed) 
    number of bits (1-64), and format (integer, float)
   */
-char DC_typecast(bool sign, int bits, char format);
- 
+char DC_typecast(bool sign, char bits, char format);
+
+char FL_typecast(double value, char format);
+
 
 /** DataCell, to be used for converting sensor data packets from 
     elsewhere to import or export into the CSTK tools, also a pretty
