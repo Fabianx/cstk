@@ -54,11 +54,12 @@ int main(int ac, char *argv[]) {
 	kp.setup_inputcolumns();
 	
 	if (kp.error()) { kp.export_err(buff); printf("%s",buff); }
-	
+
 	printf("raw output strings:\n");
 
 		// wait a sec or 2 for sensordata to get ready
-		usleep(200000);
+		kp.read_buffer(buff);
+		usleep(2000000);
 		// and get a few output strings
 		for (int t=0; t<20; t++) {
 			int ret = kp.read_buffer(buff);
@@ -83,7 +84,7 @@ int main(int ac, char *argv[]) {
 				printf("%5i: K[",t);
 				for (int i=0; i<ret; i++) {
 					vect[i].add_comp(kp.icols[i].get_u8b());
-					printf(" %6i",vect[i].val());
+					printf(" %6i",(unsigned char)vect[i].val());
 				}
 				printf("] (%i)\n",ret);
 			}
