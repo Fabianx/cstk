@@ -1,8 +1,8 @@
 /***************************************************************************
-                                  knn.cpp
+                               knn.cpp v.2.01
                              -------------------
     begin                : Sept 23 2004
-    copyright            : (C) 2004 by Martin Berchtold
+    copyright            : (C) 2004 by Martin Berchtold, Kristof Van Laerhoven
     email                : 
  ***************************************************************************/
 
@@ -25,10 +25,10 @@ KNN::KNN()
 	kdist = NULL;
 }
 
-KNN::KNN(ve_t k)
+KNN::KNN(vei_t k)
 {
 	knn = k;
-	kclasses = new ve_t[knn];
+	kclasses = new vei_t[knn];
 	kdist = new oas_t[knn];
 	first = NULL;
 }
@@ -37,79 +37,88 @@ KNN::~KNN()
 {
 	if (kclasses!=NULL) delete []kclasses;
 	if (kdist!=NULL) delete []kdist;
+	// go through the dynamic list and delete the elements in the ptr list
+	VectorPoCl *dummy;
+	while (first!=NULL) {
+		dummy = first;
+		first = first->next;
+		delete dummy;
+	}
 }
 
-vei_t KNN::access(VectorPoCl& datav, ve_t dist, vei_t expo)
+vei_t KNN::access(VectorPoCl& datav, char dist, vei_t expo)
 {
-	vei_t max=0;
-	oas_t maxdis;
-	vei_t numclass=-1;
-	vei_t *numcl;
-	vei_t maxclass;
-	vei_t allcl=0;
-	oas_t rad;
 	if (datav.vec_class == -1)
-	{
-		/*determine the vectors class by going through the list
-		and fetch the k smallest distances*/
-		current = first;
-		for (ve_t j=0; j<knn; j++)
-		{
-			kclasses[j] = 0;
-			kdist[j] = 1000000000.0;
-		}
-		do //calculation for the distances between vector and list vectors
-		{
-			maxdis = 0.0;
-			rad = det_rad(datav, dist, expo); //distance calculation
-			if (rad < kdist[max])
-					kdist[max] = rad;
-					kclasses[max] = (*current).vec_class;
-			for (ve_t h=0; h<knn; h++)
-			{
-				if (kdist[h]>maxdis)
-				{
-					maxdis = kdist[h];
-					max = h;
-				}
-			}
-			current = (*current).next; //set pointer to next vector in list
-		}
-		while (current != NULL);
-		maxclass = 0;
-		for (ve_t i=0; i<knn; i++)
-		{
-			//determine the maximum amount of classes in k-mem
-			if (kclasses[i]>maxclass)
-				maxclass = kclasses[i];
-		}
-		numcl = new vei_t[maxclass]; //vector for the klasses 
-		for (ve_t l=0; l<knn; l++)
-		{
-			numcl[kclasses[l]]++;
-		}
-
-		for (ve_t m=1; m<=maxclass; m++)
-		{
-			//get the class with the most members
-			if (numcl[m] > allcl)
-			{
-				allcl = numcl[m];
-				numclass = m;
-			}
-		}
-	}
+		return get_k_dis(datav, dist, expo); // get the k distances and vote
 	else
 	{
-		/*inserted vector at the beginning of the list with 
-		start_pointer(t)=vector(t) and nextpointer(t)=start_pointer(t-1)*/ 
-		datav.next = first;
-		first = &datav;
+		/*insert new vector at the beginning of the list with 
+		start_pointer(t)=vector(t) and nextpointer(t)=start_pointer(t-1)*/
+		VectorPoCl *dummy;
+		dummy = new VectorPoCl(datav);
+		dummy->next = first;
+		first = dummy;
+		return -1;
 	}
+}
+
+inline
+vei_t KNN::get_k_dis(VectorPoCl& datav, char dist, vei_t expo)
+{
+	vei_t max;
+	f_64b maxdis;
+	max = 0;
+	for (vei_t j=0; j<knn; j++) {
+		kclasses[j] = 0;
+		kdist[j] = max_oas;
+	}
+
+	/* determine the vector's class by going through the list
+	   and fetch the k smallest distances*/
+	VectorPoCl* current = first;
+	while (current != NULL) // distances between vector and list vectors
+	{
+		maxdis = 0;
+		oas_t rad = det_rad(datav, dist, expo); //distance calculation
+		if (rad < kdist[max]) {           // minimum distance?
+				kdist[max] = rad;
+				kclasses[max] = (*current).vec_class;
+		}
+		for (vei_t h=0; h<knn; h++) {      // update k nearest 
+			if (kdist[h]>maxdis) {
+				maxdis = kdist[h];
+				max = h;
+			}
+		}
+		current = (*current).next; //set pointer to next vector in list
+	}
+
+	//determine the maximum amount of classes in knn 
+	vei_t maxclass = 0;
+	for (vei_t i=0; i<knn; i++)
+		if (kclasses[i]>maxclass)
+			maxclass = kclasses[i];
+
+	vei_t numclass=-1;
+	f_64b *numcl = new f_64b[maxclass]; // weigh & sum the classes.. 
+	allcl = 0;
+	for (vei_t l=0; l<knn; l++) {
+		numcl[kclasses[l]]+=(1.0/kdist[l]); 
+		allcl += (1.0/kdist[l]);
+	}
+	// get the best class
+	wincl=0;
+	for (vei_t m=1; m<=maxclass; m++)
+		if (numcl[m] > wincl) {
+			wincl = numcl[m];
+			numclass = m;
+		}
+
 	return numclass;
 }
 
-oas_t KNN::det_rad(VectorPoCl& datav, ve_t seldis, vei_t exp)
+inline
+f_64b KNN::det_rad(VectorPoCl& datav, char seldis, vei_t exp)
 {
 	switch (seldis)
 	{
