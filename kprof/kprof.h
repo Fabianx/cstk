@@ -62,8 +62,7 @@ const char kperr_strings[NUM_KPERRS][32] =
 	  "No parser encountered.",
 	  "Error setting channels.",
 	  "Error setting inputcolumns.",
-	  "No inputcolumns found.",
-	  "No window section found."};
+	  "No inputcolumns found."};
 
 // CSTK tags linked to settings:
 #define NUM_A_ITAGS 7
