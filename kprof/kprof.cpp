@@ -5,7 +5,7 @@
     copyright            : (C) 2003 by Kristof Van Laerhoven
     email                :  
  ***************************************************************************/
-
+ 
 /***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -15,7 +15,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "kprof.h"
+#include "kprof.h" 
 
 KProf::KProf() 
 {
@@ -161,8 +161,8 @@ void KProf::parse_window(FILE* fp, char* tmpstr, unsigned int line,
 			err = ERR_UPDATE; errline = line;
 		}
 		if (strcasecmp(tmpstr,"plot")==0){
-			if (plotpset->id>num_plots) 
-				num_plots = plotpset->id;
+			if (plotpset->id > (int)num_plots) 
+				num_plots = (unsigned int) plotpset->id;
 		}
 		sp_size++;
 	}
@@ -324,25 +324,13 @@ int KProf::setup_sensordata_parser() {
 	return err;
 }
 
-int KProf::setup_ksom()
-{
-	if (ksomset) 	ksom = new KSOM(ksomset);
-	DVector *vect;
-	KVector kvect(num_icols); // no stats-keeping please	     
-	vect = new DVector(num_icols);
-	for (vei_t i=0; i<num_icols; i++) 
-			vect->set_comp(0,ichs[i],i);
-	ksom->initRandom(*vect);
-	delete vect;
-}
-
 int KProf::setup_window() {
 	// set and create window
 	if (winset) {
 		kp = new KVPlot(*winset);
 		kp->prepare_colours();
 	} else {
-		err=ERR_NOWINDOW;
+		err = ERR_NOWINDOW;
 		return err;
 	}
 	// plotting kvectors:
@@ -350,14 +338,14 @@ int KProf::setup_window() {
 	{
 		kvect = new KVector[num_icols];
 		for (vei_t i=0; i<(vei_t)num_icols; i++) 
-			kvect[i].createVector(250);         // TODO !!!!!!!!!!
+			kvect[i].createVector(250);         // TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	}
 	// plotting kpeaks:
 	if (kpeak==NULL)
 	{
 		kpeak = new Peak[num_icols];
 		for (vei_t i=0; i<(vei_t)num_icols; i++) 
-			kpeak[i].createPeak(5);            // TODO !!!!!!!!!!
+			kpeak[i].createPeak(15);            // TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	}
 	return 0;
 }
@@ -450,7 +438,7 @@ int KProf::read_icols(void) {
 
 int KProf::read_kvect(void) {
 	int ret = read_icols();
-	if ( ret == num_icols ) {
+	if ( ret == (int)num_icols ) {
 		for (int i=0; i<ret; i++) {
 			kvect[i].add_comp(icols[i].get_u8b());
 		}
@@ -461,7 +449,7 @@ int KProf::read_kvect(void) {
 int KProf::read_kvects(void) {
 	for (int skip=0; skip<winset->skip; skip++) 
 		read_kvect();
-	for (int i=0; i<num_icols; i++) {
+	for (int i=0; i<(int)num_icols; i++) {
 		kvect[i].get_peak(&pk.s, &pk.a, &pk.l, &pk.p);
 		kpeak[i].add_peak(&pk);
 	}

@@ -24,14 +24,12 @@
 #include "kprof/inputcolumnsetparse.h"
 #include "kprof/windowsetparse.h"
 #include "kprof/plotsetparse.h"
-#include "sensordata/sensordata.h"
 #include "sensordata/rs232parser/rs232parser.h"
 #include "sensordata/logfileparser/logfileparser.h"
 #include "sensordata/udpparser/udpparser.h"
 #include "sensordata/simparser/simparser.h"
 #include "viz/x11/kvplot.h"
 #include "algorithms/peak/peak.h"
-#include "algorithms/ksom/ksom.h"
 
 #define ERR_INVATTR      1
 #define ERR_INVTAG       2
@@ -59,7 +57,7 @@ const char kperr_strings[NUM_KPERRS][32] =
 	  "Tag overflow (too many tags).",
 	  "No input.",
 	  "Error during updating.",
-	  "No such file!",
+	  "No such file.",
 	  "No parser encountered.",
 	  "Error setting channels.",
 	  "Error setting inputcolumns.",
@@ -83,7 +81,7 @@ const char window_att_tags[NUM_A_WTAGS][16] = {
 	};
 // valid but empty CSTK tags:
 #define NUM_SUBTAGS 2
-const char sub_tags[NUM_SUBTAGS][16] = { 
+const char sub_tags[NUM_SUBTAGS][16] = {
 	"!--", "packet" };
 // main section tags:
 #define NUM_S_TAGS 3
@@ -104,7 +102,6 @@ class KProf {
 	int setup_sensordata_parser();
 	int setup_inputchannels();
 	int setup_inputcolumns();
-	int setup_ksom();
 	
 	int setup_window();
 	int kvplot();
@@ -125,7 +122,6 @@ class KProf {
 	Peak *kpeak;
 	KVPlot *kp;     	// KVectorPlot generating the plots
 	Pk pk;          	// Peak struct
-	KSOM *ksom;		// KSOM initialization
 	
 	DataCell *icols;       	// datacell array of all input columns 
 	unsigned int num_icols;	// number of input columns
@@ -141,7 +137,7 @@ class KProf {
 	
 	char *ichs;             	// array of types in channels
 	unsigned int num_ichs;  	// number of channels
-	unsigned int *filter;   	 // array of mapping filter
+	unsigned int *filter;   	// array of mapping filter
 	
 	int err;
 	unsigned int errline;
@@ -158,7 +154,6 @@ class KProf {
 	 ChannelSettings       	*ochset, *ochpset;   
 	 InputColumnSettings   	*icolset, *icolpset; 
 	 WindowSettings 	*winset;
-	 KSOMSettings		*ksomset;
 	//-----------------------------------------------------
 };
 
