@@ -236,11 +236,11 @@ char* DVector::to_string(void)
 {
      vei_t iter = 0, iter2 = 0;
      if (strout!=NULL) delete []strout;
-     strout = new char[vctsize*12];
-     char strtmp[12];
+     strout = new char[vctsize*16];
+     char strtmp[16];
      for (vei_t i=0; i<vctsize; i++) {
-        iter = sprintf(strtmp, "%g ", get_comp(i));
-        for (vei_t j=0; j<12; j++) strout[j+iter2] = strtmp[j];
+        iter = sprintf(strtmp, "%g\t", get_comp(i));
+        for (vei_t j=0; j<16; j++) strout[j+iter2] = strtmp[j];
         iter2 += iter;
      }
      strout[iter2] = '\0';

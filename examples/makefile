@@ -128,6 +128,15 @@ bpnn_demo: bpnn_t.o
 bpnn_t.o: bpnn.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
+##### KMeans Demo ################################################################
+
+kmeans_demo: kmeans_t.o
+	$(CC) kmeans_t.o $(VECTOR_DIR)/dvector.o $(VECTOR_DIR)/datacell.o \
+	      $(BASE_DIR)/algorithms/kmeans/kmeans.o -o ./$@
+	
+kmeans_t.o: kmeans.o datacell.o dvector.o  
+	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+
 ##### Peak Demo ##################################################################
 
 peak_demo: peak_t.o
@@ -183,6 +192,9 @@ bpnn.o:
 	@cd $(BASE_DIR)/algorithms/$*; make $@ BASE_DIR=$(BASE_DIR)
 
 peak.o:
+	@cd $(BASE_DIR)/algorithms/$*; make $@ BASE_DIR=$(BASE_DIR)
+	
+kmeans.o:
 	@cd $(BASE_DIR)/algorithms/$*; make $@ BASE_DIR=$(BASE_DIR)
 	
 kvplot.o:
