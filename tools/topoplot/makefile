@@ -40,12 +40,13 @@ topoplot:	topoplot.o
 	       $(BASE_DIR)/viz/x11/clustplot.o \
 	       $(BASE_DIR)/kprof/windowsetparse.o \
 	       $(BASE_DIR)/kprof/plotsetparse.o \
+	      $(BASE_DIR)/kprof/pparse.o \
 	      $(BASE_DIR)/algorithms/ksom/ksom.o \
 	      $(BASE_DIR)/algorithms/kmeans/kmeans.o  \
 	      $(BASE_DIR)/algorithms/peak/peak.o  \
 	      topoplot.o -L/usr/X11R6/lib/ -lX11 -o ./$@
 
-topoplot.o: datacell.o kvector.o dvector.o iparse.o wparse.o ksom.o kmeans.o
+topoplot.o: datacell.o kvector.o dvector.o iparse.o wparse.o pparse.o ksom.o kmeans.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 
@@ -73,6 +74,9 @@ iparse.o:
 	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
 
 wparse.o:
+	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
+
+pparse.o:
 	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
 
 ###################################################################################

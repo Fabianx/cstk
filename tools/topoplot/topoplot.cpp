@@ -20,6 +20,7 @@
 #include "cstk_base/vector/dvector.h"
 #include "kprof/iparse.h"
 #include "kprof/wparse.h"
+#include "kprof/pparse.h"
 #include "algorithms/ksom/ksom.h"   
 #include "algorithms/kmeans/kmeans.h"
 #include <stdlib.h>  //strcmp()
@@ -39,10 +40,11 @@ int main(int ac, char **args)
 		return -1;
 	}
   
-	ClustPlot kp;                 // plots the cluster prototypes
-	IParse input;                 // read the profile from an XSD file   
+	IParse input;                 // parse XML file
 	WParse window;
-	KSOM ksom;
+	PParse params;
+	
+	KSOMfct ksom;
 	KMeans kmeans;
 	bool quit=false;
 	int ret=0;                    // generic return variable
@@ -63,7 +65,13 @@ int main(int ac, char **args)
 	if (window.error()) 
 		{ window.export_err(buff); printf("Window error: %s\n",buff); return -1;}
 
+	fp = freopen(args[1],"r",fp);
+	params.init(fp);  // parse file for ksom and kmeans parameters
 
+	if (params.error()) 
+		{ params.export_err(buff); printf("Params error: %s\n",buff); return -1;}
+
+	
 	/*  this is how params should work:
 
 		params.init(fp);
@@ -73,22 +81,25 @@ int main(int ac, char **args)
 		ksomset.dist      = params.get_string("distmeasure");
 		ksomset.max_x     = params.get_int("width");
 		ksomset.max_y     = params.get_int("height");
+		ksomset.lfct      = params.get_int("lfunction");
+		ksomset.lfct      = params.get_int("c");
+		ksomset.epoch     = params.get_int("epoch");
+		ksomset.d         = params.get_float("mexhatd");
+		ksomset.roh       = params.get_float("mexhatrho");
+		ksomset.minkexp   = params.get_int("minkexp");
+		
 		ksomset.vecdim    = input.num_icols;
-
 	*/
 
 
 	KSOMSettings ksomset;
 	ksomset.autol     = false;
 	ksomset.nfct      = GAUSSNB;
-	ksomset.nb_radius = 0.5;
+	ksomset.nb_radius = 0.9;
 	ksomset.dist      = DIS_EUCL;
-	ksomset.max_x     = 26;
-	ksomset.max_y     = 28;
+	ksomset.max_x     = 66;
+	ksomset.max_y     = 68;
 	ksomset.vecdim    = input.num_icols;
-//ve_t ksomset.lfct;
-//oas_t ksomset.c;
-
 
 	ksom.create(&ksomset);
 
