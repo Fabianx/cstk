@@ -14,7 +14,7 @@
 #include "algorithms/knn/knn.h"
 
 #define k 3
-#define vecnum 10
+#define vecnum 4
 #define size 4
 #define dis DIS_EUCL
 
