@@ -388,9 +388,23 @@ int KProf::kvplot() {
 					plotpset->color,
 					plotpset->title, plotpset->scale);
 				break;
-			case PLOT_PEAK_TYPE: // if timeseries
+			case PLOT_PEAK_TYPE: // if peakplot
 				kp->peakplot(plotpset->id+1, num_plots+1,
 					kpeak[plotpset->src],
+					plotpset->title);
+				break;
+			case PLOT_TEXT_TYPE: // if textplot
+				kp->textplot(plotpset->id+1, num_plots+1, 
+					kvect[plotpset->src]);
+				break;
+			case PLOT_IMPL_TYPE: // if impulse
+				kp->impulse(plotpset->id+1, num_plots+1,
+					kvect[plotpset->src], plotpset->color, 
+					plotpset->title);
+				break;
+			case PLOT_SPIK_TYPE: // if spiketrain
+				kp->spiketrain(plotpset->id+1, num_plots+1,
+					kvect[plotpset->src], plotpset->color, 
 					plotpset->title);
 				break;
 		}

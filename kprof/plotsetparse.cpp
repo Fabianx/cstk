@@ -40,6 +40,12 @@ int PlotSetParse::update_set() {
 			plot_set->type = PLOT_HIST_TYPE;
 	else if (strcasecmp(plotset_val[1],"peakplot")==0)
 			plot_set->type = PLOT_PEAK_TYPE;
+	else if (strcasecmp(plotset_val[1],"textplot")==0)
+			plot_set->type = PLOT_TEXT_TYPE;
+	else if (strcasecmp(plotset_val[1],"impulse")==0)
+			plot_set->type = PLOT_IMPL_TYPE;
+	else if (strcasecmp(plotset_val[1],"spiketrain")==0)
+			plot_set->type = PLOT_SPIK_TYPE;
 	else return -1;
 	strcpy(plot_set->title, plotset_val[2]);
 	plot_set->src = strtol(plotset_val[3],NULL,0);

@@ -28,14 +28,17 @@
 #define PLOT_TIME_TYPE   1
 #define PLOT_HIST_TYPE   2
 #define PLOT_PEAK_TYPE   3
+#define PLOT_TEXT_TYPE   4
+#define PLOT_IMPL_TYPE   5
+#define PLOT_SPIK_TYPE   6
 
 #define _SET_PLOTSET_DEF(a) strcpy(plotset_val[(a)],plotset_defs[(a)])
 
 #define NUM_PLOT_ATTR 7
 const char plotset_attr[NUM_PLOT_ATTR][16] = {
 	"id", "type", "title", "src", "res", "scale", "color" };
-const char plotset_type[NUM_PLOT_ATTR][32] = {
-	"CDATA", "(timeseries|histogram|peakplot)", 
+const char plotset_type[NUM_PLOT_ATTR][64] = {
+	"CDATA", "(timeseries|histogram|peakplot|text|impule|spiketrain)", 
 	"CDATA", "CDATA", "CDATA", "(yes|no)", "CDATA"};
 const char plotset_defs[NUM_PLOT_ATTR][16] = {
 	"0", "timeseries", "", "0", "100", "no", "0"};
