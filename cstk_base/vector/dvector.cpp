@@ -64,11 +64,12 @@ DVector::~DVector()
      }    
      if (strout!=NULL) delete []strout; 
 }
+
 // 
 void DVector::create(vei_t nsize) 
 {
      vctsize = nsize;
-     vct = new void *[nsize];
+     vct = new void*[nsize];
      for (vei_t i=0; i<nsize; i++)
      	vct[i]=NULL;
      types = new char[nsize];
@@ -77,7 +78,7 @@ void DVector::create(vei_t nsize)
 // allocate a comonent and fill it
 void DVector::set_comp(f_64b value, char type, vei_t comp) 
 {
-     void *v=NULL;
+     void *v;
      v = vct[comp];
      if (v!=NULL)
         switch (types[comp]){
@@ -96,45 +97,36 @@ void DVector::set_comp(f_64b value, char type, vei_t comp)
      switch (type) {
         case U8B_TYPE:  v = new u_8b;  
                         *((u_8b*)v)  = (u_8b)value; 
-                        ((u_8b*)vct[comp]) = ((u_8b*)v); 
                         break;
         case U16B_TYPE: v = new u_16b; 
                         *((u_16b*)v) = (u_16b)value; 
-                        ((u_16b*)vct[comp]) = ((u_16b*)v);  
                         break;
         case U32B_TYPE: v = new u_32b; 
                         *((u_32b*)v) = (u_32b)value; 
-                        ((u_32b*)vct[comp]) = ((u_32b*)v);  
                         break;
         case U64B_TYPE: v = new u_64b; 
                         *((u_64b*)v) = (u_64b)value; 
-                        ((u_64b*)vct[comp]) = ((u_64b*)v); 
                         break;
         case S8B_TYPE:  v = new s_8b;  
                         *((s_8b*)v)  = (s_8b)value;  
-                        ((s_8b*)vct[comp]) = ((s_8b*)v);   
                         break;
         case S16B_TYPE: v = new s_16b; 
                         *((s_16b*)v) = (s_16b)value; 
-                        ((s_16b*)vct[comp]) = ((s_16b*)v);  
                         break;
         case S32B_TYPE: v = new s_32b; 
                         *((s_32b*)v) = (s_32b)value; 
-                        ((s_32b*)vct[comp]) = ((s_32b*)v);  
                         break;   
         case S64B_TYPE: v = new s_64b; 
                         *((s_64b*)v) = (s_64b)value; 
-                        ((s_64b*)vct[comp]) = ((s_64b*)v);  
                         break;
         case F32B_TYPE: v = new f_32b; 
                         *((f_32b*)v) = (f_32b)value; 
-                        ((f_32b*)vct[comp]) = ((f_32b*)v);  
                         break;
         case F64B_TYPE: v = new f_64b;
                         *((f_64b*)v) = (f_64b)value; 
-                        ((f_64b*)vct[comp]) = ((f_64b*)v);  
                         break; 
      }
+     vct[comp] = v;
      types[comp] = type;
 }
 // allocate a comonent and fill it
@@ -159,45 +151,36 @@ void DVector::set_comp(DataCell value, vei_t comp)
      switch (value.get_type()) {
         case U8B_TYPE:  v = new u_8b;  
                         *((u_8b*)v)  = value.get_u8b(); 
-                        ((u_8b*)vct[comp]) = ((u_8b*)v); 
                         break;
         case U16B_TYPE: v = new u_16b; 
                         *((u_16b*)v) = value.get_u16b(); 
-                        ((u_16b*)vct[comp]) = ((u_16b*)v);  
                         break;
         case U32B_TYPE: v = new u_32b; 
                         *((u_32b*)v) = value.get_u32b(); 
-                        ((u_32b*)vct[comp]) = ((u_32b*)v);  
                         break;
         case U64B_TYPE: v = new u_64b; 
                         *((u_64b*)v) = value.get_u64b(); 
-                        ((u_64b*)vct[comp]) = ((u_64b*)v); 
                         break;
         case S8B_TYPE:  v = new s_8b;  
                         *((s_8b*)v)  = value.get_s8b();  
-                        ((s_8b*)vct[comp]) = ((s_8b*)v);   
                         break;
         case S16B_TYPE: v = new s_16b; 
                         *((s_16b*)v) = value.get_s16b(); 
-                        ((s_16b*)vct[comp]) = ((s_16b*)v);  
                         break;
         case S32B_TYPE: v = new s_32b; 
                         *((s_32b*)v) = value.get_s32b(); 
-                        ((s_32b*)vct[comp]) = ((s_32b*)v);  
                         break;   
         case S64B_TYPE: v = new s_64b; 
                         *((s_64b*)v) = value.get_s64b(); 
-                        ((s_64b*)vct[comp]) = ((s_64b*)v);  
                         break;
         case F32B_TYPE: v = new f_32b; 
                         *((f_32b*)v) = value.get_f32b(); 
-                        ((f_32b*)vct[comp]) = ((f_32b*)v);  
                         break;
         case F64B_TYPE: v = new f_64b;
                         *((f_64b*)v) = value.get_f64b(); 
-                        ((f_64b*)vct[comp]) = ((f_64b*)v);  
                         break; 
      }
+     vct[comp]=v;
      types[comp] = value.get_type();
 }
 // return a component as a 64 bit float
