@@ -32,7 +32,9 @@
 class DVector {
  public:
    DVector();
-   DVector(vei_t nsize); 
+   DVector(vei_t nsize);
+   DVector(const DVector& vec);
+   
    ~DVector(); 
    void create(vei_t nsize);
    void set_comp(f_64b value, char type, vei_t comp); 
@@ -45,7 +47,17 @@ class DVector {
    oas_t dis_cheb(DVector& invec);            // Chebychev Distance
    oas_t dis_mink(DVector& invec, vei_t exp); // Minkowski Distance
    char* to_string(void);
+   
+   DVector& operator=(const DVector& vec); 
+   DVector& operator+=(const DVector& vec);
+   friend DVector& operator+(const DVector& vec1, const DVector& vec2);
+   friend DVector& operator-(const DVector& vec1, const DVector& vec2);
+   friend oas_t operator*(const DVector& vec1, const DVector& vec2);
+ 
  private:
+   DVector& set(const DVector& vec, vei_t i);
+   friend oas_t get(const DVector& vec, vei_t i);
+ 
    void **vct;                                // the pointer array
    char *types;                               // the types for each pointer
    vei_t vctsize;
