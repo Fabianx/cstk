@@ -81,7 +81,6 @@ int main(int ac, char *argv[]) {
 	
 	FILE* fp = fopen(argv[1],"r");
 	char tmpstr[1024];
-	char tmpstr2[1024];
 	if (!fp) {
 		printf("error opening file!\n");
 		exit(0);
@@ -152,29 +151,37 @@ int main(int ac, char *argv[]) {
 	  }
 	  printf("<!-- ***** XSD section ************************* -->\n");
 	  char last_mode[256]; 
+	  char last_tag[256];
+	  char curr_tag[256];
 	  last_mode[0]='\0';
+	  last_tag[0]='\0';
+	  printf("\t<input>\n");
 	  for (int t=0; t<parser_counter; t++) {
-		if (setparse[t]->update_set()!=0)
-			printf("error updating vars in section %i.\n",t);
 		setparse[t]->write_set(tmpstr);
-		setparse[t]->write_tag(tmpstr2);
+		setparse[t]->write_tag(curr_tag);
+		// is it a different tag than the previous?
+		if ((strcasecmp(last_tag,curr_tag)!=0)
+			&&(last_tag[0]!='\0')
+			&&(strcasecmp(last_tag,last_mode)!=0))
+				printf("\t\t</%s>\n", last_mode); 
 		// is it a tag that needs closing immediately?
-		if ((strcasecmp(tmpstr2,"channel")==0)||
-		    (strcasecmp(tmpstr2,"inputcolumn")==0) ||
-		    (strcasecmp(tmpstr2,"poll")==0)) {
-			printf("%s<\\%s>\n", tmpstr,tmpstr2);
+		if ((strcasecmp(curr_tag,"channel")==0)||
+		    (strcasecmp(curr_tag,"inputcolumn")==0) ||
+		    (strcasecmp(curr_tag,"poll")==0)) {
+			printf("\t%s</%s>\n", tmpstr,curr_tag);
 		}
 		else {
-			// is this another section?
-			if ((strcasecmp(last_mode,tmpstr2)!=0)
-			    &&(last_mode[0]!='\0'))
-		    		printf("\t<\\%s>\n%s", last_mode, tmpstr);
-			if (last_mode[0]=='\0')
-				printf("%s", tmpstr);
-			strcpy (last_mode, tmpstr2);
+			printf("\t%s", tmpstr);
+			strcpy (last_mode, curr_tag);
 		} 
+		strcpy (last_tag, curr_tag);
 	  }
+	  printf("\t</input>\n");
 	}
+	
+	
+	// return the settings:
+	
 	
 	if (err!=0) 
 		printf("Error (number %i) at line %i\n",err,errorline);
