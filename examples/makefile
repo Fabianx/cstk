@@ -8,7 +8,7 @@ BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ..;pwd)
 VECTOR_DIR=$(BASE_DIR)/cstk_base/vector
 SD_DIR=$(BASE_DIR)/sensordata
 
-all: 	rs232parser_demo \
+all: 	rs232parser_demo setparam_demo \
 	logfileparser_demo nmeaparser_demo udp_snd_demo udp_rec_demo \
 	simparser_demo sensordata_demo kprof_demo bpnn_demo peak_demo kvplot_demo \
 
@@ -108,6 +108,21 @@ peak_demo: peak_t.o
 peak_t.o: peak.o kvector.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
+##### SetParam Demo ##############################################################
+
+setparam_demo: setparam_t.o
+	$(CC) $(SD_DIR)/rs232parser/rs232parser.o \
+	      $(VECTOR_DIR)/datacell.o \
+	      $(SD_DIR)/logfileparser/logfileparser.o \
+	      $(SD_DIR)/udpparser/udpparser.o \
+	      $(SD_DIR)/simparser/simparser.o \
+	      $(BASE_DIR)/kprof/rs232setparse.o \
+	      setparam_t.o -o ./$@
+	
+setparam_t.o: rs232parser.o logfileparser.o udpparser.o simparser.o \
+	rs232setparse.o datacell.o
+	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+
 ##### KVPlot Demo ################################################################
 
 kvplot_demo: kvplot_t.o
@@ -158,7 +173,10 @@ peak.o:
 	
 kvplot.o:
 	@cd $(BASE_DIR)/viz/x11; make $@ BASE_DIR=$(BASE_DIR)
-	
+
+rs232setparse.o:
+	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
+		
 
 ###################################################################################
 
