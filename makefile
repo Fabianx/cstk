@@ -10,7 +10,6 @@ install:	all
 	@-mv $(BASE_DIR)/tools/rtplot/rtplot $(BASE_DIR)/../bin
 	@-mv $(BASE_DIR)/tools/topoplot/topoplot $(BASE_DIR)/../bin
 	@-mv $(BASE_DIR)/gui/*.py $(BASE_DIR)/../bin
-	
 
 all:
 	-@echo home directory is $(BASE_DIR)

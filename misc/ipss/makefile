@@ -2,6 +2,7 @@
 #
 
 CC=g++ -Wall -O3 -g
+BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ..;pwd)
 SUBDIRS = $(notdir $(subst .,,$(shell find . -maxdepth 1 -type d)))
 
 all:	ipss

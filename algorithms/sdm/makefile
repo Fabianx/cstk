@@ -2,6 +2,8 @@
 #
 
 CC=g++ -Wall -O3 -g
+BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ..;pwd)
+
 
 all:	sdm.o sdma.o sdmafct.o sosdm.o
 
