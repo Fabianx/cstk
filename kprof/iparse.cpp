@@ -293,13 +293,35 @@ int IParse::read_icols(void)
 	return ret;
 }
 
+// read the inputcolumns and convert into a binvector
+int IParse::read_binvect(void) 
+{
+	int ret = read_icols();
+	if ( ret == (int)num_icols ) {
+		for (int i=0; i<ret; i++) {
+			binvect->set_comp( icols[i].get_bool(), i);
+		}
+	}
+	return ret;
+}
 // read the inputcolumns and convert into a kvector
 int IParse::read_kvect(void) 
 {
 	int ret = read_icols();
 	if ( ret == (int)num_icols ) {
 		for (int i=0; i<ret; i++) {
-			kvect->add_comp(icols[i].get_u8b());
+			kvect->add_comp(icols[i].convert_u8b());
+		}
+	}
+	return ret;
+}
+// read the inputcolumns and convert into a dvector
+int IParse::read_dvect(void) 
+{
+	int ret = read_icols();
+	if ( ret == (int)num_icols ) {
+		for (int i=0; i<ret; i++) {
+			dvect->set_comp( icols[i].get(), icols[i].get_type , i); 
 		}
 	}
 	return ret;

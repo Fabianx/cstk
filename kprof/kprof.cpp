@@ -462,7 +462,7 @@ int KProf::read_kvect(void) {
 	int ret = read_icols();
 	if ( ret == (int)num_icols ) {
 		for (int i=0; i<ret; i++) {
-			kvect[i].add_comp(icols[i].get_u8b());
+			kvect[i].add_comp(icols[i].convert_u8b());
 		}
 	}
 	return ret;
