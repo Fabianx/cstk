@@ -72,7 +72,6 @@ void SimParser::create(unsigned int num)
 
 int SimParser::read(char* channel_types, uint numchannels, 
                 DataCell* columns,  uint* filter, uint numcolumns) {
-
   // woopety woo: we can ignore the channels, only the columns count
   if (numcolumns != size) 
         create(numcolumns);
@@ -95,30 +94,27 @@ int SimParser::read(char* channel_types, uint numchannels,
 }  
 
 int SimParser::read(DataCell* channels, uint numchannels) {
-
   for (uint i=0; i<numchannels; i++) {
      // revert the signs of the bias when the values come too close:
-     if (channels[i]>(upp_lim[i]-incr[i]-bias[i]))  {
+     if (channels[i].get()>(upp_lim[i]-incr[i]-bias[i]))  {
               bias[i] -= abs(bias[i]); 
-              channels[i] += -((incr[i]*rand())/RAND_MAX); 
+              channels[i].set_u8val( channels[i].get() -((incr[i]*rand())/RAND_MAX) ); 
      }
-     else if (channels[i]<(low_lim[i]+incr[i]+bias[i])) {
+     else if (channels[i].get()<(low_lim[i]+incr[i]+bias[i])) {
               bias[i] = abs(bias[i]); 
-              channels[i] += ((incr[i]*rand())/RAND_MAX);
+              channels[i].set_u8val( channels[i].get() +((incr[i]*rand())/RAND_MAX) ); 
      } else
-     channels[i] += (((2*incr[i]*rand())/RAND_MAX)-incr[i])+bias[i];
+     channels[i].set_u8val( channels[i].get() + (((2*incr[i]*rand())/RAND_MAX)-incr[i])+bias[i]);
   }
-  
   return numchannels;
 }
 
 int SimParser::read(DataCell* channels, uint* numchannels) {
-
   for (uint i=0; i<*numchannels; i++) {
      // invert the signs of the bias when the values come too close:
-     if (channels[i]>(upp_lim[i]-incr[i]-bias[i])) bias[i] -= abs(bias[i]); 
-     if (channels[i]<(upp_lim[i]+incr[i]+bias[i])) bias[i] =abs(bias[i]);
-     channels[i] += (((2*incr[i]*rand())/RAND_MAX)-incr[i])+bias[i];
+     if (channels[i].get()>(upp_lim[i]-incr[i]-bias[i])) bias[i] -= abs(bias[i]); 
+     if (channels[i].get()<(upp_lim[i]+incr[i]+bias[i])) bias[i] =abs(bias[i]);
+     channels[i].set_u8val( channels[i].get() + (((2*incr[i]*rand())/RAND_MAX)-incr[i])+bias[i]);
   }
   return *numchannels;
 }
