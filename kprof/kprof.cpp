@@ -329,6 +329,9 @@ int KProf::setup_window() {
 	if (winset) {
 		kp = new KVPlot(*winset);
 		kp->prepare_colours();
+	} else {
+		err=ERR_NOWINDOW;
+		return err;
 	}
 	// plotting kvectors:
 	if (kvect==NULL)

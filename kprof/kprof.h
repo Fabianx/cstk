@@ -43,12 +43,13 @@
 #define ERR_CHSET        9
 #define ERR_ICOLSET      10
 #define ERR_NOICOLS      11
+#define ERR_NOWINDOW     12
 
 #define MAX_TAG_LENGTH   255
 #define MAX_DTD_LENGTH   2048
 #define MAX_XSD_LENGTH   1024
 
-#define NUM_KPERRS       12
+#define NUM_KPERRS       13
 const char kperr_strings[NUM_KPERRS][32] = 
 	{ "No error found.",
 	  "Invalid attribute found.",
@@ -61,7 +62,8 @@ const char kperr_strings[NUM_KPERRS][32] =
 	  "No parser encountered.",
 	  "Error setting channels.",
 	  "Error setting inputcolumns.",
-	  "No inputcolumns found."};
+	  "No inputcolumns found.",
+	  "No window section found."};
 
 // CSTK tags linked to settings:
 #define NUM_A_ITAGS 7
