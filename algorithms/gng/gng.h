@@ -19,6 +19,7 @@
  #define GNG_H
  
  #include <stdlib.h> 
+ #include <unistd.h>
  #include <math.h>
 
  #include "cstk_base/vector/dvector.h"  
@@ -80,11 +81,11 @@
 	void feed(DVector& input);
 	void decreaseErrors();
 	
-	DVector getFirst_node();
-	DVector getNext_node();
+	DVector* getFirst_node();
+	DVector* getNext_node();
 	
-	DVector getFirst_edge();
-	DVector getNext_edge();
+	DVector* getFirst_edge();
+	DVector* getNext_edge();
 	
 	void newNode();
  private:
@@ -97,6 +98,7 @@
 	
 	void newEdge(NodeListElement* nodeA, NodeListElement* nodeB);
 	void removeEdgeNode();
+	void removeNode(NodeListElement* node);
 	void removeEdge(NodeListElement* nodeA, NodeListElement* nodeB);
  };
  

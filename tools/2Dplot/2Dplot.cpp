@@ -130,7 +130,7 @@ int main(int ac, char **args) {
 		for (i=0; i<kprof.is.numcols; i++) 
 				vec2->set_comp(columns[i].get_u8b(),U8B_TYPE,i);
 				
-	gng.create(*vec1,*vec2,100,0.8,0.8,0.01);
+	gng.create(*vec1,*vec2,10,0.8,0.8,0.01);
 	delete vec1;
 	delete vec2;	
 	
@@ -139,9 +139,11 @@ int main(int ac, char **args) {
 	
 	int count=0;
 	int clr=0;
+	int nodes, nodes_old;
   	// Loop until the task is interrupted:
    	while (quit==false) {
        		// do this several times to speed up viz:
+		//usleep(100000);
         	for (int i_step=0; i_step<kprof.win.skip; i_step++) 
 		{
 			// read the sensordata:
@@ -153,63 +155,79 @@ int main(int ac, char **args) {
 					vect->set_comp(columns[i].get_u8b(),U8B_TYPE,i);
 				} 
 				if ((int)(columns[0].get_u8b())>x_max)
-					x_max = (int)(columns[0].get_u8b()); printf("x_max=%i\n",x_max);
+					x_max = (int)(columns[0].get_u8b()); //printf("x_max=%i\n",x_max);
 				if ((int)(columns[1].get_u8b())>y_max)
-					y_max = (int)(columns[1].get_u8b()); printf("y_max=%i\n",y_max);
+					y_max = (int)(columns[1].get_u8b()); //printf("y_max=%i\n",y_max);
 					
 				kp.drawframe((int)(((float)(columns[0].get_u8b())/x_max)*kprof.win.width), (int)(((float)(columns[1].get_u8b())/y_max)*kprof.win.height), 3, 3);
 			} 
-			
 			gng.feed(*vect);
 			delete vect;
 		}
 		
-		nodeT = new DVector(gng.getFirst_node());
-		edgeT = new DVector(gng.getFirst_edge());
-		while (nodeT->get_comp(0) != 0)
+		if (gng.getFirst_node() != NULL)
+			nodeT = new DVector(*(gng.getFirst_node()));
+		else
+			nodeT = NULL;
+		//printf("-A\n");
+		if (gng.getFirst_edge() != NULL)
+			edgeT = new DVector(*(gng.getFirst_edge()));
+		else
+			edgeT = NULL;
+		//printf("-B\n");
+		nodes=0;
+		while (nodeT != NULL)
 		{	
-			
+			nodes++;
 			kp.drawframe((int)(((float)(nodeT->get_comp(0))/x_max)*kprof.win.width), (int)(((float)(nodeT->get_comp(1))/y_max)*kprof.win.height), 5, 5);
-			
+
 			if (clr<16)
 				clr++;
 			else
 				clr=0;
-			
-			(*edgeT) = gng.getFirst_edge();
-			while (edgeT->get_comp(0) != 0)
+			if (gng.getFirst_edge() != NULL)
+				edgeT = gng.getFirst_edge();
+			else
+				edgeT = NULL;
+			while (edgeT != NULL)
 			{
+				//printf("B1\n");
 				kp.drawline((int)(((float)(nodeT->get_comp(0))/x_max)*kprof.win.width), (int)(((float)(nodeT->get_comp(1))/y_max)*kprof.win.height), (int)(((float)(edgeT->get_comp(0))/x_max)*kprof.win.width), (int)(((float)(edgeT->get_comp(1))/y_max)*kprof.win.height),clr);
-				(*edgeT) = gng.getNext_edge();
+				edgeT = gng.getNext_edge();;
 			}
-			(*nodeT) = gng.getNext_node();
+			nodeT = gng.getNext_node();
 		}
-		delete nodeT;
-		delete edgeT;
-		
+		if (nodeT != NULL) delete nodeT;
+		if (edgeT != NULL) delete edgeT;
+		if (nodes!=nodes_old)
+		{
+			printf("#nodes=%i\n",nodes);
+			nodes_old = nodes;
+		}
+
 		kp.swap_buffers();
 		kp.delay(1000000/kprof.win.framespersec);
-		
+
 		// interruption?
-		switch (ret=kp.eventloop()) { // press 'q' for quit
-		case 24: quit = true;
-			break;
-		case 82: if (kprof.win.skip>0) kprof.win.skip--;
-			break;
-		case 86: if (kprof.win.skip<255) kprof.win.skip++;
-			break;
-		case 33: do {  //kp.swap_buffers();
-				kp.delay(kprof.win.framespersec);
-			} while (kp.eventloop()!=54);
-			break;
+		switch (ret=kp.eventloop()) 
+		{ 
+			// press 'q' for quit
+			case 24: quit = true;
+				break;
+			case 82: if (kprof.win.skip>0) kprof.win.skip--;
+				break;
+			case 86: if (kprof.win.skip<255) kprof.win.skip++;
+				break;
+			case 33: do {  //kp.swap_buffers();
+					kp.delay(kprof.win.framespersec);
+				} while (kp.eventloop()!=54);
+				break;
 		}
-		
 		if (count<border1)
 			count++;
 		else
 		{
 			count=0;
-			//printf("new node\n");
 			gng.newNode();
 		}
 	}
