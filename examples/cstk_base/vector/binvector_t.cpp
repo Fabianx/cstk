@@ -27,8 +27,9 @@
 
  int main(void) {
  
-  BinVector v;
+  BinVector v,u;
   v.create(17);
+  //u.create(17);
   BinVector w(17);
   
   printf("testing the BinVector<> routines:\n\r");
@@ -39,7 +40,10 @@
   printf(" + v = %s\n\r", v.to_string());
   printf(" + w = %s\n\r", w.to_string());
   printf(" + Hamming distance between the two: %i\n\r\n\r", v.dis_ham(w));
-  
+  u = v && w;
+  printf(" + AND between the two: %s\n\r\n\r", u.to_string());
+  u = v || w;
+  printf(" + OR between the two: %s\n\r\n\r", u.to_string());
   return 0;
   
  }

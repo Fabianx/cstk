@@ -108,3 +108,41 @@ char* BinVector::to_string(void)
      strout[size] = '\0';
      return strout;
 }
+
+BinVector& BinVector::operator=(const BinVector& vec)
+{
+	create(vec.size);
+	for (vei_t i=0; i<vec.size; i++)
+		set_comp((vec.vect[i/8] & bmask(i)),i);
+		
+	return *this;
+}
+
+BinVector operator&&(const BinVector& andA, const BinVector& andB)
+{
+	BinVector res;
+	res.create(andA.size);
+	for (vei_t i=0; i<andA.size; i++)
+	{
+		if ((andA.vect[i/8] & res.bmask(i)) && (andB.vect[i/8] & res.bmask(i)))
+			res.vect[i/8]|=res.bmask(i);
+		else
+		 	res.vect[i/8]&=~(res.bmask(i));
+	}
+	return res;
+}
+
+BinVector operator||(const BinVector& orA, const BinVector& orB)
+{
+	BinVector res;
+	res.create(orA.size);
+	for (vei_t i=0; i<orA.size; i++)
+	{
+		if ((orA.vect[i/8]  & res.bmask(i)) || (orB.vect[i/8] & res.bmask(i)))
+			res.vect[i/8]|=res.bmask(i);
+		else
+		 	res.vect[i/8]&=~(res.bmask(i));
+	}
+	return res;
+}
+
