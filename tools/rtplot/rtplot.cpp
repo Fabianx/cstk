@@ -90,7 +90,7 @@ int main(int ac, char **args) {
   // set up the input:
    switch (kprof.input_mode) {
      case IMODE_RS232 : 
-            sd = new Rs232Parser(kprof.is.rs232);
+            sd = new Rs232Parser(*kprof.is.rs232);
             break;
      case IMODE_FILE  : 
             sd = new LogFileParser(kprof.is.filename); 
@@ -134,11 +134,13 @@ int main(int ac, char **args) {
             // read the sensordata: 
 	    int ret=sd->read(channel_types, kprof.is.numchs, 
                            columns, select, kprof.is.numcols);
-             if ( ret )  
+             if ( ret < 0 )
+			    if (ret!=-12) printf("Error: %i\n",-ret);
+		     else
                 for (i=0; i<kprof.is.numcols; i++) {
                        vect[i].add_comp(columns[i].get_u8b());
 		       
-		}
+		        }
             // update peaks according to the plot:
              kprof.win.firstplot();
              do {
