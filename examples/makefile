@@ -111,7 +111,8 @@ peak_t.o: peak.o kvector.o
 ##### SetParam Demo ##############################################################
 
 setparam_demo: setparam_t.o
-	$(CC) $(SD_DIR)/rs232parser/rs232parser.o \
+	$(CC) $(BASE_DIR)/kprof/kprof.o \
+	      $(SD_DIR)/rs232parser/rs232parser.o \
 	      $(VECTOR_DIR)/datacell.o \
 	      $(SD_DIR)/logfileparser/logfileparser.o \
 	      $(SD_DIR)/udpparser/udpparser.o \
@@ -127,7 +128,7 @@ setparam_demo: setparam_t.o
 	
 setparam_t.o: rs232parser.o logfileparser.o udpparser.o simparser.o \
 	rs232setparse.o udpsetparse.o logfilesetparse.o simsetparse.o \
-	channelsetparse.o inputcolumnsetparse.o datacell.o
+	channelsetparse.o inputcolumnsetparse.o datacell.o kprof.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### KVPlot Demo ################################################################
