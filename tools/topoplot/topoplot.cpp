@@ -16,6 +16,7 @@
  ***************************************************************************/
 
 #include "cstk_base/vector/kvector.h"
+#include "cstk_base/vector/dvector.h"
 #include "viz/x11/clustplot.h"
 #include "kprof/kprof.h"
 #include "sensordata/udpparser/udpparser.h"
@@ -25,19 +26,10 @@
 #include <stdlib.h>  //strcmp()
 #include "algorithms/ksom/ksom.h"   
 
+#define border1 10
+
 int main(int ac, char **args) {
 
-  if (ac<2) {
-    printf("\n TopoPlot - by Kristof Van Laerhoven.");
-    printf("\n syntax:");
-    printf("\n   %s <xml settings document>",args[0]);
-    printf("\n");
-    printf("\n\n More info can be found in the CSTK manual");
-    printf("\n\n (http://cstk.sf.net/). No really, read it.");
-    printf("\n\n");
-    exit(0);
-  }
-  
   char window_name[255];
   ClustPlot kp;                  // plots the cluster prototypes
   SensorData *sd = NULL;         // generic sensor data class
@@ -50,6 +42,17 @@ int main(int ac, char **args) {
   DataCell* columns=NULL;        // information along to the read methods
   uint* select=NULL;             // of the various types of sensordata
     
+  if (ac<2) {
+    printf("\n TopoPlot - by Kristof Van Laerhoven.");
+    printf("\n syntax:");
+    printf("\n   %s <xml settings document>",args[0]);
+    printf("\n");
+    printf("\n\n More info can be found in the CSTK manual");
+    printf("\n\n (http://cstk.sf.net/). No really, read it.");
+    printf("\n\n");
+    exit(0);
+  }
+  
   // parse the xml file:
    if (kprof.parse(args[1],SETTP_TPP)) {printf("parse error\n\r");exit(1);};
    sprintf(window_name,"topoplot:%s,%s", imodes[kprof.input_mode],
@@ -108,47 +111,58 @@ int main(int ac, char **args) {
    }
    
   // prepare the SOM:
-    KVector vect(kprof.is.numcols,0); // no stats-keeping please
-    ksom.createGrid( kprof.par.gridsize[0], kprof.par.gridsize[1], 
-                     kprof.is.numcols);
-    ksom.initRandom(25);
-    
+    //DVector vect(kprof.is.numcols); // no stats-keeping please
+    DVector *vect;
+    KVector kvect(kprof.is.numcols); // no stats-keeping please
+    ksom.create( kprof.par.gridsize[0], kprof.par.gridsize[1], 
+                     kprof.is.numcols, DIS_EUCL, MEXNB, false, EXP);
+    ksom.par.nb_radius = kprof.par.nbr;
+		     
+    vect = new DVector(kprof.is.numcols);
+    for (i=0; i<kprof.is.numcols; i++) 
+                      vect->set_comp(0,U8B_TYPE,i); //vect->set_comp(0,F64B_TYPE,i); //vect->set_comp(0,U8B_TYPE,i);
+    ksom.initRandom(*vect);
+    delete vect;
+    vei_t counter=0;
   // Loop until the task is interrupted:
    while (quit==false) {
        // do this several times to speed up viz:
-        for (int i_step=0; i_step<kprof.win.skip; i_step++) {
-            // read the sensordata: 
-             int ret = sd->read(channel_types, kprof.is.numchs, 
-                                columns, select, kprof.is.numcols);
-             if ( ret < 0 ) {
-			    if (ret!=-12) printf("Error: %i\n",-ret);
-			 }
-		     else
-                for (i=0; i<kprof.is.numcols; i++) {
-                       vect.add_comp(columns[i].get_u8b());
-                } 
-             ksom.feed_bell(&vect, kprof.par.lr, kprof.par.nbr);
+        for (int i_step=0; i_step<kprof.win.skip; i_step++) 
+	{
+            	// read the sensordata:
+	     	vect = new DVector(kprof.is.numcols);
+		if ( sd->read(channel_types, kprof.is.numchs, columns, select, kprof.is.numcols)) 
+		{ 
+			for (i=0; i<kprof.is.numcols; i++) 
+			{
+				vect->set_comp(columns[i].get_u8b(),U8B_TYPE,i);
+			} 
+		} 
+		ksom.feed(*vect, kprof.par.lr);
+		delete vect;
         }
         
-       // do the visualization:
-         for (vei_t x=0; x<(vei_t)kprof.par.gridsize[0]; x++) 
-         {
-          for (vei_t y=0; y<(vei_t)kprof.par.gridsize[1]; y++) 
-          {  
-            ksom.getCell(x,y, &vect);
-            switch (kprof.win.get_type()) 
-	    {    
-            case PTYPE_BARS:
-                 kp.barplot(x,y, kprof.par.gridsize[0], kprof.par.gridsize[1],
-                            &vect, ((ksom.winner_x==x)&&(ksom.winner_y==y))?8:15);
-                 break;    
-            case PTYPE_LINES:
-                 kp.lineplot(x,y, kprof.par.gridsize[0], kprof.par.gridsize[1],
-                            &vect, ((ksom.winner_x==x)&&(ksom.winner_y==y))?8:15 );
-                 break;
-            }     
-          }
-         }
+       	// do the visualization:
+        for (vei_t x=0; x<(vei_t)kprof.par.gridsize[0]; x++) 
+        {
+		for (vei_t y=0; y<(vei_t)kprof.par.gridsize[1]; y++) 
+		{  
+			for (vei_t h=0; h<kprof.is.numcols; h++)
+				kvect.add_comp(ksom.getCell(x,y,h),h);
+			
+			switch (kprof.win.get_type()) 
+			{    
+				case PTYPE_BARS:
+					kp.barplot(x,y, kprof.par.gridsize[0], kprof.par.gridsize[1],
+						&kvect, ((ksom.winner_x==x)&&(ksom.winner_y==y))?8:15);
+					break;    
+				case PTYPE_LINES:
+					kp.lineplot(x,y, kprof.par.gridsize[0], kprof.par.gridsize[1],
+						&kvect, ((ksom.winner_x==x)&&(ksom.winner_y==y))?8:15 );
+					break;
+			}     
+		}
+        }
         
        // swap buffers and delay a while:
           kp.swap_buffers();
@@ -167,9 +181,16 @@ int main(int ac, char **args) {
                    } while (kp.eventloop()!=54);
                    break;
         }
-
+	
+	if (counter<border1)
+		counter++;
+	else 
+	{
+		counter=0; 
+		ksom.par.epoch++;
+	}
    } // main while loop
-
+   //delete vect;
   // release all allocated memory:
    if (sd!=NULL) delete sd;
    if (channel_types!=NULL) delete []channel_types;

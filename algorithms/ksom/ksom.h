@@ -40,6 +40,26 @@
 #define MEXNB 4
 #define GAUSSNB 5
 
+typedef struct KSOM_PARAM
+{
+	ve_t nfct;
+  	ve_t dist;;
+  	bool autol;
+  	ve_t lfct;
+	
+	oas_t c;
+	/*number of epochs trained jet*/ 
+	vei_t epoch;
+	/*neighbourhood radius*/
+	oas_t nb_radius;
+	/*exponent for Minkowski distance*/
+	vei_t minkexp;
+	/*area of lateral inhibition of mexican hat function*/
+	oas_t d; 
+	oas_t roh;
+};
+
+
 class KSOM {
  public: 
   	KSOM();
@@ -60,25 +80,15 @@ class KSOM {
 	vei_t winner_x, winner_y; 
 	vei_t max_x, max_y; 
 	
-	oas_t c;
-	/*number of epochs trained jet*/ 
-	vei_t epoch;
-	/*neighbourhood radius*/
-	oas_t nb_radius;
-	/*exponent for Minkowski distance*/
-	vei_t minkexp;
+	KSOM_PARAM par;
 	
  private:
   	oas_t det_dis(DVector& vec1, DVector& vec2);
 	oas_t det_dis(KVector& vec1, KVector& vec2);
-	oas_t det_nb(KVector& vec1, KVector& vec2);
+	oas_t det_nb(KVector& vec1, KVector& vec2, ve_t fct);
 	oas_t det_lr(oas_t lr);
   	DVector *vect;
   	KVector  *max_xy;  
-  	ve_t nfct;
-  	ve_t dist;;
-  	bool autol;
-  	ve_t lfct;
 };
 
 #endif
