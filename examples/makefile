@@ -115,6 +115,7 @@ setparam_demo: setparam_t.o
 	      $(SD_DIR)/rs232parser/rs232parser.o \
 	      $(VECTOR_DIR)/datacell.o \
 	      $(VECTOR_DIR)/kvector.o \
+	      $(BASE_DIR)/algorithms/peak/peak.o \
 	      $(SD_DIR)/logfileparser/logfileparser.o \
 	      $(SD_DIR)/udpparser/udpparser.o \
 	      $(SD_DIR)/simparser/simparser.o \
@@ -135,7 +136,7 @@ setparam_demo: setparam_t.o
 setparam_t.o: rs232parser.o logfileparser.o udpparser.o simparser.o \
 	rs232setparse.o udpsetparse.o logfilesetparse.o simsetparse.o \
 	channelsetparse.o inputcolumnsetparse.o plotsetparse.o \
-	windowsetparse.o bufferparser.o datacell.o kprof.o kvector.o \
+	windowsetparse.o bufferparser.o datacell.o kprof.o kvector.o peak.o\
 	kvplot.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 

@@ -30,6 +30,7 @@
 #include "sensordata/udpparser/udpparser.h"
 #include "sensordata/simparser/simparser.h"
 #include "viz/x11/kvplot.h"
+#include "algorithms/peak/peak.h"
 
 #define ERR_INVATTR      1
 #define ERR_INVTAG       2
@@ -61,7 +62,6 @@ const char kperr_strings[NUM_KPERRS][32] =
 	  "Error setting channels.",
 	  "Error setting inputcolumns.",
 	  "No inputcolumns found."};
-
 
 // CSTK tags linked to settings:
 #define NUM_A_ITAGS 7
@@ -104,7 +104,11 @@ class KProf {
 	
 	int setup_window();
 	int kvplot();
+	int check_events();
 	int read_kvect();
+	int read_kvects();
+	
+	void init(FILE* fp);
 	
 	int read_buffer(char* buff);
 	int read_icols(void);
@@ -112,10 +116,11 @@ class KProf {
 	void export_err(char* buffer); // print error string in buffer
 	bool error() {return err;}
 	
-	SensorData *sd; // will point to the 1 object generating data
+	SensorData *sd; 	// object that is generating data
 	KVector *kvect;
-	KVPlot *kp; // will point to a KVectorPlot generating the plots
-	
+	Peak *kpeak;
+	KVPlot *kp;     	// KVectorPlot generating the plots
+	Pk pk;          	// Peak struct
 	
 	DataCell *icols;       	// datacell array of all input columns 
 	unsigned int num_icols;	// number of input columns

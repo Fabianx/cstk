@@ -23,17 +23,15 @@ KProf::KProf()
 	sd      	= NULL;
 	sp      	= NULL; sp_size=0;
 	kp      	= NULL;
-	rs232set	= NULL;
-	udpset  	= NULL;
-	logfileset	= NULL;
-	simset  	= NULL;
+	rs232set	= NULL;	udpset  	= NULL;
+	logfileset	= NULL;	simset  	= NULL;
 	ichset   	= NULL;
 	icolset 	= NULL;
 	winset  	= NULL;
 	plotset 	= NULL;
-	ichs     	= NULL;
-	icols   	= NULL;
+	ichs     	= NULL;	icols   	= NULL;
 	filter  	= NULL;
+	kvect   	= NULL;	kpeak   	= NULL;
 }
 
 KProf::~KProf()
@@ -46,6 +44,8 @@ KProf::~KProf()
 	if (ichs!=NULL) delete []ichs;
 	if (icols!=NULL) delete []icols;
 	if (filter!=NULL) delete []filter;
+	if (kvect!=NULL) delete []kvect;
+	if (kpeak!=NULL) delete []kpeak;
 }
 
 void KProf::parse_input(FILE* fp, char* tmpstr, unsigned int line, 
@@ -113,60 +113,23 @@ void KProf::parse_output(FILE* fp, char* tmpstr, unsigned int line,
                         bool valid_sub_tag, bool valid_att_tag)
 {
 	if (strcasecmp(tmpstr,"output")==0) {
-		 //
 	}
 	else if (strcasecmp(tmpstr,"rs232")==0) {
-		//rs232set = new Rs232CreatorSettings;
-		//sp[sp_size] = new Rs232SetParse(rs232set);
 	}
 	else if (strcasecmp(tmpstr,"udp")==0) {
-		//udpset = new UDPCreatorSettings;
-		//sp[sp_size] = new UDPSetParse(udpset);
 	}
 	else if (strcasecmp(tmpstr,"logfile")==0) {
-		//logfileset = new LogFileCreatorSettings;
-		//sp[sp_size] = new LogFileSetParse(logfileset);
 	}
 	else if (strcasecmp(tmpstr,"poll")==0) {
-		//if ((cp_size)>0) cp_size--; // go back to previous tag
 	}
 	else if (strcasecmp(tmpstr,"channel")==0) {
-		/*if (ochset==NULL) { // first addition
-			ochset = new ChannelSettings; ochpset = ochset;
-		}
-		else { 
-			ChannelSettings *chnset = new ChannelSettings;
-			ochpset->next = chnset; ochpset = chnset;
-		}
-		cp[cp_size] = new ChannelSetParse(ochpset);
-		num_ochs++; // count the number of output channels*/
 	}
 	else if (strcasecmp(tmpstr,"outputcolumn")==0) {
-		/*
-		if (ocolset==NULL) { // first addition
-			ocolset = new OutputColumnSettings; ocolpset = ocolset;
-		}
-		else { 
-			OutputColumnSettings *ocolnset = new OutputColumnSettings;
-			ocolpset->next = ocolnset; ocolpset = ocolnset;
-		}
-		cp[cp_size] = new OutputColumnSetParse(icolpset);
-		num_ocols++; // count the number of outputcolumns
-		*/
 	} 
 	else if (!valid_sub_tag) {
 		err = ERR_INVTAG; errline = line;
 	}
 	if (valid_att_tag){
-		/*
-		if (sc[sc_size]->read_set(fp)!=0) { 
-			err = ERR_INVATTR; errline = line;
-		}
-		if (sc[sc_size]->update_set()!=0) { 
-			err = ERR_UPDATE; errline = line;
-		}
-		sc_size++;
-		*/
 	}
 }
 
@@ -186,7 +149,6 @@ void KProf::parse_window(FILE* fp, char* tmpstr, unsigned int line,
 			plotpset->next = plotnset; plotpset = plotnset;
 		}
 		sp[sp_size] = new PlotSetParse(plotpset);
-		num_plots++; // count the number of plots
 	}
 	else if (!valid_sub_tag) {
 		err = ERR_INVTAG; errline = line;
@@ -197,6 +159,10 @@ void KProf::parse_window(FILE* fp, char* tmpstr, unsigned int line,
 		}
 		if (sp[sp_size]->update_set()!=0) { 
 			err = ERR_UPDATE; errline = line;
+		}
+		if (strcasecmp(tmpstr,"plot")==0){
+			if (plotpset->id>num_plots) 
+				num_plots = plotpset->id;
 		}
 		sp_size++;
 	}
@@ -368,8 +334,15 @@ int KProf::setup_window() {
 	if (kvect==NULL)
 	{
 		kvect = new KVector[num_icols];
-		for (vei_t i=0; i<num_icols; i++) 
-			kvect[i].createVector(100);
+		for (vei_t i=0; i<(vei_t)num_icols; i++) 
+			kvect[i].createVector(250);         // TODO !!!!!!!!!!
+	}
+	// plotting kpeaks:
+	if (kpeak==NULL)
+	{
+		kpeak = new Peak[num_icols];
+		for (vei_t i=0; i<(vei_t)num_icols; i++) 
+			kpeak[i].createPeak(5);            // TODO !!!!!!!!!!
 	}
 	return 0;
 }
@@ -379,23 +352,41 @@ int KProf::kvplot() {
 	while(plotpset != NULL) { 
 		switch (plotpset->type) {
 			case PLOT_HIST_TYPE: // if histogram
-				kp->histogram(plotpset->id+1, num_plots,
+				kp->histogram(plotpset->id+1, num_plots+1,
 					kvect[plotpset->src],
 					plotpset->color, 
 					plotpset->res, plotpset->title);
 				break;
 			case PLOT_TIME_TYPE: // if timeseries
-				kp->timeseries(plotpset->id+1, num_plots,
+				kp->timeseries(plotpset->id+1, num_plots+1,
 					kvect[plotpset->src],
 					plotpset->color,
 					plotpset->title, plotpset->scale);
+				break;
+			case PLOT_PEAK_TYPE: // if timeseries
+				kp->peakplot(plotpset->id+1, num_plots+1,
+					kpeak[plotpset->src],
+					plotpset->title);
 				break;
 		}
 		plotpset = plotpset->next;
 	} 
 	kp->swap_buffers();
-        kp->delay(10000);
-	return 0;
+        return 0;
+}
+
+int KProf::check_events() {
+	kp->delay(10000/winset->framerate);
+	switch (kp->eventloop()) { // press 'q' for quit
+          case 24: return 0;
+          case 82: 
+	  	break;
+          case 86: 
+	  	break;
+          case 33: 
+	  	break;
+        }
+	return 1;
 }
 
 int KProf::setup_inputchannels() {
@@ -452,6 +443,16 @@ int KProf::read_kvect(void) {
 	return ret;
 }
 
+int KProf::read_kvects(void) {
+	for (int skip=0; skip<winset->skip; skip++) 
+		read_kvect();
+	for (int i=0; i<num_icols; i++) {
+		kvect[i].get_peak(&pk.s, &pk.a, &pk.l, &pk.p);
+		kpeak[i].add_peak(&pk);
+	}
+	return 0;
+}
+
 void KProf::export_err(char* buffer) {
 	if (err==0)
 		buffer[0] = '\0'; // empty string
@@ -460,5 +461,13 @@ void KProf::export_err(char* buffer) {
 	else 
 		sprintf(buffer, "Device Error %i\n\r",err);
 	err = 0;
+}
+
+void KProf::init(FILE* fp) {
+	parse(fp);
+	setup_sensordata_parser();
+	setup_inputchannels();
+	setup_inputcolumns();
+	setup_window();
 }
 

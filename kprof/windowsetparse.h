@@ -24,13 +24,13 @@
 
 #define _SET_WINDOWSET_DEF(a) strcpy(windowset_val[(a)],windowset_defs[(a)])
 
-#define NUM_WINDOW_ATTR 9
+#define NUM_WINDOW_ATTR 8
 const char windowset_attr[NUM_WINDOW_ATTR][16] = { 
-	"xpos", "ypos", "width", "height", "border", "framerate", "skip" };
+	"xpos", "ypos", "width", "height", "border", "framerate", "skip", "title" };
 const char windowset_type[NUM_WINDOW_ATTR][256] = { 
-	"CDATA", "CDATA", "CDATA", "CDATA", "CDATA", "CDATA", "CDATA" };
+	"CDATA", "CDATA", "CDATA", "CDATA", "CDATA", "CDATA", "CDATA", "CDATA" };
 const char windowset_defs[NUM_WINDOW_ATTR][16] = { 
-	"1", "1", "240", "320", "1", "1", "100",  "3" };
+	"1", "1", "240", "320", "1", "100", "3", "" };
 
 /**Class for parsing window settings 
   *@author Kristof Van Laerhoven
@@ -48,6 +48,7 @@ class WindowSetParse: public SetParse {
 		if (window_set->border<0) 	_SET_WINDOWSET_DEF(4);
 		if (window_set->framerate<0) 	_SET_WINDOWSET_DEF(5);
 		if (window_set->skip<0) 	_SET_WINDOWSET_DEF(6);
+		if (!window_set->title) 	_SET_WINDOWSET_DEF(7);
 	};
 	~WindowSetParse() {};
 	int read_set(char* attr, char* value);  // read <attribute> <value> pair

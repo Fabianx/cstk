@@ -52,8 +52,7 @@ int main(int ac, char *argv[]) {
 	kp.setup_sensordata_parser();
 	kp.setup_inputchannels();
 	kp.setup_inputcolumns();
-	
-	
+
 	if (kp.error()) { kp.export_err(buff); printf("%s",buff); exit(-1);}
 
 	printf("--- raw output strings: ----------------------\n");
@@ -69,7 +68,7 @@ int main(int ac, char *argv[]) {
 			else 
 				printf("error(%i)\n\r",ret);
 		}
-	
+
 	printf("\n--- interpreted output: ----------------------\n");
 
 		KVector vect[kp.num_icols];
@@ -91,13 +90,5 @@ int main(int ac, char *argv[]) {
 			}
 		}
 
-	kp.setup_window();
-	for (int x=0; x<2000; x++) {
-		kp.read_kvect();
-		kp.kvplot();
-	}
-	
-	usleep(1000000); // wait a sec
-	
 	return 0; // no error
 }

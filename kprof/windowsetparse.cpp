@@ -42,6 +42,7 @@ int WindowSetParse::update_set()
 	window_set->border    = strtol(windowset_val[4],NULL,0);
 	window_set->framerate = strtol(windowset_val[5],NULL,0);
 	window_set->skip      = strtol(windowset_val[6],NULL,0);
+	strcpy(window_set->title, windowset_val[7]);
 	return 0;
 }
 
