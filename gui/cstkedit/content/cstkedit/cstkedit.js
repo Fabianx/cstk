@@ -10,7 +10,7 @@ function init()
 	//			createInstance(Components.interfaces.nsILocalFile);
 	//file.initWithPath(document.getElementById('xmlfile').value);
 	// hmmmmmmmmmm...
-	doLoad();
+	//doLoad();
 }
 
 function init_par()
