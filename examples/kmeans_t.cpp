@@ -41,7 +41,7 @@ int main(int ac, char *argv[]) {
 		printf("\n                         0=DIS_MANH");
 		printf("\n                         3=DIS_MINK");
 		printf("\n                         1=DIS_CHEB");
-		printf("\n    <ex> specifies the exponent (default 2) of the Minkowski distance.\n");
+		printf("\n    <ex> specifies the exponent (default 2) of Minkowski.\n");
 		printf("\n    try for instance '%s 3 50 0.5'.", argv[0]);
 		printf("\n\n");
 		exit(0);
@@ -85,7 +85,7 @@ int main(int ac, char *argv[]) {
 		cluster.initialize(v, j);
 	}
 	
-	printf("\n(2)  training the bucket-vectors with %i input-vectors\n\n",nu);
+	printf("\n(2)  training the bucket-vectors with %i random vectors\n\n",nu);
 	for (vei_t i=0; i<nu; i++)
 	{
 		w.set_comp(((u_8b_max)*((double)(rand())/(double)(RAND_MAX+1))), U8B_TYPE, 0);
