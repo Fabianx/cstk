@@ -21,7 +21,8 @@
   *@author Kristof Van Laerhoven
   */
 
-Rs232Parser::Rs232Parser() {
+Rs232Parser::Rs232Parser() 
+{
    buf = NULL;
    fd = 0;
    bufcounter = 0;
@@ -135,7 +136,7 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
 	if (fd==0) {
 		err = open_rs232(rs232_param.device);
 		if (err!=0) {
-			return -err;
+			return err;
 		}
 	}
     
@@ -144,7 +145,7 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
 		res = write(fd,rs232_param.poll_char,1);
 		if (res==-1) {
 			err = RS232ERR_CANTWRITE;
-			return -err;
+			return err;
 		}
 	}
 	
@@ -154,7 +155,7 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
 	buf[res]=0;   
 	if (res==-1) {
 		err = RS232ERR_CANTREAD;
-		return -err;
+		return err;
 	}
 	else { 
 		i=0;  // counter for the buffer array
@@ -200,14 +201,14 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
 					for (k=0; k<numcolumns; k++) 
 						if (filter[k]==j) 
 							columns[k].set_u32val(buf[i],buf[i+1],
-												buf[i+2],buf[i+3]);
+							buf[i+2],buf[i+3]);
 					i+=4;
 					break;
 				case S32B_TYPE:    
 					for (k=0; k<numcolumns; k++) 
 						if (filter[k]==j)
 							columns[k].set_s32val(buf[i],buf[i+1],
-												buf[i+2],buf[i+3]);
+							buf[i+2],buf[i+3]);
 					i+=4;
 					break;
 #ifdef U64
@@ -215,8 +216,8 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
 					for (k=0; k<numcolumns; k++)
 						if (filter[k]==j)
 							columns[k].set_u64val(buf[i],buf[i+1],
-									buf[i+2],buf[i+3],buf[i+4],
-									buf[i+5],buf[i+6],buf[i+7]);
+							buf[i+2],buf[i+3],buf[i+4],
+							buf[i+5],buf[i+6],buf[i+7]);
 					i+=8;
 					break;
 #endif
@@ -225,12 +226,14 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
 					for (k=0; k<numcolumns; k++)
 						if (filter[k]==j)
 							columns[k].set_s64val(buf[i],buf[i+1],
-									buf[i+2],buf[i+3],buf[i+4],
-									buf[i+5],buf[i+6],buf[i+7]);
+							buf[i+2],buf[i+3],buf[i+4],
+							buf[i+5],buf[i+6],buf[i+7]);
 					i+=8;
 					break;
 #endif
-				default: ; // errormsg? 
+				default: // errormsg
+					err = RS232ERR_INVTYPE;
+					return err;
 					break;    
 			}//switch
      
@@ -242,25 +245,27 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
 
 int Rs232Parser::read(DataCell* channels, uint numchannels) 
 {
-   return 0;
+	// stub
+	return 0;
 }
 
-int Rs232Parser::read(DataCell* channels, uint* numchannels) {
-   // stub
-   return 0;
+int Rs232Parser::read(DataCell* channels, uint* numchannels) 
+{
+	// stub
+	return 0;
 }
 
-int Rs232Parser::read(char *line) {
-   int res=-2;
-   
-   // if rs232=closed, open it:
-   if (fd==0) {
-        err = open_rs232(rs232_param.device);
+int Rs232Parser::read(char *line) 
+{
+	int res=-2;
+	// if rs232=closed, open it:
+	if (fd==0) {
+		err = open_rs232(rs232_param.device);
 		if (err!=0)
-         return err;
-   }
+			return err;
+	}
    
-	if (rs232_param.poll_char[0]!='\0') 
+	if (rs232_param.poll_char[0]!='\0') // is there a poll character/string?
 	{
 		res = write(fd,rs232_param.poll_char,1);
 		if (res==-1) {
@@ -280,57 +285,64 @@ int Rs232Parser::read(char *line) {
 			i++;
 		}
 	}
-   
 	return res+1;
 }
 
-int Rs232Parser::open_rs232(char* devicename) {
-  
-  if (fd!=0) {  // close previous connection if there is one
-      close_rs232();
-  }
-
-  // reset read buffer:
-  if (buf!=NULL)
-      delete[] buf;
-  buf = new unsigned char [rs232_param.buff_size];
-
-  // open the device to be non-blocking (read will return immediatly)
-   fd = open(devicename, O_RDWR | O_NONBLOCK | O_NOCTTY); //
+int Rs232Parser::open_rs232(char* devicename) 
+{  
+	if (fd!=0) {  // close previous connection if there is one
+		close_rs232();
+	}
+	// reset read buffer:
+	if (buf!=NULL)
+		delete[] buf;
+	buf = new unsigned char [rs232_param.buff_size];
+	// open the device to be non-blocking (read will return immediatly)
+	fd = open(devicename, O_RDWR | O_NONBLOCK | O_NOCTTY); //
 	if (fd ==-1) {     // error:
-		return RS232ERR_CANTOPEN;
+		err = RS232ERR_CANTOPEN;
 	}
-	else 
-	{ // ???
-	  // if( fcntl(fd, F_SETFL, 0) ==-1 ) return -1;
-	  // set parameters: 
-       tcgetattr(fd,&oldtio); // save current port settings
-       tcgetattr(fd,&newtio); // fill with old port settings
-	   cfmakeraw(&newtio);
-	   //newtio.c_cflag = rs232_param.baudrate | CS8 | CLOCAL | CREAD;
-       newtio.c_cflag |= CS8 | CLOCAL | CREAD;
-       cfsetspeed(&newtio,rs232_param.baudrate);
-	   newtio.c_iflag = IGNPAR ;
-       //newtio.c_oflag = 0;
-       //newtio.c_lflag = 0;
-	   newtio.c_cc[VMIN] = 1;
-	   newtio.c_cc[VTIME] = 10;
-       if (tcflush(fd, TCIFLUSH)!=0) return RS232ERR_CANTFLUSH;
-       if (tcsetattr(fd,TCSANOW,&newtio)!=0) return RS232ERR_CANTSET;
+	else 	{ 
+		err = 0;
+		// set parameters: 
+		tcgetattr(fd,&oldtio); // save current port settings
+		tcgetattr(fd,&newtio); // fill with old port settings
+		cfmakeraw(&newtio);
+		switch(rs232_param.databits) {
+			case 8:	newtio.c_cflag |= CS8 | CLOCAL | CREAD; break;
+			case 7:	newtio.c_cflag |= CS7 | CLOCAL | CREAD; break;
+			case 6:	newtio.c_cflag |= CS6 | CLOCAL | CREAD; break;
+			case 5:	newtio.c_cflag |= CS5 | CLOCAL | CREAD; break;
+			default:	err = RS232ERR_INVDATAB; break; 
+		}
+		cfsetspeed(&newtio,rs232_param.baudrate);
+		switch(rs232_param.parity) {
+			case PAR_NO:	newtio.c_iflag = IGNPAR; break;
+			case PAR_ODD:	newtio.c_iflag = PARODD; break;
+			case PAR_EVEN:	newtio.c_iflag = ~PARODD; break; //?
+			case PAR_SPACE:	newtio.c_iflag = IGNPAR; break;  //?
+			case PAR_MARK:	newtio.c_iflag = PARMRK; break;
+			default:	err = RS232ERR_INVPAR; break;
+		}		
+		newtio.c_cc[VMIN] = 1;
+		newtio.c_cc[VTIME] = 10;
+		if (tcflush(fd, TCIFLUSH)!=0)
+			err = RS232ERR_CANTFLUSH;
+		if (tcsetattr(fd,TCSANOW,&newtio)!=0)
+			err = RS232ERR_CANTSET;
 	}
-
-	return 0; // no error
+	return err; // relax, it's 0 if no error
 }
 
-void Rs232Parser::close_rs232() {
-
-   if (buf!=NULL)
-       delete[] buf;
-   if (fd!=0) // close the serial port:
-   {
-       close(fd);
-       tcsetattr(fd,TCSANOW,&oldtio);   // restore old port settings
-   }
+void Rs232Parser::close_rs232() 
+{
+	if (buf!=NULL)
+		delete[] buf;
+	if (fd!=0) // close the serial port:
+	{
+		close(fd);
+		tcsetattr(fd,TCSANOW,&oldtio);   // restore old port settings
+	}
 }
 
 

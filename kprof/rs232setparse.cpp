@@ -25,7 +25,7 @@
 int Rs232SetParse::read_set(char* attr, char* value) {
  printf("%s %s\n",attr,value);
 	for (int i=0; i<NUM_RS232_ATTR; i++) 
-		if (strcasecmp(attr,rs232set_attr[i])==NULL) { 
+		if (strcasecmp(attr,rs232set_attr[i])==0) { 
 			strcpy(rs232set_val[i],value);
 			return 0;
 		}

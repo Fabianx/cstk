@@ -40,11 +40,14 @@
 #define PAR_SPACE 3
 #define PAR_MARK  4
 
-#define RS232ERR_CANTOPEN  10
-#define RS232ERR_CANTWRITE 11
-#define RS232ERR_CANTREAD  12
-#define RS232ERR_CANTFLUSH 13
-#define RS232ERR_CANTSET   14
+#define RS232ERR_CANTOPEN  -10
+#define RS232ERR_CANTWRITE -11
+#define RS232ERR_CANTREAD  -12
+#define RS232ERR_CANTFLUSH -13
+#define RS232ERR_CANTSET   -14
+#define RS232ERR_INVTYPE   -20   // invalid data type
+#define RS232ERR_INVDATAB  -21   // invalid # of databits
+#define RS232ERR_INVPAR    -22   // invalid parity type
 
 /**Class for parsing rs232 output
   *@author Kristof Van Laerhoven
