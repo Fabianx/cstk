@@ -244,11 +244,11 @@ char* DVector::to_string(void)
 {
      vei_t iter = 0, iter2 = 0;
      if (strout!=NULL) delete []strout;
-     strout = new char[vctsize*12];
-     char strtmp[12];
+     strout = new char[vctsize*20];
+     char strtmp[20];
      for (vei_t i=0; i<vctsize; i++) {
         iter = sprintf(strtmp, "%g ", get_comp(i));
-        for (vei_t j=0; j<12; j++) strout[j+iter2] = strtmp[j];
+        for (vei_t j=0; j<20; j++) strout[j+iter2] = strtmp[j];
         iter2 += iter;
      }
      strout[iter2] = '\0';
@@ -330,6 +330,35 @@ DVector& DVector::operator+=(const DVector& vec)
 	return *this;
 }
 
+DVector& DVector::operator-=(const DVector& vec)
+{
+	if (vec.vctsize == vctsize)
+	{
+		for (vei_t i=0; i<vec.vctsize; i++)
+		{
+			if (vec.types[i] == types[i])
+			{
+		 		switch (vec.types[i]) 
+				{
+					case U8B_TYPE:  set_comp((*((u_8b*)vec.vct[i]))-(*((u_8b*)vct[i])),U8B_TYPE,i); break;
+					case U16B_TYPE: set_comp((*((u_16b*)vec.vct[i]))-(*((u_16b*)vct[i])),U16B_TYPE,i); break;
+					case U32B_TYPE: set_comp((*((u_32b*)vec.vct[i]))-(*((u_32b*)vct[i])),U32B_TYPE,i); break;
+					case U64B_TYPE: set_comp((*((u_64b*)vec.vct[i]))-(*((u_64b*)vct[i])),U64B_TYPE,i); break;
+					case S8B_TYPE:  set_comp((*((s_8b*)vec.vct[i]))-(*((s_8b*)vct[i])),S8B_TYPE,i); break;
+					case S16B_TYPE: set_comp((*((s_16b*)vec.vct[i]))-(*((s_16b*)vct[i])),S16B_TYPE,i); break;
+					case S32B_TYPE: set_comp((*((s_32b*)vec.vct[i]))-(*((s_32b*)vct[i])),S32B_TYPE,i); break;
+					case S64B_TYPE: set_comp((*((s_64b*)vec.vct[i]))-(*((s_64b*)vct[i])),S64B_TYPE,i); break;
+					case F32B_TYPE: set_comp((*((f_32b*)vec.vct[i]))-(*((f_32b*)vct[i])),F32B_TYPE,i); break;
+					case F64B_TYPE: set_comp((*((f_64b*)vec.vct[i]))-(*((f_64b*)vct[i])),F64B_TYPE,i); break;
+				}
+			}
+			else
+				set_comp((get(vec,i)-get(*this,i)), F64B_TYPE, i);
+		}
+	}
+	return *this;
+}
+
 DVector& operator+(const DVector& vec1, const DVector& vec2)
 {
    	DVector *vec;
@@ -398,14 +427,23 @@ oas_t operator*(const DVector& vec1, const DVector& vec2)
 {
 	oas_t sum = 0.0;
 	
-	if (vec1.vctsize == vec1.vctsize)
+	if (vec1.vctsize == vec2.vctsize)
 		for (vei_t i=0; i<vec1.vctsize; i++)
 			sum += get(vec1,i) * get(vec2,i);
 			
 	return sum;
 }
    
-   
+DVector& operator*(const oas_t val, const DVector& vec1)
+{
+	DVector *vec;
+	vec = new DVector;
+	vec->create(vec1.vctsize);
+	for (vei_t i=0; i<vec1.vctsize; i++)
+		vec->set_comp(val * get(vec1,i), F64B_TYPE, i);
+
+	return *vec;
+}   
    
    
    

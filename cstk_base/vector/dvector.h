@@ -50,9 +50,11 @@ class DVector {
    
    DVector& operator=(const DVector& vec); 
    DVector& operator+=(const DVector& vec);
+   DVector& operator-=(const DVector& vec);
    friend DVector& operator+(const DVector& vec1, const DVector& vec2);
    friend DVector& operator-(const DVector& vec1, const DVector& vec2);
    friend oas_t operator*(const DVector& vec1, const DVector& vec2);
+   friend DVector& operator*(const oas_t val, const DVector& vec);
  
  private:
    DVector& set(const DVector& vec, vei_t i);
