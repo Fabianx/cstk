@@ -33,6 +33,15 @@ knn_demo: knn_t.o
 	
 knn_t.o: knn.o datacell.o dvector.o  
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+
+##### SDMA Demo #################################################################
+
+sdma_demo:	sdma_t.o
+	$(CC) sdma_t.o $(ALG_DIR)/sdm/sdmafct.o $(ALG_DIR)/sdm/sdma.o \
+	$(VECTOR_DIR)/kvector.o $(VECTOR_DIR)/binvector.o $(VECTOR_DIR)/datacell.o -o ./$@
+	
+sdma_t.o: sdmafct.o sdma.o datacell.o binvector.o kvector.o
+	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 	
 ##### SOSDM Demo #################################################################
 
@@ -58,6 +67,9 @@ datacell.o:
 	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
 
 sdma.o:
+	@cd $(BASE_DIR)/algorithms/sdm/; make $@ BASE_DIR=$(BASE_DIR)
+	
+sdmafct.o:
 	@cd $(BASE_DIR)/algorithms/sdm/; make $@ BASE_DIR=$(BASE_DIR)
 	
 sosdm.o:
