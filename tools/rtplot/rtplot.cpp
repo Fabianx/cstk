@@ -120,10 +120,11 @@ int main(int ac, char **args) {
    do {
      //fill in the resolutions:
       i = kprof.is.get_col_id();
-      //vect[i].createVector(kprof.win.get_res(i, PTYPE_TMSER));      
-      //peak[i].createPeak(kprof.win.get_res(i, PTYPE_PEAKS));
-      vect[i].createVector(kprof.is.get_col_res());      
-      peak[i].createPeak(kprof.is.get_col_res());
+      res = kprof.win.get_res(i, PTYPE_TMSER); // these are all zero,
+      res+= kprof.win.get_res(i, PTYPE_TRAIN); // except for the one valid  
+      res+= kprof.win.get_res(i, PTYPE_IMPLS); // plot-type
+      vect[i].createVector(res);    
+      peak[i].createPeak(kprof.win.get_res(i, PTYPE_PEAKS));
    } while (kprof.is.nextcol());
   
   // Main Loop until the task is interrupted:
@@ -131,13 +132,13 @@ int main(int ac, char **args) {
        // do this several times to speed up viz:
         for (int i_step=0; i_step<kprof.win.skip; i_step++) {
             // read the sensordata: 
-	    int ret=0;
-             if ( ret=sd->read(channel_types, kprof.is.numchs, 
-                           columns, select, kprof.is.numcols) )  
+	    int ret=sd->read(channel_types, kprof.is.numchs, 
+                           columns, select, kprof.is.numcols);
+             if ( ret )  
                 for (i=0; i<kprof.is.numcols; i++) {
                        vect[i].add_comp(columns[i].get_u8b());
+		       
 		}
-             
             // update peaks according to the plot:
              kprof.win.firstplot();
              do {
@@ -181,6 +182,12 @@ int main(int ac, char **args) {
                        kp.spiketrain(kprof.win.get_id()+1, kprof.win.numids,
                                      vect[kprof.win.get_src()],
                                      kprof.win.get_colour(), tmpstr);
+                       break;
+                 case PTYPE_IMPLS: // if impulse plot
+                       kprof.win.get_title(tmpstr);
+                       kp.impulse(kprof.win.get_id()+1, kprof.win.numids,
+                                  vect[kprof.win.get_src()],
+                                  kprof.win.get_colour(), tmpstr);
                        break;
             }
         } while(kprof.win.nextplot()); 

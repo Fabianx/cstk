@@ -123,8 +123,9 @@ const char dtypes[NUMDOCTYPES][32] = { "none",    "any",     "rtplotsettings",
 const int  dtypesmap[NUMDOCTYPES]  = {SETTP_NON, SETTP_ALL, SETTP_RTP, SETTP_TPP, SETTP_DTP};
 
 #define NUMSPLOTTYPES 10
-const char sptypes[NUMSPLOTTYPES][32] = {"none",        "histogram",   "timeseries", "peakplot", 
-					"impulseplot", "scatterplot", "textplot", "spiketrain",
+const char sptypes[NUMSPLOTTYPES][32] = {"none",        "histogram",   "timeseries",
+					"peakplot", "impulseplot", "scatterplot", "textplot",
+					"spiketrain",
 					"barplot", "linesplot" };
 const int  sptypesmap[NUMSPLOTTYPES]  = {PTYPE_NULL, PTYPE_HISTO, PTYPE_TMSER, PTYPE_PEAKS, 
 					PTYPE_IMPLS, PTYPE_SCATT, PTYPE_TEXT, PTYPE_TRAIN,
@@ -183,7 +184,6 @@ class InputSettings{
     void add_col_bits(int newbits);
     void add_col_sign(bool newsign);
     void add_col_format(char newformat);
-    void add_col_res(int newres);
     char firstcol();
     char nextcol();
     int  get_col_id();

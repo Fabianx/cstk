@@ -106,7 +106,7 @@ void Rs232Parser::get_device(char* ret_device)
        ret_device[i] = device[i];
 }
   
-/* read specific values from rs232 port, see SensorData class for more */
+// read specific values from rs232 port, see SensorData class for more 
 int Rs232Parser::read(char* channel_types, uint numchannels, 
                       DataCell* columns,  uint* filter, uint numcolumns) 
 {
@@ -128,22 +128,25 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
    usleep(100);
    res = ::read(fd,buf,buff_size);  // read buffer
    
+   
    if (res==-1) { 
          return 0;
    }
-   else {     
+   else { 
      i=0;  // counter for the buffer array
      // if the data is ascii, and no poll is given, wait for a return '\r':
-     while ((mode==ASC_MODE)&&(poll_char==NULL)&&(buf[i++]!='\r')) {
-            if (i==(unsigned int)res) break;
+     while ((mode==ASC_MODE)&&(poll_char==NULL)
+            &&(buf[i++]!='\r')&&(i<(unsigned int)res)) {
      }
      // if the data is binary, and no poll is given, wait for a return 0xFF:
-     while ((mode==BIN_MODE)&&(poll_char==NULL)&&(buf[i++]!=0xFF)) {
-            if (i==(unsigned int)res) break;
+     while ((mode==BIN_MODE)&&(poll_char==NULL)
+            &&(buf[i++]!=0xFF)&&(i<(unsigned int)res)) {
      }
+     if (i==(unsigned int)res) return 0;
+     //i++;
      j=0;  // counter for the datacells
      k=0;  // temp counter
-     while (i<(unsigned int)res) { 
+     while (i<(unsigned int)res) {  
         switch(channel_types[j]) {
          case U8B_TYPE: 
 	     for (k=0; k<numcolumns; k++) {

@@ -84,7 +84,7 @@ int main(int ac, char **args) {
   // set up the input:
    switch (kprof.input_mode) {
      case IMODE_RS232 : 
-            sd = new Rs232Parser(*kprof.is.rs232);
+            sd = new Rs232Parser(kprof.is.rs232);
             break;
      case IMODE_FILE  : 
             sd = new LogFileParser(kprof.is.filename); 

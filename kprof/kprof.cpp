@@ -183,10 +183,6 @@ void InputSettings::add_col_format(char newformat) {
   csps->format = newformat;
 }
 
-void InputSettings::add_col_res(int newres) {
-  csps->res = newres;
-}
-
 char InputSettings::firstcol() {
   csps = collist;
   return ((csps==NULL)?0:1);
@@ -514,10 +510,6 @@ unsigned int WinSettings::get_res(unsigned int id, unsigned int type){
            return get_res(); 
   } while ( nextplot() );
 
-  switch (type) {
-    case PTYPE_TMSER: return 64;
-    case PTYPE_PEAKS: return 32;
-  }   
   return 0;
 }
 
@@ -614,7 +606,6 @@ char KProf::parse(char *filename, const unsigned int validtype){
 						_CONF_INT_ADD_ATTRIB("channel=\"",tempvalue,is.add_col_channel)
 						_CONF_STR_ADD_ATTRIB("name=\"",tempstr,is.add_col_name)
 						_CONF_INT_ADD_ATTRIB("bits=\"",tempvalue,is.add_col_bits)
-						_CONF_INT_ADD_ATTRIB("res=\"",tempvalue,is.add_col_res)
 						_IFATTRIB("format=\"") {
 							fscanf(fp, "%[^\"]", tempstr);
 							_IFSTR("integer")	is.add_col_format(DF_INTEGER);

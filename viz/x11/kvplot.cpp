@@ -24,18 +24,22 @@ KVPlot::~KVPlot(){
 }
 
 char KVPlot::histogram(uint cscr, uint tscr, KVector& vector, int colour, 
-                        uint num_buckets, char* title){
+                        uint num_buckets, char* title) {
   drawframe(0, ((cscr-1)*win_height)/tscr, win_width, win_height/tscr);
   // read each value for bar and draw it
-  uint bucket_width = (win_width-4)/num_buckets;
-  uint bar = 0, max = 0, sub_height;
+  if (win_height!=old_win_height) {
+    sub_height= (win_height/tscr-14);
+    old_win_height = win_height;
+  } 
+  bucket_width = (win_width-4)/num_buckets;
+  uint bar = 0, max = 0;
   for (uint i=0;i<num_buckets;i++) {
     // get the fullest bucket i
      bar = vector.get_histo(num_buckets, i);
      if (max<bar)  max = bar;
   }
   XSetForeground(display, gc, plot_colours[colour].pixel);
-  sub_height = (win_height/tscr-4-10);
+  
   for (uint i=0;i<num_buckets;i++) {
     // get the value of bucket i
      bar = vector.get_histo(num_buckets, i);
@@ -50,20 +54,19 @@ char KVPlot::histogram(uint cscr, uint tscr, KVector& vector, int colour,
 }
 
 char KVPlot::timeseries(uint cscr, uint tscr, KVector& vector, int colour, 
-                         char* title, bool scaling){
+                         char* title, bool scaling) {
   drawframe(0, ((cscr-1)*win_height)/tscr, win_width, win_height/tscr);
-  uint sub_height = (uint)(win_height/tscr-4-10); 
-  uint tot_height=(uint)((cscr*win_height)/tscr-3);
+  if (win_height!=old_win_height) {
+    sub_height= (win_height/tscr-14);
+    old_win_height = win_height;
+  } 
+  tot_height=(uint)((cscr*win_height)/tscr-3);
   uint scaling_fact=20;
   for (vei_t i=0; i<vector.pvect_size; i++) {
     plot_point[i].x = 2+i*(win_width-14)/vector.pvect_size;
     if (!scaling)
       plot_point[i].y = tot_height-(vector.pvect[i]*sub_height)/255;
     else {
-      //plot_point[i].y = 
-      // (short int) (tot_height -
-      //  ((vector.pvect[i]-vector.min())*sub_height)
-      //    /(0.1+vector.max()-vector.min()));
       if (vector.max()-vector.min()>20) 
            scaling_fact = vector.max()-vector.min();
       plot_point[i].y = 
@@ -88,10 +91,6 @@ char KVPlot::timeseries(uint cscr, uint tscr, KVector& vector, int colour,
 
   if (title!=NULL) {
         draw_text(title, 3, ((cscr-1)*win_height)/tscr+9, 2);
-  //    char str[3]; 
-  //    sprintf(str,"%i",vector->pvect[vector->pvect_size-1]);
-  //    draw_text(str, tot_height-(vector->min()*sub_height)/255, 
-  //    win_width-20, 10, 2);
   }
   return 0;   
 }
@@ -99,13 +98,16 @@ char KVPlot::timeseries(uint cscr, uint tscr, KVector& vector, int colour,
 char KVPlot::peakplot(uint cscr, uint tscr, Peak& peak, char* title){ 
   drawframe(0, ((cscr-1)*win_height)/tscr, win_width, win_height/tscr);
   // read each value for bar and draw it
-  pei_t num_peaks = peak.ppeak_size; 
-  vei_t peak_width = (win_width-4)/num_peaks;
   ves_t curpeak = 0;
   ve_t  curamp = 0;
   ves_t max = 0;
-  ve_t  maxamp = 0, sub_height= (win_height/tscr-4-20);
-  for (pei_t i=0;i<num_peaks;i++) {
+  ve_t  maxamp = 0;
+  if (win_height!=old_win_height) {
+    sub_height= (win_height/tscr-14);
+    old_win_height = win_height;
+  } 
+  peak_width = (win_width-4)/peak.ppeak_size;
+  for (pei_t i=0;i<peak.ppeak_size;i++) {
     // get the fullest bucket i
      curpeak = abs(peak.ppeak_s[i]);
      curamp  = abs(peak.ppeak_a[i]);
@@ -114,36 +116,36 @@ char KVPlot::peakplot(uint cscr, uint tscr, Peak& peak, char* title){
   }
   if (max==0) max = 1;
   if (maxamp==0) maxamp = 1;
-  for (pei_t i=0;i<num_peaks;i++) {
+  for (pei_t i=0;i<peak.ppeak_size;i++) {
     // get the value of bucket i
      curamp = peak.ppeak_a[i];
      curpeak = ((peak.ppeak_p[i]==1)?1:-1)*peak.ppeak_s[i];
     // plot current bar
      if (curpeak<0) {
               XSetForeground(display, gc, plot_colours[2].pixel);
-              XFillRectangle(display, buffer, gc, 2+i*(win_width-4)/num_peaks,
+              XFillRectangle(display, buffer, gc, 2+i*(win_width-4)/peak.ppeak_size,
                              ((cscr*win_height)/tscr-3)-(win_height/(2*tscr)),
                              peak_width, (abs(curpeak)*sub_height/max)/2);
               XSetForeground(display, gc, plot_colours[14].pixel);
               XDrawLine(display, buffer, gc, 
-                        2+i*(win_width-4)/num_peaks+peak_width/2,
+                        2+i*(win_width-4)/peak.ppeak_size+peak_width/2,
                         ((cscr*win_height)/tscr-3)-(win_height/(2*tscr)),
-                        2+i*(win_width-4)/num_peaks+peak_width/2,
+                        2+i*(win_width-4)/peak.ppeak_size+peak_width/2,
                         ((cscr*win_height)/tscr-3)-(win_height/(2*tscr))
                          +(curamp*sub_height/maxamp)/2);              
      }
      else {
               XSetForeground(display, gc, plot_colours[1].pixel);
-              XFillRectangle(display, buffer, gc, 2+i*(win_width-4)/num_peaks,
+              XFillRectangle(display, buffer, gc, 2+i*(win_width-4)/peak.ppeak_size,
                              (((cscr*win_height)/tscr-3)-(win_height/(2*tscr))
                               -(curpeak*sub_height/max)/2),
                              peak_width, (curpeak*sub_height/max)/2);
               XSetForeground(display, gc, plot_colours[14].pixel);
               XDrawLine(display, buffer, gc, 
-                        2+i*(win_width-4)/num_peaks+peak_width/2,
+                        2+i*(win_width-4)/peak.ppeak_size+peak_width/2,
                         ((cscr*win_height)/tscr-3)-(win_height/(2*tscr))
                          -(curamp*sub_height/maxamp)/2,
-                        2+i*(win_width-4)/num_peaks+peak_width/2,
+                        2+i*(win_width-4)/peak.ppeak_size+peak_width/2,
                         ((cscr*win_height)/tscr-3)-(win_height/(2*tscr)));
      }  
   }
@@ -154,8 +156,6 @@ char KVPlot::peakplot(uint cscr, uint tscr, Peak& peak, char* title){
 char KVPlot::textplot(uint cscr, uint tscr, KVector& vector){
   
   drawframe(0, ((cscr-1)*win_height)/tscr, win_width, win_height/tscr);
-  //uint sub_height = (uint)(win_height/tscr-4-10); 
-  //uint tot_height=(uint)((cscr*win_height)/tscr-3);
   
 	char str[120]; 
 	sprintf(str,"min:%3i avg:%3i max:%3i val:%3i std:%3lu",
@@ -179,9 +179,10 @@ char KVPlot::textplot(uint cscr, uint tscr, KVector& vector){
 char KVPlot::spiketrain(uint cscr, uint tscr, KVector& vector, int colour, 
                          char* title){
   drawframe(0, ((cscr-1)*win_height)/tscr, win_width, win_height/tscr);
-  uint sub_height = (uint)(win_height/tscr-4-10); 
+   
+  uint sub_height = (uint)(win_height/tscr-4); 
+ 
   uint tot_height=(uint)((cscr*win_height)/tscr-3);
-  uint scaling_fact=20;
   for (vei_t i=1; i<vector.pvect_size; i++) {
     plot_point[i].x = 2+i*(win_width-14)/vector.pvect_size;
     plot_point[i].y = tot_height-(abs(vector.pvect[i]-vector.pvect[i-1])*sub_height)/255;
@@ -200,8 +201,31 @@ char KVPlot::spiketrain(uint cscr, uint tscr, KVector& vector, int colour,
   XDrawLine(display, buffer, gc, win_width-12,
             tot_height-(vector.mean()*sub_height)/255,
             win_width-3,  tot_height-(vector.mean()*sub_height)/255);
-
+  
   if (title!=NULL)
         draw_text(title, 3, ((cscr-1)*win_height)/tscr+9, 2);
-  return 0;   
+  return 0;
+}
+  
+char KVPlot::impulse(uint cscr, uint tscr, KVector& vector, int colour, 
+                     char* title){
+  drawframe(0, ((cscr-1)*win_height)/tscr, win_width, win_height/tscr);   
+  uint sub_height = (uint)(win_height/tscr-4); 
+  
+  bucket_width = 1+(win_width-4)/vector.pvect_size;
+  uint bar = 0, max = 255;
+  XSetForeground(display, gc, plot_colours[colour].pixel);
+  
+  for (vei_t i=0;i<vector.pvect_size;i++) {
+    // get the value of bucket i
+     bar = vector.pvect[i];
+    // plot current bar
+    XFillRectangle(display, buffer, gc, 2+i*(win_width-4)/vector.pvect_size,
+                   ((cscr*win_height)/tscr-3)-(bar*sub_height/max),
+                   bucket_width, (bar*sub_height/max));
+  }
+  
+  if (title!=NULL)
+        draw_text(title, 3, ((cscr-1)*win_height)/tscr+9, 2);
+  return 0;
 }
