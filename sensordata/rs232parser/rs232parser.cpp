@@ -255,11 +255,12 @@ int Rs232Parser::read(DataCell* channels, uint* numchannels)
 	return 0;
 }
 
-int Rs232Parser::read(char *line) 
+int Rs232Parser::read(char *line)
 {
 	int res=-2;
 	// if rs232=closed, open it:
-	if (fd==0) {
+	if (fd==0) {printf("1\n");
+		
 		err = open_rs232(rs232_param.device);
 		if (err!=0)
 			return err;
@@ -296,13 +297,19 @@ int Rs232Parser::open_rs232(char* devicename)
 	// reset read buffer:
 	if (buf!=NULL)
 		delete[] buf;
+	printf("2: %i %i\n", rs232_param.buff_size, buf);
+	char *test = NULL;
+	test = new char[1200];
+	printf("3: %i %i\n", rs232_param.buff_size, buf);
 	buf = new unsigned char [rs232_param.buff_size];
 	// open the device to be non-blocking (read will return immediatly)
+	printf("4\n");
 	fd = open(devicename, O_RDWR | O_NONBLOCK | O_NOCTTY); //
 	if (fd ==-1) {     // error:
 		err = RS232ERR_CANTOPEN;
 	}
-	else 	{ 
+	else 	{ printf("6\n");
+	
 		err = 0;
 		// set parameters: 
 		tcgetattr(fd,&oldtio); // save current port settings

@@ -22,7 +22,8 @@
   */
 
 // read a specific attribute's value as a string
-int Rs232SetParse::read_set(char* attr, char* value) {
+int Rs232SetParse::read_set(char* attr, char* value) 
+{
 	for (int i=0; i<NUM_RS232_ATTR; i++) 
 		if (strcasecmp(attr,rs232set_attr[i])==0) { 
 			strcpy(rs232set_val[i],value);
@@ -32,7 +33,8 @@ int Rs232SetParse::read_set(char* attr, char* value) {
 }
 	
 // update settings from (attribute,value) table, convert from strings
-int Rs232SetParse::update_set() {
+int Rs232SetParse::update_set() 
+{
 	strcpy(rs232_set->device, rs232set_val[0]);
 	switch (strtol(rs232set_val[1],NULL,0)) {
 		case 300:    rs232_set->baudrate = B300;    break;
@@ -71,7 +73,8 @@ int Rs232SetParse::update_set() {
 }
 
 // write the DTD for the settings to buffer
-int Rs232SetParse::write_dtd(char* buffer) {
+int Rs232SetParse::write_dtd(char* buffer) 
+{
 	char tmpstr[256];
 	strcpy(buffer,"\t<!ELEMENT rs232 (poll?,channel*)>\n"); 
 	for (int i=0; i<NUM_RS232_ATTR-1; i++) {
@@ -87,7 +90,8 @@ int Rs232SetParse::write_dtd(char* buffer) {
 }
 
 // write the rs232 settings in XML format to buffer 
-int Rs232SetParse::write_set(char* buffer) {
+int Rs232SetParse::write_set(char* buffer) 
+{
 	char tmpstr[256];
 	strcpy(buffer,"\t<rs232 "); // start at the beginning..
 	for (int i=0; i<NUM_RS232_ATTR-1; i++) {
@@ -106,4 +110,3 @@ int Rs232SetParse::write_set(char* buffer) {
 	}
 	return 0;
 }
-

@@ -66,4 +66,3 @@ int LogFileSetParse::write_set(char* buffer) {
 	strcat(buffer,">\n");
 	return 0;
 }
-

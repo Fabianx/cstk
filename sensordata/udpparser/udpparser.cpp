@@ -37,6 +37,14 @@ UDPParser::UDPParser(int port, unsigned int timeout, char* targethost) {
 	err=0;
 }
 
+UDPParser::UDPParser(UDPParserSettings udp_param) {
+	this->udp_param = udp_param; // bitwise copy of all
+	if (udp_param.targethost[0]!='\0')
+		createSend(udp_param.targethost);
+	else    createGet();
+	err=0;
+}
+
 UDPParser::~UDPParser() {
 }                  
 

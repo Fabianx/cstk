@@ -98,3 +98,4 @@ class UDPParser : virtual public SensorData {
 };
 
 #endif
+

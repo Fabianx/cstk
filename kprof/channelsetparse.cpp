@@ -73,4 +73,3 @@ int ChannelSetParse::write_set(char* buffer) {
 	strcat(buffer,">");
 	return 0;
 }
-

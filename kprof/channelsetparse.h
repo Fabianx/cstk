@@ -73,7 +73,6 @@ class ChannelSetParse: public SetParse {
 	int write_set(char* buffer);            // write to xsd 
 	int write_dtd(char* buffer);            // write to dtd
 	int write_tag(char* buffer) {strcpy(buffer,"channel");return 0;}
- 
  private:
 	ChannelSettings* ch_set;
 	char chset_val[NUM_CH_ATTR][256];

@@ -17,9 +17,9 @@
 
 #include "setparse.h"
 
-/**Class for parsing settings 
-  *@author Kristof Van Laerhoven
-  */
+/**Class for parsing settings    
+  *@author Kristof Van Laerhoven 
+  */                             
 
 // read all attributes from file and store (attribute,value) pairs
 int SetParse::read_set(FILE* fp) {
