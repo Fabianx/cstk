@@ -318,6 +318,16 @@ DVector& DVector::operator=(const DVector& vec)
 	return *this;
 }
 
+bool DVector::operator==(const DVector& vec) 
+{
+	for (vei_t i=0; i<vec.vctsize; i++)
+	{
+		if (get(vec, i)!=get(*this, i))
+			return false;
+	}
+	return true;
+}
+
 DVector& DVector::operator+=(const DVector& vec)
 {
 	if (vec.vctsize == vctsize)
