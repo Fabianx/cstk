@@ -324,6 +324,18 @@ int KProf::setup_sensordata_parser() {
 	return err;
 }
 
+int KProf::setup_ksom()
+{
+	if (ksomset) 	ksom = new KSOM(ksomset);
+	DVector *vect;
+	KVector kvect(num_icols); // no stats-keeping please	     
+	vect = new DVector(num_icols);
+	for (vei_t i=0; i<num_icols; i++) 
+			vect->set_comp(0,ichs[i],i);
+	ksom->initRandom(*vect);
+	delete vect;
+}
+
 int KProf::setup_window() {
 	// set and create window
 	if (winset) {

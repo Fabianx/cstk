@@ -6,7 +6,7 @@ BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ..;pwd)
 
 all:	kprof.o setparse.o rs232setparse.o udpsetparse.o \
 	logfilesetparse.o simsetparse.o channelsetparse.o \
-	windowsetparse.o plotsetparse.o 
+	windowsetparse.o plotsetparse.o ksomsetparse.o
 
 kprof.o:	peak.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
@@ -33,6 +33,9 @@ windowsetparse.o: setparse.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 plotsetparse.o: setparse.o
+	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+	
+ksomsetparse.o: setparse.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 peak.o:

@@ -31,6 +31,7 @@
 #include "sensordata/simparser/simparser.h"
 #include "viz/x11/kvplot.h"
 #include "algorithms/peak/peak.h"
+#include "algorithms/ksom/ksom.h"
 
 #define ERR_INVATTR      1
 #define ERR_INVTAG       2
@@ -62,7 +63,8 @@ const char kperr_strings[NUM_KPERRS][32] =
 	  "No parser encountered.",
 	  "Error setting channels.",
 	  "Error setting inputcolumns.",
-	  "No inputcolumns found."};
+	  "No inputcolumns found.",
+	  "No window section found."};
 
 // CSTK tags linked to settings:
 #define NUM_A_ITAGS 7
@@ -102,6 +104,7 @@ class KProf {
 	int setup_sensordata_parser();
 	int setup_inputchannels();
 	int setup_inputcolumns();
+	int setup_ksom();
 	
 	int setup_window();
 	int kvplot();
@@ -122,6 +125,7 @@ class KProf {
 	Peak *kpeak;
 	KVPlot *kp;     	// KVectorPlot generating the plots
 	Pk pk;          	// Peak struct
+	KSOM *ksom;		// KSOM initialization
 	
 	DataCell *icols;       	// datacell array of all input columns 
 	unsigned int num_icols;	// number of input columns
@@ -154,6 +158,7 @@ class KProf {
 	 ChannelSettings       	*ochset, *ochpset;   
 	 InputColumnSettings   	*icolset, *icolpset; 
 	 WindowSettings 	*winset;
+	 KSOMSettings		*ksomset;
 	//-----------------------------------------------------
 };
 
