@@ -15,22 +15,81 @@
  *                                                                         *
  ***************************************************************************/
 
-/**Profiler for CSTK tools
-  *@author Kristof Van Laerhoven
-  
- KProf parses the CSTK Settings Files. It uses the folling classes that make 
- up the main structures in such a file: 
+#include "kprof/setparse.h"
+#include "kprof/rs232setparse.h"
+#include "kprof/udpsetparse.h"
+#include "kprof/logfilesetparse.h"
+#include "kprof/simsetparse.h"
+#include "kprof/channelsetparse.h"
+#include "kprof/inputcolumnsetparse.h"
+#include "sensordata/sensordata.h"
+#include "sensordata/rs232parser/rs232parser.h"
+#include "sensordata/logfileparser/logfileparser.h"
+#include "sensordata/udpparser/udpparser.h"
+#include "sensordata/simparser/simparser.h"
+
  
- + InputSettings (parameters that specify how to get the sensor data) 
-           -> IChannelSettings (list of channels & parameters)
-           -> IColumnSettings (list of columns & parameters)
- + OutputSettings (parameters that specify what should be produced)
-           -> OChannelSettings (list of channels & parameters)
- + WinSettings (parameters for the window)
-           -> SubPlotSettings (list of window's subplots) 
- + ParamSettings (parameters for the CSTK tool's internal algorithms) 
-*/ 
- 
+#define ERR_INVATTR      12
+#define ERR_INVTAG       13
+#define ERR_INVCH        14
+#define ERR_TAGOVERFLOW  15
+#define ERR_NOINPUT      16
+#define ERR_UPDATE       17
+#define ERR_NOFILE       20
+#define ERR_NOSET        21
+
+#define MAX_TAG_LENGTH   255
+#define MAX_DTD_LENGTH   2048
+
+// CSTK tags linked to settings:
+#define NUM_A_ITAGS 7
+const char input_att_tags[NUM_A_ITAGS][16] = {
+	"rs232", "udp", "logfile", "sim", 
+	"channel", "inputcolumn", "poll"
+	};
+// valid but empty CSTK tags:
+#define NUM_S_ITAGS 2
+const char input_sub_tags[NUM_S_ITAGS][16] = {
+	"!--", "packet" };
+
+
+class KProf {
+ public:	
+	KProf();
+	~KProf();
+	int parse(FILE* fp);
+	int export_dtd(char* buffer);
+	int export_xsd(char* buffer);
+	int setup_sensordata_parser();
+	SensorData *sd; // this will point at the device!
+	int err;
+	unsigned int errline;
+	unsigned int line;
+ private:
+	SetParse* *sp; 	// dynamic array of all settings tags
+	unsigned int sp_size; 	// 
+	//----- These are valid settings lists: ---------------
+	 Rs232ParserSettings   	*rs232set;
+	 UDPParserSettings     	*udpset;
+	 LogFileParserSettings 	*logfileset;
+	 SimParserSettings     	*simset;
+	 ChannelSettings       	*chset;    // list
+	 InputColumnSettings   	*icolset;  // list
+	//-----------------------------------------------------
+};
+
+
+
+
+
+
+
+/*
+
+  O L D :
+
+
+
 #include <string.h>
 #include <stdio.h>
 #include "sensordata/sensordata.h"
@@ -338,3 +397,4 @@ class KProf {
    int input_mode;
    int output_mode;   
 };
+*/

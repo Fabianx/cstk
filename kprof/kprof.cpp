@@ -17,6 +17,194 @@
 
 #include "kprof.h"
 
+KProf::KProf() {
+	err = 0;
+	errline = 0;
+	line = 1;
+	sp      	= NULL; sp_size=0;
+	rs232set	= NULL;
+	udpset  	= NULL;
+	logfileset	= NULL;
+	simset  	= NULL;
+	chset   	= NULL;
+	icolset 	= NULL;
+}
+
+KProf::~KProf() {
+	if (sp!=NULL) delete []sp;
+}
+
+int KProf::parse(FILE* fp) {
+	unsigned int max_tags=1024;
+	sp = new SetParse*[max_tags];
+	if (!fp) 
+		return ERR_NOFILE;
+	else while (!feof(fp))
+	{	
+		int t=0;
+		err=0;
+		char ch;
+		bool valid_att_tag = false;
+		bool valid_sub_tag = false;
+		char tmpstr[MAX_TAG_LENGTH];
+		do {
+		   do { ch=getc(fp); if (ch=='\n') line++;
+		   } while ((ch!='<')&&(!feof(fp)));
+		   t=0;		   
+		   do { ch=getc(fp); tmpstr[t++]=ch; if (ch=='\n') line++;
+		   } while ((ch!=' ')&&(ch!='\t')&&
+		  	    (ch!='\n')&&(ch!='\r')&&(ch!='>')&&(!feof(fp)));
+		   tmpstr[t-1]='\0';
+		   int i;
+		   for (i=0; i<NUM_A_ITAGS; i++)
+			if (strcasecmp(tmpstr,input_att_tags[i])==0)
+				valid_att_tag=true;
+		   for (i=0; i<NUM_S_ITAGS; i++)
+			if (strcasecmp(tmpstr,input_sub_tags[i])==0)
+				valid_sub_tag=true;
+		} while (!feof(fp)&&(!valid_att_tag)&&(!valid_sub_tag));
+		
+		if (sp_size<max_tags) {
+		  if (strcasecmp(tmpstr,"rs232")==0) {
+			rs232set = new Rs232ParserSettings;
+			sp[sp_size] = new Rs232SetParse(rs232set);
+		  }
+		  else if (strcasecmp(tmpstr,"udp")==0) {
+			udpset = new UDPParserSettings;
+			sp[sp_size] = new UDPSetParse(udpset);
+		  }
+		  else if (strcasecmp(tmpstr,"logfile")==0) {
+			logfileset = new LogFileParserSettings;
+			sp[sp_size] = new LogFileSetParse(logfileset);
+		  }
+		  else if (strcasecmp(tmpstr,"sim")==0) {
+			simset = new SimParserSettings;
+			sp[sp_size] = new SimSetParse(simset);
+		  }
+		  else if (strcasecmp(tmpstr,"poll")==0) {
+			if ((sp_size)>0) sp_size--;
+		  }
+		  else if (strcasecmp(tmpstr,"channel")==0) {
+			// i_chset = add_channel();
+			// setparse[parser_counter] = new ChannelSetParse(i_chset);
+			chset = new ChannelSettings;
+			sp[sp_size] = new ChannelSetParse(chset);
+		  }
+		  else if (strcasecmp(tmpstr,"inputcolumn")==0) {
+			// i_icolset = add_inputcolumn();
+			// setparse[parser_counter] = new InputColumnSetParse(i_icolset);
+			icolset = new InputColumnSettings;
+			sp[sp_size] = new InputColumnSetParse(icolset);
+		  }
+		  else if (!feof(fp)&&(!valid_sub_tag)) {
+			err = ERR_INVTAG; // wrong tag
+			errline = line;
+		  }
+		  if (valid_att_tag){
+		  	// parse attributes
+			if (sp[sp_size]->read_set(fp)!=0) {
+				err = ERR_INVATTR; // wrong attribute
+				errline = line;
+			}
+			// update values in set
+			if (sp[sp_size]->update_set()!=0) {
+				err = ERR_UPDATE; // update error
+				errline = line;
+			}
+			sp_size++;
+		  }
+		}
+		else { // too many tags: array is overflowing!setparse
+			err = ERR_TAGOVERFLOW;
+			errline = line;
+		}
+	}
+	fclose(fp);
+	return err; // all is well?
+}
+
+int KProf::export_dtd(char* buffer) {
+	err=0;
+	char tmpstr[MAX_TAG_LENGTH];
+	char tmpbuf[MAX_DTD_LENGTH];
+	char last_tag[MAX_TAG_LENGTH];
+	last_tag[0]=0;
+	buffer[0]=0;
+	for (unsigned int t=0; t<sp_size; t++) {
+		sp[t]->write_tag(tmpstr);
+		if (strcasecmp(last_tag,tmpstr)!=0) {
+			sp[t]->write_dtd(tmpbuf);
+			sprintf(buffer,"%s%s",buffer,tmpbuf);
+		}
+		strcpy(last_tag, tmpstr);
+	}
+	return err;
+}
+
+int KProf::export_xsd(char* buffer) {
+	err=0;
+	char tmpstr[256];
+	char last_mode[256]; 
+	char last_tag[256];
+	char curr_tag[256];
+	last_mode[0]='\0';
+	last_tag[0]='\0';
+	strcpy(buffer,"\t<input>\n");
+	for (unsigned int t=0; t<sp_size; t++) {
+		sp[t]->write_set(tmpstr);
+		sp[t]->write_tag(curr_tag);
+		// is it a different tag than the previous?
+		if ((strcasecmp(last_tag,curr_tag)!=0)
+			&&(last_tag[0]!='\0')
+			&&(strcasecmp(last_tag,last_mode)!=0)) {
+				sprintf(buffer,"%s\t\t</%s>\n", buffer, last_mode);
+				last_mode[0]='\0';
+		} 
+		// is it a tag that needs closing immediately?
+		if ((strcasecmp(curr_tag,"channel")==0)||
+		    (strcasecmp(curr_tag,"inputcolumn")==0) ||
+		    (strcasecmp(curr_tag,"poll")==0)) {
+			sprintf(buffer,"%s\t%s</%s>\n", buffer, tmpstr,curr_tag);
+		}
+		else {
+			sprintf(buffer,"%s\t%s", buffer, tmpstr);
+			strcpy(last_mode, curr_tag);
+		} 
+		strcpy(last_tag, curr_tag);
+	}
+	if (last_mode[0]!='\0') sprintf(buffer,"%s\t\t</%s>\n", buffer, last_mode);
+	sprintf(buffer,"%s\t</input>\n",buffer);
+	return err;
+}
+
+int KProf::setup_sensordata_parser() {
+	char tmpstr[MAX_TAG_LENGTH];
+	tmpstr[0]=0;
+	err = 0;
+	for (unsigned int t=0; t<sp_size; t++) {
+		sp[t]->write_tag(tmpstr);
+		if (strcasecmp(tmpstr,"rs232")==0) {
+			if (rs232set) 	sd = new Rs232Parser(*rs232set);
+			else err = ERR_NOSET;
+		} else if (strcasecmp(tmpstr,"udp")==0) {
+			if (udpset) 	sd = new UDPParser(*udpset);
+			else err = ERR_NOSET;
+		} else if (strcasecmp(tmpstr,"logfile")==0) {
+			if (logfileset)	sd = new LogFileParser(*logfileset);
+			else err = ERR_NOSET;
+		} else if (strcasecmp(tmpstr,"sim")==0) {
+			if (simset) 	sd = new SimParser(*simset);
+			else err = ERR_NOSET;
+		} 
+	}
+	return err; // should return err_code from specific parser
+}
+
+
+
+
+
+/*
 //////////////////////////////////////////////////////////////////////////////
 
 InputSettings::InputSettings() {
@@ -546,7 +734,7 @@ int WinSettings::get_colour(){
 }
 
 //////////////////////////////////////////////////////////////////////////////
-/* a quick & dirty parser, but hey: it's FAST! */
+// a quick & dirty parser, but hey: it's FAST! 
 char KProf::parse(char *filename, const unsigned int validtype){
 
   FILE* fp;
@@ -787,4 +975,4 @@ char KProf::parse(char *filename, const unsigned int validtype){
   return 0;
 }
 
-
+*/
