@@ -65,7 +65,7 @@
 		DVector *vector;
 		NodeListElement *next;
 		NodeListElement *last;
-		vei_t NodeNumber;
+		ves_t NodeNumber;
 		oas_t DeltaError;
 		EdgeListElement *firstEdge;
  };

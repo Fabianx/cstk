@@ -106,12 +106,14 @@
  
  int GNG::restorefromFile()
  {
+ 	this->~GNG();
  	FILE *f = fopen("node.sav","r");
-	NodeListElement *currNode;
+	int tempcount=0;
 	if (!ferror(f))
 	{
-		oas_t out;	
-		vei_t i, j, t, nodenum, n;
+		oas_t out=0;	
+		vei_t i=0, j=0, t=0, n=0, k=0;
+		ves_t  nodenum=0;
 		first = NULL;
 		fscanf(f,"MaximumAge=%i, DecreaseError=%lf, AlphaVal=%lf, EpsilonValB=%lf, EpsilonValN=%lf, VecDim=%i\n",
 		    &par.age_max, &par.d, &par.alpha, &par.epsilon_b, &par.epsilon_n, &n);
@@ -122,17 +124,60 @@
 			node = new NodeListElement;
 			(*node).next = first;
 			(*node).vector = new DVector(n);
-			while ((i<n) or (!feof(f)))
+			k=0;
+			while ((k<n) and (!feof(f)))
 			{
-				fscanf(f,"(%i)(%i,%i,%i)%lf\n",&nodenum,&i,&j,&t,&out);
+				fscanf(f,"(%li)(%i,%i,%i)%lf\n",&nodenum,&i,&j,&t,&out);
 				(*node).vector->set_comp(out,t,j);
-			}
+				k++;
+			} 
 			(*node).DeltaError = 0;
+			(*node).NodeNumber = nodenum;
 			(*node).firstEdge = NULL;
 			(*node).last = NULL;
 			if (first!=NULL)
 				(*first).last = node;
 			first = node;
+			tempcount++;
+		}
+		fclose(f);
+	}
+	f = fopen("edge.sav","r");
+	NodeListElement *currNode;
+	NodeListElement *currNodeA;
+	NodeListElement *currNodeB;
+	if (!ferror(f))
+	{
+		ves_t i=0, j=0;
+		vei_t nodenum=0;
+		while (!feof(f))
+		{
+			EdgeListElement *edge;
+			edge = new EdgeListElement;
+			fscanf(f,"(%i,%li,%li)\n",&nodenum,&i,&j);
+			currNode = first;
+			currNodeA = NULL; currNodeB = NULL;
+			while (currNode != NULL) 
+			{
+				if ((*currNode).NodeNumber == i)
+				{
+					currNodeA = currNode;
+				}
+				if ((*currNode).NodeNumber == j)
+				{
+					currNodeB = currNode;
+				}
+				if ((currNodeA != NULL) and (currNodeB != NULL))
+					break;
+				currNode = currNode->next;
+			}
+			(*edge).next = currNodeA->firstEdge;
+			(*edge).last = NULL;
+			edge->connectA = currNodeA;
+			edge->connectB = currNodeB;
+			if ((*currNodeA).firstEdge != NULL)
+				currNodeA->firstEdge->last = edge;
+			(*currNodeA).firstEdge = edge;
 		}
 		fclose(f);
 	}
