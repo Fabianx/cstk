@@ -38,12 +38,13 @@
 #define ERR_NOSET        8
 #define ERR_CHSET        9
 #define ERR_ICOLSET      10
+#define ERR_NOICOLS      11
 
 #define MAX_TAG_LENGTH   255
 #define MAX_DTD_LENGTH   2048
 #define MAX_XSD_LENGTH   1024
 
-#define NUM_KPERRS       11
+#define NUM_KPERRS       12
 const char kperr_strings[NUM_KPERRS][32] = 
 	{ "No error found.",
 	  "Invalid attribute found.",
@@ -55,7 +56,8 @@ const char kperr_strings[NUM_KPERRS][32] =
 	  "No such file!",
 	  "No parser encountered.",
 	  "Error setting channels.",
-	  "Error setting inputcolumns."};
+	  "Error setting inputcolumns.",
+	  "No inputcolumns found."};
 
 // CSTK tags linked to settings:
 #define NUM_A_ITAGS 7
@@ -63,9 +65,20 @@ const char input_att_tags[NUM_A_ITAGS][16] = {
 	"rs232", "udp", "logfile", "sim", 
 	"channel", "inputcolumn", "poll"
 	};
+#define NUM_A_OTAGS 6
+const char output_att_tags[NUM_A_OTAGS][16] = {
+	"rs232", "udp", "logfile",
+	"channel", "outputcolumn", "poll"
+	};
 // valid but empty CSTK tags:
-#define NUM_S_ITAGS 2
-const char input_sub_tags[NUM_S_ITAGS][16] = { "!--", "packet" };
+#define NUM_SUBTAGS 2
+const char sub_tags[NUM_SUBTAGS][16] = { 
+	"!--", "packet" };
+// main section tags:
+#define NUM_S_TAGS 3
+const char section_tags[NUM_S_TAGS][16] = { 
+	"input", "output", "window" };
+
 
 class KProf {
  public:
@@ -78,7 +91,7 @@ class KProf {
 	int export_xsd(char* buffer);
 	
 	int setup_sensordata_parser();
-	int setup_channels();
+	int setup_inputchannels();
 	int setup_inputcolumns();
 	
 	int read_buffer(char* buff);
@@ -87,15 +100,22 @@ class KProf {
 	void export_err(char* buffer); // print error string in buffer
 	bool error() {return err;}
 	
-	SensorData *sd; // this will point to the device!
+	SensorData *sd; // will point to the 1 object generating data
 	
 	DataCell *icols;       	// datacell array of all input columns 
 	unsigned int num_icols;	// number of input columns
 	
  private:
-	char *chs;             	// array of types (char) in channels
-	unsigned int num_chs;  	// number of channels
-	unsigned int *filter;   // array of mapping filter
+	void parse_input(char* tmpstr, unsigned int line, 
+	                 bool valid_sub_tag, bool valid_att_tag);
+	void parse_output(char* tmpstr, unsigned int line, 
+	                 bool valid_sub_tag, bool valid_att_tag);
+	void parse_window(char* tmpstr, unsigned int line, 
+	                 bool valid_sub_tag, bool valid_att_tag);
+	
+	char *ichs;             	// array of types in channels
+	unsigned int num_ichs;  	// number of channels
+	unsigned int *filter;   	 // array of mapping filter
 	
 	int err;
 	unsigned int errline;
@@ -107,7 +127,8 @@ class KProf {
 	 UDPParserSettings     	*udpset;
 	 LogFileParserSettings 	*logfileset;
 	 SimParserSettings     	*simset;
-	 ChannelSettings       	*chset, *chpset;   
+	 ChannelSettings       	*ichset, *ichpset;   
+	 ChannelSettings       	*ochset, *ochpset;   
 	 InputColumnSettings   	*icolset, *icolpset; 
 	//-----------------------------------------------------
 };

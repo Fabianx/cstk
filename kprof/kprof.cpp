@@ -17,39 +17,163 @@
 
 #include "kprof.h"
 
-KProf::KProf() {
-	err = 0;
-	errline = 0;
+KProf::KProf() 
+{
+	err = 0;	errline = 0;
 	sd      	= NULL;
 	sp      	= NULL; sp_size=0;
 	rs232set	= NULL;
 	udpset  	= NULL;
 	logfileset	= NULL;
 	simset  	= NULL;
-	chset   	= NULL;
+	ichset   	= NULL;
 	icolset 	= NULL;
-	chs     	= NULL;
+	ichs     	= NULL;
 	icols   	= NULL;
 	filter  	= NULL;
 }
 
-KProf::~KProf() {
+KProf::~KProf() 
+{
 	// delete all elements separately from sp:
-	   // TODO
+	for (unsigned int i=0; i<sp_size; i++) delete sp[i];
 	if (sp!=NULL) delete []sp;
 	if (sd!=NULL) delete sd;
-	if (chs!=NULL) delete []chs;
+	if (ichs!=NULL) delete []ichs;
 	if (icols!=NULL) delete []icols;
 	if (filter!=NULL) delete []filter;
+}
+
+void KProf::parse_input(char* tmpstr, unsigned int line, 
+                        bool valid_sub_tag, bool valid_att_tag)
+{
+	if (strcasecmp(tmpstr,"rs232")==0) {
+		rs232set = new Rs232ParserSettings;
+		sp[sp_size] = new Rs232SetParse(rs232set);
+	}
+	else if (strcasecmp(tmpstr,"udp")==0) {
+		udpset = new UDPParserSettings;
+		sp[sp_size] = new UDPSetParse(udpset);
+	}
+	else if (strcasecmp(tmpstr,"logfile")==0) {
+		logfileset = new LogFileParserSettings;
+		sp[sp_size] = new LogFileSetParse(logfileset);
+	}
+	else if (strcasecmp(tmpstr,"sim")==0) {
+		simset = new SimParserSettings;
+		sp[sp_size] = new SimSetParse(simset);
+	}
+	else if (strcasecmp(tmpstr,"poll")==0) {
+		if ((sp_size)>0) sp_size--; // go back to previous tag
+	}
+	else if (strcasecmp(tmpstr,"channel")==0) {
+		if (ichset==NULL) { // first addition
+			ichset = new ChannelSettings; ichpset = ichset;
+		}
+		else { 
+			ChannelSettings *chnset = new ChannelSettings;
+			ichpset->next = chnset; ichpset = chnset;
+		}
+		sp[sp_size] = new ChannelSetParse(ichpset);
+		num_ichs++; // count the number of input channels
+	}
+	else if (strcasecmp(tmpstr,"inputcolumn")==0) {
+		if (icolset==NULL) { // first addition
+			icolset = new InputColumnSettings; icolpset = icolset;
+		}
+		else { 
+			InputColumnSettings *icolnset = new InputColumnSettings;
+			icolpset->next = icolnset; icolpset = icolnset;
+		}
+		sp[sp_size] = new InputColumnSetParse(icolpset);
+		num_icols++; // count the number of inputcolumns
+	} 
+	else if (!valid_sub_tag) {
+		err = ERR_INVTAG; errline = line;
+	}
+	if (valid_att_tag){
+		if (sp[sp_size]->read_set(fp)!=0) { 
+			err = ERR_INVATTR; errline = line;
+		}
+		if (sp[sp_size]->update_set()!=0) { 
+			err = ERR_UPDATE; errline = line;
+		}
+		sp_size++;
+	}
+}
+
+void KProf::parse_output(char* tmpstr, unsigned int line, 
+                        bool valid_sub_tag, bool valid_att_tag)
+{
+	if (strcasecmp(tmpstr,"rs232")==0) {
+		//rs232set = new Rs232CreatorSettings;
+		//sp[sp_size] = new Rs232SetParse(rs232set);
+	}
+	else if (strcasecmp(tmpstr,"udp")==0) {
+		//udpset = new UDPCreatorSettings;
+		//sp[sp_size] = new UDPSetParse(udpset);
+	}
+	else if (strcasecmp(tmpstr,"logfile")==0) {
+		//logfileset = new LogFileCreatorSettings;
+		//sp[sp_size] = new LogFileSetParse(logfileset);
+	}
+	else if (strcasecmp(tmpstr,"poll")==0) {
+		//if ((cp_size)>0) cp_size--; // go back to previous tag
+	}
+	else if (strcasecmp(tmpstr,"channel")==0) {
+		/*if (ochset==NULL) { // first addition
+			ochset = new ChannelSettings; ochpset = ochset;
+		}
+		else { 
+			ChannelSettings *chnset = new ChannelSettings;
+			ochpset->next = chnset; ochpset = chnset;
+		}
+		cp[cp_size] = new ChannelSetParse(ochpset);
+		num_ochs++; // count the number of output channels*/
+	}
+	else if (strcasecmp(tmpstr,"outputcolumn")==0) {
+		/*
+		if (ocolset==NULL) { // first addition
+			ocolset = new OutputColumnSettings; ocolpset = ocolset;
+		}
+		else { 
+			OutputColumnSettings *ocolnset = new OutputColumnSettings;
+			ocolpset->next = ocolnset; ocolpset = ocolnset;
+		}
+		cp[cp_size] = new OutputColumnSetParse(icolpset);
+		num_ocols++; // count the number of outputcolumns
+		*/
+	} 
+	else if (!valid_sub_tag) {
+		err = ERR_INVTAG; errline = line;
+	}
+	if (valid_att_tag){
+		/*
+		if (sc[sc_size]->read_set(fp)!=0) { 
+			err = ERR_INVATTR; errline = line;
+		}
+		if (sc[sc_size]->update_set()!=0) { 
+			err = ERR_UPDATE; errline = line;
+		}
+		sc_size++;
+		*/
+	}
+}
+
+void KProf::parse_window(char* tmpstr, unsigned int line, 
+                        bool valid_sub_tag, bool valid_att_tag)
+{
+
 }
 
 int KProf::parse(FILE* fp) {
 	unsigned int line = 1;
 	unsigned int max_tags=1024;
 	err=0;
-	num_chs=0;
+	num_ichs=0;
 	num_icols=0;
 	sp = new SetParse*[max_tags];
+	char valid_section_tag = 0;
 	if (!fp) 
 		return ERR_NOFILE;
 	else while (!feof(fp))
@@ -59,73 +183,44 @@ int KProf::parse(FILE* fp) {
 		bool valid_att_tag = false, valid_sub_tag = false;
 		char tmpstr[MAX_TAG_LENGTH];
 		do {
-		   do { ch=getc(fp); if (ch=='\n') line++;
-		   } while ((ch!='<')&&(!feof(fp))); // wait for a '<'
-		   t=0;		   
-		   do { ch=getc(fp); tmpstr[t++]=ch; if (ch=='\n') line++;
-		   } while ((ch!=' ')&&(ch!='\t')&&
-		  	    (ch!='\n')&&(ch!='\r')&&(ch!='>')&&(!feof(fp)));
-		   tmpstr[t-1]='\0'; // extract the word following the '<'
-		   int i;
-		   for (i=0; i<NUM_A_ITAGS; i++)
-			if (strcasecmp(tmpstr,input_att_tags[i])==0)
-				valid_att_tag=true;
-		   for (i=0; i<NUM_S_ITAGS; i++)
-			if (strcasecmp(tmpstr,input_sub_tags[i])==0)
-				valid_sub_tag=true;
+			do { ch=getc(fp); if (ch=='\n') line++;
+			} while ((ch!='<')&&(!feof(fp))); // wait for a '<'
+			t=0;		   
+			do { ch=getc(fp); tmpstr[t++]=ch; if (ch=='\n') line++;
+			} while ((ch!=' ')&&(ch!='\t')&&
+			         (ch!='\n')&&(ch!='\r')&&(ch!='>')&&(!feof(fp)));
+			tmpstr[t-1]='\0'; // extract the word following the '<'
+			int i;
+			for (i=0; i<NUM_SUBTAGS; i++) // sub tag ?
+				if (strcasecmp(tmpstr,sub_tags[i])==0) 
+					valid_sub_tag=true;
+			if (valid_section_tag==1) // we're in <input> 
+				for (i=0; i<NUM_A_ITAGS; i++) // input tag?
+					if (strcasecmp(tmpstr,input_att_tags[i])==0)
+						valid_att_tag=true;
+			else
+			if (valid_section_tag==2) // we're in <output> 
+				for (i=0; i<NUM_A_OTAGS; i++) // output tag?
+					if (strcasecmp(tmpstr,output_att_tags[i])==0)
+						valid_att_tag=true;
+			for (i=0; i<NUM_S_TAGS; i++) // section tag ?
+				if (strcasecmp(tmpstr,section_tags[i])==0)
+					valid_section_tag=i+1;
 		} while (!feof(fp)&&(!valid_att_tag)&&(!valid_sub_tag));
-		
+
+		if (feof(fp)) return err;
 		if (sp_size<max_tags) {
-		  if (strcasecmp(tmpstr,"rs232")==0) {
-			rs232set = new Rs232ParserSettings;
-			sp[sp_size] = new Rs232SetParse(rs232set);
-		  }
-		  else if (strcasecmp(tmpstr,"udp")==0) {
-			udpset = new UDPParserSettings;
-			sp[sp_size] = new UDPSetParse(udpset);
-		  }
-		  else if (strcasecmp(tmpstr,"logfile")==0) {
-			logfileset = new LogFileParserSettings;
-			sp[sp_size] = new LogFileSetParse(logfileset);
-		  }
-		  else if (strcasecmp(tmpstr,"sim")==0) {
-			simset = new SimParserSettings;
-			sp[sp_size] = new SimSetParse(simset);
-		  }
-		  else if (strcasecmp(tmpstr,"poll")==0) {
-			if ((sp_size)>0) sp_size--; // go back to previous tag
-		  }
-		  else if (strcasecmp(tmpstr,"channel")==0) {
-			if (chset==NULL) { // first addition
-				chset = new ChannelSettings; chpset = chset;
+			switch (valid_section_tag) 
+			{
+			 case 0: // NO CSTK SECTION
+				 break;
+			 case 1: parse_input(tmpstr,line,valid_sub_tag,valid_att_tag);
+				 break;
+			 case 2: parse_output(tmpstr,line,valid_sub_tag,valid_att_tag);
+				 break;
+			 case 3: parse_window(tmpstr,line,valid_sub_tag,valid_att_tag);
+				 break;
 			}
-			else { 
-				ChannelSettings *chnset = new ChannelSettings;
-				chpset->next = chnset; chpset = chnset;
-			}
-			sp[sp_size] = new ChannelSetParse(chpset);
-			num_chs++; // count the number of channels
-		  }
-		  else if (strcasecmp(tmpstr,"inputcolumn")==0) {
-			if (icolset==NULL) { // first addition
-				icolset = new InputColumnSettings; icolpset = icolset;
-			}
-			else { 
-				InputColumnSettings *icolnset = new InputColumnSettings;
-				icolpset->next = icolnset; icolpset = icolnset;
-			}
-			sp[sp_size] = new InputColumnSetParse(icolpset);
-			num_icols++; // count the number of inputcolumns
-		  }
-		  if (valid_att_tag){
-			if (sp[sp_size]->read_set(fp)!=0) { // parse all attributes
-				err = ERR_INVATTR; errline = line;
-			}
-			if (sp[sp_size]->update_set()!=0) { // update values in set
-				err = ERR_UPDATE; errline = line;
-			}
-			sp_size++;
-		  }
 		}
 		else { // too many tags: array is overflowing!setparse
 			err = ERR_TAGOVERFLOW; errline = line;
@@ -136,12 +231,19 @@ int KProf::parse(FILE* fp) {
 }
 
 int KProf::export_dtd(char* buffer) {
-	err=0;
 	char tmpstr[MAX_TAG_LENGTH];
 	char tmpbuf[MAX_DTD_LENGTH];
 	char last_tag[MAX_TAG_LENGTH];
 	last_tag[0]=0;
 	buffer[0]=0;
+	char *authorstr="The CSTK Team";
+	char *titlestr="CommonSense ToolKit";
+	sprintf(buffer,"<!DOCTYPE CSTK [\n\t");
+	sprintf(buffer,"%s<!ENTITY AUTHOR \"%s\">\n\t",buffer,authorstr);
+	sprintf(buffer,"%s<!ENTITY SOFTWARE \"%s\">\n",buffer,titlestr);
+	// input:
+	sprintf(buffer,"%s\t<!ELEMENT input ((rs232|logfile",buffer);
+	sprintf(buffer,"%s|udp|sim),inputcolumn*)>\n",buffer);
 	for (unsigned int t=0; t<sp_size; t++) {
 		sp[t]->write_tag(tmpstr);
 		if (strcasecmp(last_tag,tmpstr)!=0) {
@@ -150,47 +252,59 @@ int KProf::export_dtd(char* buffer) {
 		}
 		strcpy(last_tag, tmpstr);
 	}
+	sprintf(buffer,"%s\t<!ELEMENT output ((rs232|logfile",buffer);
+	sprintf(buffer,"%s|udp),outputcolumn*)>\n",buffer);
+	sprintf(buffer,"%s\t<!ELEMENT window (plot*)>\n",buffer);
+	sprintf(buffer,"%s]>\n",buffer);
 	return err;
 }
 
 int KProf::export_xsd(char* buffer) {
-	err=0;
 	char tmpstr[MAX_XSD_LENGTH];
 	char last_mode[MAX_TAG_LENGTH]; 
 	char last_tag[MAX_TAG_LENGTH];
 	char curr_tag[MAX_TAG_LENGTH];
 	last_mode[0]='\0';
 	last_tag[0]='\0';
-	strcpy(buffer,"\t<input>\n");
-	for (unsigned int t=0; t<sp_size; t++) {
-		sp[t]->write_set(tmpstr);
-		sp[t]->write_tag(curr_tag);
-		// is it a different tag than the previous?
-		if ((strcasecmp(last_tag,curr_tag)!=0)
-			&&(last_tag[0]!='\0')
-			&&(strcasecmp(last_tag,last_mode)!=0)) {
-				sprintf(buffer,"%s\t\t</%s>\n", buffer, last_mode);
-				last_mode[0]='\0';
-		} 
-		// is it a tag that needs closing immediately?
-		if ((strcasecmp(curr_tag,"channel")==0)||
-		    (strcasecmp(curr_tag,"inputcolumn")==0) ||
-		    (strcasecmp(curr_tag,"poll")==0)) {
-			sprintf(buffer,"%s\t%s</%s>\n", buffer, tmpstr,curr_tag);
+	if (sp_size) {
+		strcpy(buffer,"\t<input>\n");
+		for (unsigned int t=0; t<sp_size; t++) {
+			sp[t]->write_set(tmpstr);
+			sp[t]->write_tag(curr_tag);
+			// is it a different tag than the previous?
+			if ((strcasecmp(last_tag,curr_tag)!=0)
+				&&(last_tag[0]!='\0')
+				&&(strcasecmp(last_tag,last_mode)!=0)) {
+					sprintf(buffer,"%s\t\t</%s>\n", buffer, last_mode);
+					last_mode[0]='\0';
+			} 
+			// is it a tag that needs closing immediately?
+			if ((strcasecmp(curr_tag,"channel")==0)||
+			(strcasecmp(curr_tag,"inputcolumn")==0) ||
+			(strcasecmp(curr_tag,"poll")==0)) {
+				sprintf(buffer,"%s\t%s</%s>\n", buffer, tmpstr,curr_tag);
+			}
+			else {
+				sprintf(buffer,"%s\t%s", buffer, tmpstr);
+				strcpy(last_mode, curr_tag);
+			} 
+			strcpy(last_tag, curr_tag);
 		}
-		else {
-			sprintf(buffer,"%s\t%s", buffer, tmpstr);
-			strcpy(last_mode, curr_tag);
-		} 
-		strcpy(last_tag, curr_tag);
+		if (last_mode[0]!='\0') sprintf(buffer,"%s\t\t</%s>\n", buffer, last_mode);
+		sprintf(buffer,"%s\t</input>\n",buffer);
 	}
-	if (last_mode[0]!='\0') sprintf(buffer,"%s\t\t</%s>\n", buffer, last_mode);
-	sprintf(buffer,"%s\t</input>\n",buffer);
+	//if (sc_size) {
+		sprintf(buffer,"%s\t<output>\n",buffer);
+		sprintf(buffer,"%s\t</output>\n",buffer);
+	//}
+	//if (win_size) {
+		sprintf(buffer,"%s\t<window>\n",buffer);
+		sprintf(buffer,"%s\t</window>\n",buffer);
+	//}
 	return err;
 }
 
 int KProf::setup_sensordata_parser() {
-	err = 0; // reset errors
 	// set device parser:
 	 if (rs232set)   	sd = new Rs232Parser(*rs232set); 	else 
 	 if (udpset)     	sd = new UDPParser(*udpset);     	else
@@ -200,22 +314,20 @@ int KProf::setup_sensordata_parser() {
 	return err;
 }
 
-int KProf::setup_channels() {
-	err = 0; // reset errors
+int KProf::setup_inputchannels() {
 	 unsigned int ch_ctr=0; 
-	 chs   	= new char[num_chs];
-	 chpset = chset;
-	 while (chpset != NULL) {
-	 	chs[ch_ctr] = DC_typecast( chpset->sign, chpset->bits, chpset->format );
-		chpset = chpset->next;
+	 ichs  	= new char[num_ichs];
+	 ichpset = ichset;
+	 while (ichpset != NULL) {
+	 	ichs[ch_ctr] = DC_typecast( ichpset->sign, ichpset->bits, ichpset->format );
+		ichpset = ichpset->next;
 	 	ch_ctr++;
 	 }
-	 if (num_chs!=ch_ctr) err = ERR_CHSET;
+	 if (num_ichs!=ch_ctr) err = ERR_CHSET;
 	return err;
 }
 
 int KProf::setup_inputcolumns() {
-	err = 0; // reset errors
 	 unsigned int icol_ctr=0; 
 	 icols 	= new DataCell[num_icols];
 	 filter	= new unsigned int[num_icols];
@@ -229,6 +341,7 @@ int KProf::setup_inputcolumns() {
 	 	icol_ctr++;
 	 }
 	 if (num_icols!=icol_ctr) err = ERR_ICOLSET;
+	 if (num_icols==0) err = ERR_NOICOLS;
 	return err; // should return err_code from specific parser
 }
 
@@ -240,7 +353,7 @@ int KProf::read_buffer(char* buff) {
 }
 
 int KProf::read_icols(void) {
-	int ret = sd->read(chs, num_chs, icols, filter, num_icols);
+	int ret = sd->read(ichs, num_ichs, icols, filter, num_icols);
 	if (ret<0)	err=-ret;
 	return ret;
 }
@@ -249,8 +362,9 @@ void KProf::export_err(char* buffer) {
 	if (err==0)
 		buffer[0] = '\0'; // empty string
 	else if (err<NUM_KPERRS) 
-		sprintf(buffer, "%s. Line %i.\n\r", kperr_strings[err], errline);
+		sprintf(buffer, "%s Line %i.\n\r", kperr_strings[err], errline);
 	else 
 		sprintf(buffer, "Device Error %i\n\r",err);
+	err = 0;
 }
 

@@ -44,18 +44,18 @@ int main(int ac, char *argv[]) {
 	kp.parse(fp);
 	
 	kp.export_dtd(buff);
-	printf("DTD:\n%s\n",buff);
+	printf("--- DTD: -------------------------------------\n%s\n",buff);
 	
 	kp.export_xsd(buff);
-	printf("XSD:\n%s\n",buff);
+	printf("--- XSD: -------------------------------------\n%s\n",buff);
 	
 	kp.setup_sensordata_parser();
-	kp.setup_channels();
+	kp.setup_inputchannels();
 	kp.setup_inputcolumns();
 	
-	if (kp.error()) { kp.export_err(buff); printf("%s",buff); }
+	if (kp.error()) { kp.export_err(buff); printf("%s",buff); exit(-1);}
 
-	printf("raw output strings:\n");
+	printf("--- raw output strings: ----------------------\n");
 
 		// wait a sec or 2 for sensordata to get ready
 		kp.read_buffer(buff);
@@ -69,7 +69,7 @@ int main(int ac, char *argv[]) {
 				printf("error(%i)\n\r",ret);
 		}
 
-	printf("\ninterpreted output:\n");
+	printf("\n--- interpreted output: ----------------------\n");
 
 		KVector vect[kp.num_icols];
 		for (unsigned int i=0; i<kp.num_icols; i++) 
