@@ -22,6 +22,10 @@
 #include "misc/conio.h"
 #include <sys/time.h>     // for timings
 
+#define BINVECTOR_MODE 1
+#define KVECTOR_MODE   2
+#define DVECTOR_MODE   3
+
 int main(int ac, char **args) {
 	
 	if (ac<2) 
@@ -38,7 +42,11 @@ int main(int ac, char **args) {
 		printf("\n    valid options:");
 		printf("\n     -i: add iterator in front");
 		printf("\n     -t: add timestamp in front");
-		printf("\n     -k: output kvectors");
+		printf("\n     -b: output binvectors (bits)");
+		printf("\n     -k: output kvectors (0-255)");
+		printf("\n     -d: output dvectors (mixed types)");
+		printf("\n    if neither b,k,or d are specified, the");
+		printf("\n    raw buffers will be printed.");
 		printf("\n\n More info can be found in the CSTK manual");
 		printf("\n\n (http://cstk.sf.net/). No really, read it.");
 		printf("\n\n");
@@ -62,13 +70,17 @@ int main(int ac, char **args) {
 				iterator=true;
 			else if (strcasecmp(args[i],"-t")==0) 
 				timestamp=true;
+			else if (strcasecmp(args[i],"-b")==0) 
+				mode=BINVECTOR_MODE;
 			else if (strcasecmp(args[i],"-k")==0) 
-				mode=1;
+				mode=KVECTOR_MODE;
+			else if (strcasecmp(args[i],"-d")==0) 
+				mode=DVECTOR_MODE;
 		}
 	}
-
+	
 	input.init(fp); // parse file and setup inputcolumns
-
+	
 	if (input.error()) 
 		{ input.export_err(buff); printf("%s\n",buff); return -1;}
 
@@ -80,11 +92,18 @@ int main(int ac, char **args) {
 	int ret;
 
 	while (!quit) 
-	{
-		if(mode==1) 
-			ret = input.read_kvect();
-		else 
-			ret = input.read_buffer(buff);
+	{	
+		switch (mode) { 
+			case BINVECTOR_MODE: ret = input.read_binvect();
+				break;
+			case KVECTOR_MODE: ret = input.read_kvect();
+				break;
+			case DVECTOR_MODE: ret = input.read_dvect();
+				break;
+			default: 	ret = input.read_buffer(buff);
+				break;
+		}
+		
 		if ( ret <= 0 ) 
 		{
 			printf("Error(%i)\n",ret);
@@ -97,10 +116,20 @@ int main(int ac, char **args) {
 				printf("%li\t%li\t", (long int)tv.tv_sec, 
 					(long int)tv.tv_usec);
 			}
-			if(mode==1) 
-				printf("%s\t", input.kvect->to_string("%i "));
-			else 
-				printf("%6s\t", buff);
+			switch (mode) { 
+				case BINVECTOR_MODE: 
+					printf("%s\t", input.binvect->to_string());
+					break;
+				case KVECTOR_MODE: 
+					printf("%s\t", input.kvect->to_string("%i "));
+					break;
+				case DVECTOR_MODE: 
+					printf("%s\t", input.dvect->to_string());
+					break;
+				default: 
+					printf("%6s\t", buff);
+					break;
+			}
 			printf("%c\n",cl);
 		}
 		

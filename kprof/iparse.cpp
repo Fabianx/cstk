@@ -321,7 +321,7 @@ int IParse::read_dvect(void)
 	int ret = read_icols();
 	if ( ret == (int)num_icols ) {
 		for (int i=0; i<ret; i++) {
-			dvect->set_comp( icols[i].get(), icols[i].get_type , i); 
+			dvect->set_comp( icols[i].get(), icols[i].get_type() , i); 
 		}
 	}
 	return ret;
@@ -345,12 +345,23 @@ void IParse::init(FILE* fp)
 	setup_inputchannels();
 	setup_inputcolumns();
 
+	// setup binvector:
+	if (binvect==NULL)
+	{
+		binvect = new BinVector;
+		binvect->create(num_icols);
+	}
 	// setup kvector:
 	if (kvect==NULL)
 	{
 		kvect = new KVector;
 		kvect->createVector(num_icols);
-		printf("test: %i\n", num_icols);
+	}
+	// setup dvector:
+	if (dvect==NULL)
+	{
+		dvect = new DVector;
+		dvect->create(num_icols);
 	}
 }
 
