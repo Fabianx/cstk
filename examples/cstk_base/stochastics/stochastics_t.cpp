@@ -29,19 +29,19 @@
 		{
         		case U8B_TYPE:  printf(" %3.0f",v.get_comp(i));
 					break;
-        		case U16B_TYPE:	printf(" %3.0f",v.get_comp(i));
+        		case U16B_TYPE:	printf(" %10.0f",v.get_comp(i));
 					break;
-        		case U32B_TYPE: printf(" %d",v.get_comp(i));
+        		case U32B_TYPE: printf(" %15.0f",v.get_comp(i));
 					break;
-        		case U64B_TYPE: printf(" %d",v.get_comp(i));
+        		case U64B_TYPE: printf(" %20.0f",v.get_comp(i));
 					break;
-        		case S8B_TYPE:  printf(" %d",v.get_comp(i));
+        		case S8B_TYPE:  printf(" %4.0f",v.get_comp(i));
 					break;
         		case S16B_TYPE: printf(" %10.0f",v.get_comp(i));
 					break;
-        		case S32B_TYPE: printf(" %10.0f",v.get_comp(i)); 
+        		case S32B_TYPE: printf(" %15.0f",v.get_comp(i)); 
 					break;  
-        		case S64B_TYPE: printf(" %10.0f",v.get_comp(i));
+        		case S64B_TYPE: printf(" %20.0f",v.get_comp(i));
 					break;
         		case F32B_TYPE: printf(" %7.3e",v.get_comp(i));
 					break;
@@ -69,6 +69,13 @@
 	for (vei_t j=0; j<5; j++)
 		v[j].create(4);
 	
+	printf("---------------------------------------------------\n\r"); 
+	printf("Test prgram for Stochastics implementation, which\n\r");
+	printf("uses the Covariance and the MVG (Multi Variant Gaussian)\n\r");
+	printf("classes.\n\r");
+	printf("---------------------------------------------------\n\r"); 
+	
+	printf("DVectorList 1:\n");
 	v[0].vector->set_comp(11, U8B_TYPE,0); 
 	v[0].vector->set_comp(1511, U16B_TYPE,1); 
 	v[0].vector->set_comp(35, U8B_TYPE,2); 
@@ -104,6 +111,7 @@
 	for (vei_t j=0; j<5; j++)
 		w[j].create(4);
 	
+	printf("DVectorList 2:\n");
 	w[0].vector->set_comp(111, U8B_TYPE,0); 
 	w[0].vector->set_comp(3391, U16B_TYPE,1); 
 	w[0].vector->set_comp(34, U8B_TYPE,2); 
@@ -139,6 +147,7 @@
 	for (vei_t j=0; j<5; j++)
 		x[j].create(4);
 	
+	printf("DVectorList 3:\n");
 	x[0].vector->set_comp(121, U8B_TYPE,0); 
 	x[0].vector->set_comp(3021, U16B_TYPE,1); 
 	x[0].vector->set_comp(4, U8B_TYPE,2); 
@@ -171,52 +180,28 @@
 	printv3(*(x[4].vector));
 	printf("\n\r");
 	
-	printf("The first plus the second vector is:\n\r");
-	DVector s1, s2, s3;
-	s1 = (*(v[0].vector));
-	s2 = (*(v[1].vector));
-	DVector s0(*(v[0].vector));
-	printv3(s0);
-	printv3(s1);
-	printv3(s2);
-	printf("\n");
-	s3 = s1 + s2;
-	printv3(s3);
-	printf("The second minus the first vector is:\n\r");
-	s3 = s2 -s1;
-	printv3(s3);
-	
-	printf("The covariance matrix of these vectors is:\n\r");
+	printf("The covariance matrix of list 1 vectors is:\n\r");
 	DVectorMatrix cov1(covm.matrix(v[0]));
 	ml[0].mue = new DVector(*(covm.mean));
 	ml[0].classinf = 1;
-	//ml[0].next = &ml[1];
-	printv3(*(covm.mean));
-	printf("\n");
 	for (vei_t i=0; i<4; i++)
 		printv3(cov1.vector[i]);
 	printf("\n\rdeterminant: %7.1e\n",cov1.det());
 	printf("\n");
 	
-	printf("The covariance matrix of these vectors is:\n\r");
+	printf("The covariance matrix of list 2 vectors is:\n\r");
 	DVectorMatrix cov2(covm.matrix(w[0]));
 	ml[1].mue = new DVector(*(covm.mean));
 	ml[1].classinf = 2;
-	//ml[1].next = &ml[3];
-	printv3(*(covm.mean));
-	printf("\n");
 	for (vei_t i=0; i<4; i++)
 		printv3(cov2.vector[i]);
 	printf("\n\rdeterminant: %7.1e\n",cov2.det());
 	printf("\n");
 		
-	printf("The covariance matrix of these vectors is:\n\r");
+	printf("The covariance matrix of list 3 vectors is:\n\r");
 	DVectorMatrix cov3(covm.matrix(x[0]));
 	ml[2].mue = new DVector(*(covm.mean));
 	ml[2].classinf = 3;
-	//ml[2].next = NULL;
-	printv3(*(covm.mean));
-	printf("\n");
 	for (vei_t i=0; i<4; i++)
 		printv3(cov3.vector[i]);
 	printf("\n\rdeterminant: %7.1e\n",cov3.det());
@@ -227,90 +212,37 @@
 	ml[0].next = &ml[1];
 	for (vei_t i=0; i<ml[0].matrix->vesize; i++)
 		printv3(ml[0].matrix->vector[i]);
-	printf("\n");
+	printf("The inversion multiplied with the covariance matrix is:\n\r");
 	DVectorMatrix A1((*(ml[0].matrix)) * cov1.T());
 	for (vei_t i=0; i<ml[0].matrix->vesize; i++)
 		printv3(A1.vector[i]);
+	printf("\n");
 		
 	printf("The inversion of the second covariance matrix is:\n\r");
 	ml[1].matrix = new DVectorMatrix(cov2.INV());
 	ml[1].next = &ml[2];
 	for (vei_t i=0; i<ml[1].matrix->vesize; i++)
 		printv3(ml[1].matrix->vector[i]);
-	printf("\n");
+	printf("The inversion multiplied with the covariance matrix is:\n\r");
 	DVectorMatrix A2((*(ml[1].matrix)) * cov2.T());
 	for (vei_t i=0; i<ml[1].matrix->vesize; i++)
 		printv3(A2.vector[i]);
+	printf("\n");
 		
 	printf("The inversion of the second covariance matrix is:\n\r");
 	ml[2].matrix = new DVectorMatrix(cov3.INV());
 	ml[2].next = NULL;
 	for (vei_t i=0; i<ml[2].matrix->vesize; i++)
 		printv3(ml[2].matrix->vector[i]);
-	printf("\n");
+	printf("The inversion multiplied with the covariance matrix is:\n\r");
 	DVectorMatrix A3((*(ml[2].matrix)) * cov3.T());
 	for (vei_t i=0; i<ml[2].matrix->vesize; i++)
 		printv3(A3.vector[i]);
-		
-	printf("\n\r");
-	printf("Given Matrix:\n\r");
-	m.vector[0].set_comp(1, U8B_TYPE,0); 
-	m.vector[0].set_comp(2, U8B_TYPE,1); 
-	m.vector[0].set_comp(3, U8B_TYPE,2); 
-	m.vector[0].set_comp(3, U8B_TYPE,3);
-	printv3(m.vector[0]);
-	m.vector[1].set_comp(2, U8B_TYPE,0); 
-	m.vector[1].set_comp(1, U8B_TYPE,1); 
-	m.vector[1].set_comp(1, U8B_TYPE,2); 
-	m.vector[1].set_comp(5, U8B_TYPE,3);
-	printv3(m.vector[1]);
-	m.vector[2].set_comp(1, U8B_TYPE,0); 
-	m.vector[2].set_comp(4, U8B_TYPE,1); 
-	m.vector[2].set_comp(1, U8B_TYPE,2); 
-	m.vector[2].set_comp(3, U8B_TYPE,3);
-	printv3(m.vector[2]);
-	m.vector[3].set_comp(1, U8B_TYPE,0); 
-	m.vector[3].set_comp(4, U8B_TYPE,1); 
-	m.vector[3].set_comp(4, U8B_TYPE,2); 
-	m.vector[3].set_comp(1, U8B_TYPE,3);
-	printv3(m.vector[3]);
-	printf("\n\r");
-		
-	printf("The determinant of the matrix is: %7.3e\n\r",m.det());
-		
-	printf("The transposition of the matrix:\n\r");
-	for (vei_t i=0; i<m.hosize; i++)
-		printv3(m.T().vector[i]);
-		
-	printf("The inversion of the matrix:\n\r");
-	for (vei_t i=0; i<m.vesize; i++)
-		printv3(m.INV().vector[i]);
-		
-	printf(" det=%7.1e\n\r",m.INV().det());
-	printf("\n\r");
-		
-	printf("The multiplication of the matrix with it's inversion:\n\r");
-	
-	DVectorMatrix m_r, m_k;
-	DVector m_s;
-	m_r = m.INV() * m.T();
-	for (vei_t i=0; i<m_r.vesize; i++)
-		printv3(m_r.vector[i]);
 	printf("\n");
-	m_s = (*(v[0].vector)) * m.T();
-	printv3(m_s);
-	printf("\n");
-	m_s = m * (*(v[0].vector));
-	printv3(m_s);
-	printf("\n");
-	m_k = m;
-	for (vei_t i=0; i<m_r.vesize; i++)
-		printv3(m_k.vector[i]);
-	printf("\n");
-	for (vei_t i=0; i<m_r.vesize; i++)
-		printv3(m_r.vector[i]);
 		
-	printf("The multivariant gaussians scan delivers class: %i\n\r",gauss.value(ml[0],(*(x[2].vector))));
+	printf("\n");	
+	printf("The multivariant gaussians scan with vector three from list three\n\r");
+	printf("(class number 3) delivers class: %i\n\r",gauss.value(ml[0],(*(x[2].vector))));
 		
  	return 0;
  }
