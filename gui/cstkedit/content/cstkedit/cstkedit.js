@@ -6,21 +6,18 @@
 function init()
 {
 	// should be replaced with user pref:
-	document.getElementById('xmlfile').value = 
-		"/home/kristof/Documents/Sources/cstk/cstk_settings/smartit_demo.xml";
-	document.getElementById('rdffile').value = 
-	//	"file:///usr/lib/mozilla-1.6/chrome/cstkedit/content/cstkedit/cstkxml.rdf";
-		"chrome://cstkedit/content/cstkxml.rdf";
-	var file = Components.classes["@mozilla.org/file/local;1"].
-				createInstance(Components.interfaces.nsILocalFile);
-	file.initWithPath(document.getElementById('xmlfile').value);
-	loadFile(file);
+	//var file = Components.classes["@mozilla.org/file/local;1"].
+	//			createInstance(Components.interfaces.nsILocalFile);
+	//file.initWithPath(document.getElementById('xmlfile').value);
+	// hmmmmmmmmmm...
+	doLoad();
 }
 
 function init_par()
 {
+	// hmmmmmmmmmmm...
 	document.getElementById('toolfile').value =
-	 "/home/kristof/Documents/Sources/cstk/sourcecode/tools/rtplot/rtplot";
+	    "/home/kristof/Documents/Sources/cstk/sourcecode/tools/rtplot/rtplot";
 }
 
 /* *******************************************************************************************
@@ -93,7 +90,8 @@ function doSave()
 				createInstance(Components.interfaces.nsILocalFile);
 		file.initWithPath(document.getElementById('xmlfile').value);
 		saveFile(file);
-	} catch (e) { alert(e); }
+	} catch (e) { alert("could not save to file!\n"+
+			"(check the file's path and name in the toolbar)"); }
 }
 
 function doSaveAs()
@@ -105,7 +103,7 @@ function doSaveAs()
 		fp.init(window, "Select a File", nsIFilePicker.modeSave);
 		var defaultdir = Components.classes["@mozilla.org/file/local;1"].
 					createInstance(Components.interfaces.nsILocalFile);
-		defaultdir.initWithPath(document.getElementById('xmlfile').value);
+		//defaultdir.initWithPath(document.getElementById('xmlfile').value);
 		try { fp.displayDirectory = defaultdir.parent; } catch(ex) {;}
 		fp.appendFilters(nsIFilePicker.filterXML | nsIFilePicker.filterAll);
 		// shows url: fp.fileURL.spec = document.getElementById('xmlfile').value;
@@ -113,54 +111,72 @@ function doSaveAs()
 		if ( ret != nsIFilePicker.returnCancel) {
 			document.getElementById('xmlfile').value = fp.file.path;
 			saveFile(fp.file);
-		} 
-	} catch (e) { alert(e); }
+		}
+	} catch (e) { alert("could not save to file!\n"+
+			"(check the file's path and name)"); }
 }
 
 function doLoad()
 {
-	try {
+	var data;
+	// message box for choosing local or on-line file
+	var promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+			.getService(Components.interfaces.nsIPromptService);
+	var flags=promptService.BUTTON_TITLE_IS_STRING * promptService.BUTTON_POS_0 +
+		promptService.BUTTON_TITLE_IS_STRING * promptService.BUTTON_POS_1+
+		promptService.BUTTON_TITLE_IS_STRING * promptService.BUTTON_POS_2;
+	var ret = promptService.confirmEx(window,"Load XML File",
+		"Load a local file, or one from the on-line repository?",
+		flags, "Local", "On-line", "Cancel", null, {});
+	if (ret == 0) // local file:
+	{
+	 try {
 		const nsIFilePicker = Components.interfaces.nsIFilePicker;
 		var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(
 									nsIFilePicker);
 		fp.init(window, "Select a File", nsIFilePicker.modeOpen);
 		var defaultdir = Components.classes["@mozilla.org/file/local;1"].
 				createInstance(Components.interfaces.nsILocalFile);
-		defaultdir.initWithPath(document.getElementById('xmlfile').value);
 		try { fp.displayDirectory = defaultdir.parent; } catch(ex) {;}
 		fp.appendFilters(nsIFilePicker.filterXML | nsIFilePicker.filterAll);
-		if (fp.show() != nsIFilePicker.returnCancel) 
-			loadFile(fp.file);
-	} catch (e) { alert(e); }
-}
-
-function updateSource(file, data)
-{
-	//editor: document.getElementById('sourcecode').setAttribute("src",'file://'+file.path);
-	document.getElementById('sourcecode').value=data;
-}
-
-function loadFile(file)
-{
-	if(file.exists()) 
-	try {
-		document.getElementById('xmlfile').value = file.path;
-		var fstream = Components.classes["@mozilla.org/network/file-input-stream;1"]
-			.createInstance(Components.interfaces.nsIFileInputStream);
-		var sstream = Components.classes["@mozilla.org/scriptableinputstream;1"]
-			.createInstance(Components.interfaces.nsIScriptableInputStream);
-		fstream.init(file, 1, 0, false);
-		sstream.init(fstream); 
-		var data = sstream.read(file.fileSize);
-		sstream.close();
-		fstream.close();
-		if (data=="")
-			alert("File is empty!");
-		else {
-			updateSource(file, data);   // update source code in editor
-			doParseXML(data);           // parse the xml file 
+		if (fp.show() != nsIFilePicker.returnCancel)
+			if(fp.file.exists()) 
+			{
+				document.getElementById('xmlfile').value = fp.file.path;
+				var fstream = Components.classes["@mozilla.org/network/file-input-stream;1"]
+					.createInstance(Components.interfaces.nsIFileInputStream);
+				var sstream = Components.classes["@mozilla.org/scriptableinputstream;1"]
+					.createInstance(Components.interfaces.nsIScriptableInputStream);
+				fstream.init(fp.file, 1, 0, false);
+				sstream.init(fstream); 
+				data = sstream.read(fp.file.fileSize);
+				sstream.close();
+				fstream.close();
+			}
+	 } catch (e) { alert(e); }
+	}
+	else if(ret == 1) // on-line file:
+	{
+	 try {
+		var array = ["xbow ADXL202EB","DIY smart-it v.2.05", "Mica mote v.1.02", 
+			"simulation demo", "XBridge listener", "Logfile 40 acc"];
+		var fp = {};
+		if (promptService.select( window, "select file" , "select file:" , 6 , array, fp))
+		{
+			if (fp.value==0)	fp = 'http://cstk.sf.net/set/xbow.xml'; 
+			else if (fp.value==1)   fp = 'http://cstk.sf.net/set/smartit_demo.xml';
+			document.getElementById('xmlfile').value = fp;
+			req = new XMLHttpRequest();
+			req.open('GET', fp, false); 
+			req.send(null);
+			if(req.status == 200)
+				data = req.responseText;
 		}
-	} catch(e) { alert(e); }
+	 } catch(e) { alert(e); }
+	}
+	else return;
+	document.getElementById('sourcecode').value=data;
+	doParseXML(data);           // parse the xml file 
 }
 
 function doParseXML(data)
@@ -192,6 +208,10 @@ function doParseXML(data)
 	if ( xmldoc.getElementsByTagName("logfile").item(0).parentNode.nodeName =="input")
 		parseAtts(xmldoc.getElementsByTagName("logfile"),'inputt','iparams',
 					"http://cstk.sf.net/iparams#","logfile", true);
+	if ( xmldoc.getElementsByTagName("udp").length > 0 )
+	if ( xmldoc.getElementsByTagName("udp").item(0).parentNode.nodeName =="input")
+		parseAtts(xmldoc.getElementsByTagName("udp"),'inputt','iparams',
+					"http://cstk.sf.net/iparams#","udp", true);
 
 	parseAtts(xmldoc.getElementsByTagName("window"),'windowt','wparams',
 				"http://cstk.sf.net/wparams#", "window", true);
@@ -211,32 +231,6 @@ function doParseXML(data)
 	parseCols(xmldoc.getElementsByTagName("plot"),'windowt','plots',
 			"http://cstk.sf.net/plots#", plot_cols, plot_xmlcols);
 }
-
-// function unassert_all(ds)
-// {
-// 	
-// 	dsResources = (ds.GetAllResources());
-// 	var thisResource = null;
-// 	var arcCursor = null;
-// 	var thisArc = null;
-// 	while(dsResources.hasMoreElements()) {
-// 		thisResource = 
-// 		dsResources.getNext().QueryInterface(Components.interfaces.nsIRDFResource);
-// 		arcCursor = ds.ArcLabelsOut(thisResource);
-// 		while(arcCursor.hasMoreElements()) {
-// 			thisArc = arcCursor.getNext().QueryInterface(Components.interfaces.nsIRDFResource);
-// 			arcTargets = ds.GetTargets( thisResource, thisArc, true );
-// 			while(arcTargets.hasMoreElements()) {
-// 				tmparc = arcTargets.getNext();
-// 				if (tmparc instanceof Components.interfaces.nsIRDFLiteral){
-// 				 thisTarget = tmparc.QueryInterface(Components.interfaces.nsIRDFLiteral);
-// 				 ds.Unassert(thisResource,thisArc,thisTarget,true);
-// 				}
-// 			}
-// 		}
-// 	}
-// 	
-// }
 
 function parseAtts(tag, tab_id, tree_id, schema, rootname, unassert_bool)
 {
@@ -337,7 +331,6 @@ function parseCols(tag, tab_id, tree_id, schema, cols, xmlcols)
 
 function saveFile(file)
 {
-	if(file.exists()) 
 	try {
 		var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"]
 			.createInstance(Components.interfaces.nsIFileOutputStream);
@@ -351,6 +344,7 @@ function saveFile(file)
 
 function doRun()
 {
+	// TODO: figure out whether the file is local, create temp if necessary
 	try {
 		var str_LocalProgram = window.frames['paramst'].document.getElementById('toolfile').value;
 		const FileFactory = new Components.Constructor(
