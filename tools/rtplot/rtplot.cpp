@@ -132,7 +132,7 @@ int main(int ac, char **args) {
        // do this several times to speed up viz:
         for (int i_step=0; i_step<kprof.win.skip; i_step++) {
             // read the sensordata: 
-	    int ret=sd->read(channel_types, kprof.is.numchs, 
+			 int ret=sd->read(channel_types, kprof.is.numchs, 
                            columns, select, kprof.is.numcols);
              if ( ret < 0 ) {
 			    if (ret!=-12) printf("Error: %i\n",-ret);

@@ -34,6 +34,12 @@
 #define BIN_MODE 1
 #define ASC_MODE 2
 
+#define PAR_NO    0
+#define PAR_ODD   1
+#define PAR_EVEN  2
+#define PAR_SPACE 3
+#define PAR_MARK  4
+
 #define RS232ERR_CANTOPEN  10
 #define RS232ERR_CANTWRITE 11
 #define RS232ERR_CANTREAD  12
@@ -45,7 +51,17 @@
   */
   
 struct Rs232ParserSettings {
-  Rs232ParserSettings() {device[0]='\0';poll_char[0]='\0';}
+  // init: ( for the defaults see /kprof/rs232setparse )
+  Rs232ParserSettings() { 
+	device[0]='\0';
+	baudrate=0;
+	poll_char[0]='\0';
+	buff_size=0;
+	databits=0;
+	stopbits=0;
+	parity=0;
+	mode=0;
+  }
   char  device[256];              // the name of the rs232 device
   int   baudrate;              
   char  poll_char[256];           // what to send to ask for data

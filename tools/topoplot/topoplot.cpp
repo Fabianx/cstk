@@ -27,6 +27,17 @@
 
 int main(int ac, char **args) {
 
+  if (ac<2) {
+    printf("\n TopoPlot - by Kristof Van Laerhoven.");
+    printf("\n syntax:");
+    printf("\n   %s <xml settings document>",args[0]);
+    printf("\n");
+    printf("\n\n More info can be found in the CSTK manual");
+    printf("\n\n (http://cstk.sf.net/). No really, read it.");
+    printf("\n\n");
+    exit(0);
+  }
+  
   char window_name[255];
   ClustPlot kp;                  // plots the cluster prototypes
   SensorData *sd = NULL;         // generic sensor data class
@@ -39,17 +50,6 @@ int main(int ac, char **args) {
   DataCell* columns=NULL;        // information along to the read methods
   uint* select=NULL;             // of the various types of sensordata
     
-  if (ac<2) {
-    printf("\n TopoPlot - by Kristof Van Laerhoven.");
-    printf("\n syntax:");
-    printf("\n   %s <xml settings document>",args[0]);
-    printf("\n");
-    printf("\n\n More info can be found in the CSTK manual");
-    printf("\n\n (http://cstk.sf.net/). No really, read it.");
-    printf("\n\n");
-    exit(0);
-  }
-  
   // parse the xml file:
    if (kprof.parse(args[1],SETTP_TPP)) {printf("parse error\n\r");exit(1);};
    sprintf(window_name,"topoplot:%s,%s", imodes[kprof.input_mode],
@@ -84,7 +84,7 @@ int main(int ac, char **args) {
   // set up the input:
    switch (kprof.input_mode) {
      case IMODE_RS232 : 
-            sd = new Rs232Parser(kprof.is.rs232);
+            sd = new Rs232Parser(*kprof.is.rs232);
             break;
      case IMODE_FILE  : 
             sd = new LogFileParser(kprof.is.filename); 
@@ -118,13 +118,15 @@ int main(int ac, char **args) {
        // do this several times to speed up viz:
         for (int i_step=0; i_step<kprof.win.skip; i_step++) {
             // read the sensordata: 
-             if ( sd->read(channel_types, kprof.is.numchs, 
-                           columns, select, kprof.is.numcols)) 
-             { 
+             int ret = sd->read(channel_types, kprof.is.numchs, 
+                                columns, select, kprof.is.numcols);
+             if ( ret < 0 ) {
+			    if (ret!=-12) printf("Error: %i\n",-ret);
+			 }
+		     else
                 for (i=0; i<kprof.is.numcols; i++) {
                        vect.add_comp(columns[i].get_u8b());
                 } 
-             } 
              ksom.feed_bell(&vect, kprof.par.lr, kprof.par.nbr);
         }
         

@@ -211,22 +211,24 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
 					i+=4;
 					break;
 #ifdef U64
-        case U64B_TYPE:
-	     for (k=0; k<numcolumns; k++)
-	         if (filter[k]==j)
-	              columns[k].set_u64val(buf[i],buf[i+1],buf[i+2],buf[i+3],
-		                            buf[i+4],buf[i+5],buf[i+6],buf[i+7]);
-             i+=8;
-	     break;
+				case U64B_TYPE:
+					for (k=0; k<numcolumns; k++)
+						if (filter[k]==j)
+							columns[k].set_u64val(buf[i],buf[i+1],
+									buf[i+2],buf[i+3],buf[i+4],
+									buf[i+5],buf[i+6],buf[i+7]);
+					i+=8;
+					break;
 #endif
 #ifdef S64
-        case S64B_TYPE:
-	     for (k=0; k<numcolumns; k++)
-	         if (filter[k]==j)
-	              columns[k].set_s64val(buf[i],buf[i+1],buf[i+2],buf[i+3],
-		                            buf[i+4],buf[i+5],buf[i+6],buf[i+7]);
-             i+=8;
-	     break;
+				case S64B_TYPE:
+					for (k=0; k<numcolumns; k++)
+						if (filter[k]==j)
+							columns[k].set_s64val(buf[i],buf[i+1],
+									buf[i+2],buf[i+3],buf[i+4],
+									buf[i+5],buf[i+6],buf[i+7]);
+					i+=8;
+					break;
 #endif
 				default: ; // errormsg? 
 					break;    
