@@ -42,6 +42,7 @@ topoplot:	topoplot.o
 	       $(BASE_DIR)/kprof/plotsetparse.o \
 	      $(BASE_DIR)/algorithms/ksom/ksom.o \
 	      $(BASE_DIR)/algorithms/kmeans/kmeans.o  \
+	      $(BASE_DIR)/algorithms/peak/peak.o  \
 	      topoplot.o -L/usr/X11R6/lib/ -lX11 -o ./$@
 
 topoplot.o: datacell.o kvector.o dvector.o iparse.o wparse.o ksom.o kmeans.o
@@ -51,6 +52,9 @@ topoplot.o: datacell.o kvector.o dvector.o iparse.o wparse.o ksom.o kmeans.o
 ##### Dependencies: ###############################################################
 
 datacell.o:
+	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
+
+binvector.o:
 	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
 
 kvector.o:
