@@ -49,71 +49,16 @@ class DVector {
    char* to_string(void);
    
    bool operator==(const DVector& vec);
-   
-   /*************************************************************************************
-   * 	The equal operator is just a loop that reads the elements of the source vector	*
-   * 	(vec) and writes the values in the destination vector (this).			*
-   * 	The types are the same than the types from the input vector,			*
-   * 	which made it possible to use the set function that has only one		*
-   * 	vector element as input.							*
-   **************************************************************************************/
    DVector& operator=(const DVector& vec); 
    
-   /*************************************************************************************
-   *	This operator was more difficult to implement, because there has an actual	*
-   * 	calculation to be done. The get function returns only an element		*
-   * 	as a double, which makes it not possible to use this method. If			*
-   * 	the types of the two input vectors are the same, the type is taken		*
-   * 	over for the new edition of the first input vector. Are the types		*
-   * 	different, the get function is used and all the elements of the			*
-   * 	saving vector are becoming the double type. There is not jet a			*
-   * 	safety treatment if the vector types are the same, but the calculation		*
-   * 	causes an overflow of the type.							*
-   *************************************************************************************/
    DVector& operator+=(const DVector& vec);
-   
-   /*************************************************************************************	
-   * 	This operator is the same as the previous operator, except that there is done	* 
-   *	a minus instead of the plus.							*	
-   **************************************************************************************/
    DVector& operator-=(const DVector& vec);
    
-   /*************************************************************************************
-   *	The friend specifier specifies that the operator is not inside the vector class,*
-   * 	but it belongs to the class, it is a friend of it. Friend Methods and operators	*
-   * 	can use private declarations of the class. The friend specification is needed,	*
-   * 	because with it the definition of operators with two input variables is first	*
-   * 	possible. The implementation is nearly the same as the '+=' operator despite	*
-   * 	of the destination vector where the results are saved. This vector has to be	*
-   * 	constructed in the operator itself instead of returning the first input vector	*
-   * 	with 'this'. It works the same way as the according mathematic operator, each	*
-   * 	element of the first vector is added to the element of the second vector that	*
-   * 	stands on the same position.							*
-   **************************************************************************************/
+
    friend DVector operator+(const DVector& vec1, const DVector& vec2);
-   
-   /*************************************************************************************
-   *	This operator is the same as the previous operator, except that there is done	*
-   *	a minus instead of the plus.							*
-   **************************************************************************************/
    friend DVector operator-(const DVector& vec1, const DVector& vec2);
    
-   /*************************************************************************************
-   * 	The value is multiplied with each element of the input vector and the result is	*
-   * 	saved in a newly constructed result vector. Since the type of the value has to	*
-   * 	be known in advance, the biggest type (double) had to be chosen. With this fact	*
-   * 	the get function could be used within a loop. The operator returns again a	*
-   * 	vector constructed inside the operator.						*
-   **************************************************************************************/
    friend oas_t operator*(const DVector& vec1, const DVector& vec2);
-   
-   /*************************************************************************************
-   *	This is the Vector multiplication operator according to the math standard, that	*
-   *	multiplies each element and sums up the result of the multiplications. Since the*
-   *	type of the multiplications result is not known in advance , the biggest type 	*
-   *	(double) is chosen. With this abstraction the get function can be 		*
-   *	used within a simple loop.							*	
-   **************************************************************************************/
    friend DVector operator*(const oas_t val, const DVector& vec);
  
  private:
