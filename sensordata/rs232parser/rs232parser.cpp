@@ -215,7 +215,7 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
   return res+1;
 }
 
-/* read 1 value from rs232 port, see SensorData class for more */
+// read 1 value from rs232 port, see SensorData class for more
 int Rs232Parser::read(DataCell* channels, uint numchannels) 
 {
    int res=-2;
