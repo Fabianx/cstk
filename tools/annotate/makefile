@@ -17,26 +17,38 @@ clean:
 ##### Annotate Tool ##############################################################
 
 annotate: annotate.o
-	$(CC) $(SD_DIR)/rs232parser/rs232parser.o \
-	      $(VECTOR_DIR)/datacell.o \
+	$(CC) $(VECTOR_DIR)/datacell.o \
+	      $(VECTOR_DIR)/kvector.o \
+	      $(VECTOR_DIR)/dvector.o \
+	      $(SD_DIR)/rs232parser/rs232parser.o \
 	      $(SD_DIR)/logfileparser/logfileparser.o \
 	      $(SD_DIR)/udpparser/udpparser.o \
 	      $(SD_DIR)/simparser/simparser.o \
+	      $(BASE_DIR)/kprof/kprof.o \
 	      $(BASE_DIR)/kprof/setparse.o \
 	      $(BASE_DIR)/kprof/rs232setparse.o \
-	      $(BASE_DIR)/kprof/udpsetparse.o \
 	      $(BASE_DIR)/kprof/logfilesetparse.o \
+	      $(BASE_DIR)/kprof/udpsetparse.o \
 	      $(BASE_DIR)/kprof/simsetparse.o \
+	      $(BASE_DIR)/kprof/channelsetparse.o \
+	      $(BASE_DIR)/kprof/inputcolumnsetparse.o \
 	      annotate.o -o ./$@
 	
 annotate.o: rs232parser.o logfileparser.o udpparser.o simparser.o \
 	rs232setparse.o udpsetparse.o logfilesetparse.o simsetparse.o \
-	datacell.o
+	channelsetparse.o inputcolumnsetparse.o kprof.o datacell.o \
+	kvector.o dvector.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### Dependencies: ##############################################################
 
 datacell.o:
+	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
+	
+kvector.o:
+	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
+	
+dvector.o:
 	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
 	
 rs232parser.o:
@@ -63,9 +75,17 @@ logfilesetparse.o:
 simsetparse.o:
 	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
 		
+channelsetparse.o:
+	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
+		
+inputcolumnsetparse.o:
+	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
+		
 setparse.o:
 	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
 
+kprof.o:
+	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
 
 ###################################################################################
 
