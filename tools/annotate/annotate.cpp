@@ -15,116 +15,99 @@
  *                                                                         * 
  ***************************************************************************/
 
+#include "cstk_base/vector/binvector.h"
 #include "cstk_base/vector/kvector.h"
-#include "kprof/kprof.h"
+#include "cstk_base/vector/dvector.h"
+#include "kprof/iparse.h"
 #include "misc/conio.h"
 #include <sys/time.h>     // for timings
 
-int main(int ac, char *argv[]) {
+int main(int ac, char **args) {
 	
-	if (ac<2) {
+	if (ac<2) 
+	{
 		printf("\n  This tool reads a CSTK XML file and\n");
 		printf("  parses its input section. The user\n");
 		printf("  then gets the option of annotating\n");
 		printf("  the incoming data with a key as it\n");
 		printf("  streams in.\n");
 		printf("\n   syntax:");
-		printf("\n     %s <xsd> [options]", argv[0]);
+		printf("\n     %s <xsd> [options]", args[0]);
 		printf("\n");
 		printf("\n    <xsd> is a CSTK XML file.\n");
 		printf("\n    valid options:");
 		printf("\n     -i: add iterator in front");
 		printf("\n     -t: add timestamp in front");
-		printf("\n     -b: just print the buffer");
+		printf("\n     -k: output kvectors");
+		printf("\n\n More info can be found in the CSTK manual");
+		printf("\n\n (http://cstk.sf.net/). No really, read it.");
 		printf("\n\n");
 		exit(0);
 	}
+  
+	char buff[0x10000]; // for error msgs
+	IParse input;       // reads xml file and plots
+	ConIO con;          // keyboard io
+	
+	FILE* fp = fopen(args[1],"r");
+	if (!fp) {printf("Error opening file %s.\n", args[1]); return -1;}
 	
 	bool iterator = false;
 	bool timestamp = false;
-	char mode = 1;
+	char mode = 0;
 	
 	for (int i=2; i<ac; i++) {
 		if (ac>i) {
-			if (strcasecmp(argv[i],"-i")==0) 
+			if (strcasecmp(args[i],"-i")==0) 
 				iterator=true;
-			else if (strcasecmp(argv[i],"-t")==0) 
+			else if (strcasecmp(args[i],"-t")==0) 
 				timestamp=true;
-			else if (strcasecmp(argv[i],"-b")==0) 
-				mode=0;
+			else if (strcasecmp(args[i],"-k")==0) 
+				mode=1;
 		}
 	}
-	
-	ConIO con;
-	
-	char buff[0x10000];
-	KProf kp;
-	
-	FILE* fp = fopen(argv[1],"r");	
-	if (fp==NULL) {
-		printf("Error opening file %s.\n\r", argv[1]);
-		return 0;
-	}
-	
-	kp.parse(fp);	
-	if (kp.err!=0) {
-		printf("Error parsing file %s on line %i (code=%i).\n\r", 
-			argv[1], kp.errline, kp.err);
-		return kp.err;
-	}
-	
-	kp.export_dtd(buff);
-	printf("DTD:\n%s\n",buff);
-	
-	kp.export_xsd(buff);
-	printf("XSD:\n%s\n",buff);
-	
-	kp.setup_sensordata_parser();	
-	if (kp.err!=0) {
-		printf("Error opening sensor data in %s (code=%i).\n\r", 
-			argv[1], kp.err);
-		return kp.err;
-	}
-	
-	{ // read and print
-		KVector vect[kp.num_icols];
-		for (unsigned int i=0; i<kp.num_icols; i++) 
-			vect[i].createVector(100);
-		long unsigned int t=0;
-		char ch=0, cl='0';
-		struct timeval tv;
-		struct timezone tzv;
-		while (ch!='q'&&ch!='Q') {
-			int ret;
-			if(mode==1) 
-				ret = kp.sd->read(kp.chs, kp.num_chs, 
-				                  kp.icols, kp.filter, kp.num_icols);
-			else 
-				ret = kp.sd->read(buff); 	   
-			if ( ret < 0 ) {
-		 		printf("Error(%i)\n",ret);
-				return ret;
-			} 
-			else
-			{
-				if (iterator) printf("%6lu\t",t);
-				if (timestamp) {
-					gettimeofday(&tv, &tzv);
-					printf("%li\t%li\t", (long int)tv.tv_sec, (long int)tv.tv_usec);
-				}
-				if(mode==1) {
-					for (unsigned int i=0; i<kp.num_icols; i++) {
-						vect[i].add_comp(kp.icols[i].get_u8b());
-						printf("%6i\t",vect[i].val());
-					}
-				}
-				else printf("%6s\t", buff);
-				printf("%c\n",cl);
+
+	input.init(fp); // parse file and setup inputcolumns
+
+	if (input.error()) 
+		{ input.export_err(buff); printf("%s\n",buff); return -1;}
+
+	long unsigned int t=0;
+	char ch=0, cl='0'; // input character, class id
+	struct timeval tv;
+	struct timezone tzv;
+	bool quit = false;
+	int ret;
+
+	while (!quit) 
+	{
+		if(mode==1) 
+			ret = input.read_kvect();
+		else 
+			ret = input.read_buffer(buff);
+		if ( ret <= 0 ) 
+		{
+			printf("Error(%i)\n",ret);
+		}
+		else
+		{
+			if (iterator) printf("%6lu\t",t);
+			if (timestamp) {
+				gettimeofday(&tv, &tzv);
+				printf("%li\t%li\t", (long int)tv.tv_sec, 
+					(long int)tv.tv_usec);
 			}
-			ch = con.kb_getc();
-			if (ch!=0) cl = ch;
-			t++;
+			if(mode==1) 
+				printf("%s\t", input.kvect->to_string("%i "));
+			else 
+				printf("%6s\t", buff);
+			printf("%c\n",cl);
 		}
+		
+		ch = con.kb_getc();
+		if (ch!=0) cl = ch;
+		if ( (ch=='q') || (ch=='Q') ) quit = true;
+		t++; // increment integer timestamp
 	}
 	
 	return 0; // no error

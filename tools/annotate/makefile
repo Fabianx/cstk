@@ -18,13 +18,15 @@ clean:
 
 annotate: annotate.o
 	$(CC) $(VECTOR_DIR)/datacell.o \
+	      $(VECTOR_DIR)/binvector.o \
 	      $(VECTOR_DIR)/kvector.o \
 	      $(VECTOR_DIR)/dvector.o \
 	      $(SD_DIR)/rs232parser/rs232parser.o \
 	      $(SD_DIR)/logfileparser/logfileparser.o \
 	      $(SD_DIR)/udpparser/udpparser.o \
 	      $(SD_DIR)/simparser/simparser.o \
-	      $(BASE_DIR)/kprof/kprof.o \
+	      $(SD_DIR)/bufferparser.o \
+	      $(BASE_DIR)/kprof/iparse.o \
 	      $(BASE_DIR)/kprof/setparse.o \
 	      $(BASE_DIR)/kprof/rs232setparse.o \
 	      $(BASE_DIR)/kprof/logfilesetparse.o \
@@ -36,21 +38,24 @@ annotate: annotate.o
 	
 annotate.o: rs232parser.o logfileparser.o udpparser.o simparser.o \
 	rs232setparse.o udpsetparse.o logfilesetparse.o simsetparse.o \
-	channelsetparse.o inputcolumnsetparse.o kprof.o datacell.o \
-	kvector.o dvector.o
+	channelsetparse.o inputcolumnsetparse.o iparse.o \
+	binvector.o kvector.o dvector.o bufferparser.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### Dependencies: ##############################################################
 
 datacell.o:
 	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
-	
+
+binvector.o:
+	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
+
 kvector.o:
 	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
-	
+
 dvector.o:
 	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
-	
+
 rs232parser.o:
 	@cd $(BASE_DIR)/sensordata/$*; make $@ BASE_DIR=$(BASE_DIR)
 
@@ -84,8 +89,12 @@ inputcolumnsetparse.o:
 setparse.o:
 	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
 
-kprof.o:
+iparse.o:
 	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
+	
+bufferparser.o:
+	@cd $(BASE_DIR)/sensordata; make $@ BASE_DIR=$(BASE_DIR)
+
 
 ###################################################################################
 
