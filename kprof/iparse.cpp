@@ -33,7 +33,9 @@ IParse::IParse()
 	ichs     	= NULL;
 	icols   	= NULL;
 	filter  	= NULL;
+	binvect 	= NULL;
 	kvect   	= NULL;
+	dvect   	= NULL;
 }
 
 IParse::~IParse()

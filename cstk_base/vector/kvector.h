@@ -30,7 +30,8 @@
  * Use this class for visualisations on embedded devices (iPAQs etc.)      *
  * Also, you'll have to convert your values to unsigned 8bit values!       *
  ***************************************************************************/
-class KVector {
+class KVector 
+{
 public:
   KVector();
   KVector(vei_t size, bool stats=true);

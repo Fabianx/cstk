@@ -93,39 +93,39 @@ struct KSOMSettings
 ****************************************************************************************/
 class KSOM {
  public: 
-  	KSOM();
+	KSOM();
 	/* create the map with the right dimensions and all parameters*/
 	KSOM(KSOMSettings *parameters);
-  	~KSOM();
+	~KSOM();
 	
 	void savetoFile();
 	int restorefromFile();
 	
-  	/* create the map with the right dimensions and all parameters*/
-  	void create(KSOMSettings *parameters);
-  	/* randomize the contents of the map's cells, prototyp vector spezializes the range of each dimension*/
-  	void initRandom(DVector& prototyp);
-  	/* feed a vector into the map, lr specifies the learning rate when autolearn=false*/
-  	void feed(DVector& vec, float lr);
-  	/* get the value of the cell x/y*/
-  	oas_t getCell(vei_t x, vei_t y, vei_t i);
+	/* create the map with the right dimensions and all parameters*/
+	void create(KSOMSettings *parameters);
+	/* randomize the contents of the map's cells, prototyp vector spezializes the range of each dimension*/
+	void initRandom(DVector& prototyp);
+	/* feed a vector into the map, lr specifies the learning rate when autolearn=false*/
+	void feed(DVector& vec, float lr);
+	/* get the value of the cell x/y*/
+	oas_t getCell(vei_t x, vei_t y, vei_t i);
 	DVector& getCellVector(vei_t x, vei_t y);
 	
-  	/* winner coords on the map*/
-  	KVector *win_xy;  
+	/* winner coords on the map*/
+	KVector *win_xy;  
 	vei_t winner_x, winner_y; 
 	//vei_t max_x, max_y; 
 	
 	KSOMSettings *par;
 	
  protected:
-  	oas_t det_dis(DVector& vec1, DVector& vec2);
+	oas_t det_dis(DVector& vec1, DVector& vec2);
 	oas_t det_dis(KVector& vec1, KVector& vec2);
 	oas_t det_nb(KVector& vec1, KVector& vec2, ve_t fct);
 	
 	oas_t det_lr(oas_t lr);
-	KVector  *max_xy; 
-  	DVector *vect;
+	KVector *max_xy; 
+	DVector *vect;
 };
 
 /****************************************************************************************

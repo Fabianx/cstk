@@ -36,7 +36,8 @@
 #include "sensordata/simparser/simparser.h"
 
 
-class IParse {
+class IParse 
+{
  public:
 	IParse();
 	~IParse();

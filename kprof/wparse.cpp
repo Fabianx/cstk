@@ -251,9 +251,9 @@ int WParse::kvplot(KVector *kvect)
 			}
 		}
 	}
-	if (num_icols!=kvect->pvect_size)
+	if ((int)num_icols!=kvect->pvect_size)
 		return -1; // error!
-	for (int i=0; i<num_icols; i++) {
+	for (int i=0; i<(int)num_icols; i++) {
 		kvect_hist[i].add_comp(kvect->pvect[i]);
 	}
         for (int i=0; i<(int)num_icols; i++) {
@@ -297,30 +297,27 @@ int WParse::kvplot(KVector *kvect)
 				break;
 		}
 		plotpset = plotpset->next;
-	} 
+	}
 	wn->swap_buffers();
         return 0;
 }
 
 // plot the current kvector in a topographic map, using the parsed settings:
-int WParse::ktplot(KVector *kvect, int x, int y, int max_x, int max_y) 
+int WParse::ktplot(int x, int y, int max_x, int max_y, int bgc, KVector *kvect) 
 {
 	plotpset = plotset;
 	while(plotpset != NULL) {
 		switch (plotpset->type) {
 			case PLOT_T_BR_TYPE: // if bar plot
-				//printf("x%i, y%i, mx%i, my%i\n", x, y, max_x, max_y);
-				//cp->barplot( x, y, max_x, max_y, 
-				//    kvect[plotpset->src], plotpset->color);
+				cp->barplot( x, y, max_x, max_y, kvect, bgc);
 				break;
 			case PLOT_T_LN_TYPE: // if line plot
-				//cp->lineplot(x, y, max_x, max_y, 
-				//    kvect[plotpset->src], plotpset->color);
+				cp->lineplot(x, y, max_x, max_y, kvect, bgc);
 				break;
 		}
 		plotpset = plotpset->next;
-	} 
-	if (x==max_x && y==max_y) wn->swap_buffers();
+	}
+	if ((x==max_x-1) && (y==max_y-1)) wn->swap_buffers();
         return 0;
 }
 

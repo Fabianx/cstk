@@ -30,10 +30,11 @@
  settings. It supports currently X11-based visualisation for:
 	- rtplot: timeseries, histogram, peakplot, textplot, impulse, 
 	          spiketrain (as rows)
-	- topoplot: barplot, linesplot (as cells)
+	- topoplot: bar, line (as cells)
 	- 2dplot: 2dplot (fills whole window)
  ***************************************************************************/	
-class WParse {
+class WParse 
+{
  public:
 	WParse();
 	~WParse();
@@ -45,7 +46,7 @@ class WParse {
 
 	int setup_window();
 	int kvplot(KVector *kvect);
-	int ktplot(KVector *kvect, int x, int y, int max_x, int max_y);
+	int ktplot(int x, int y, int max_x, int max_y, int bgc, KVector *kvect);
 	int check_events();
 
 	void init(FILE* fp);
