@@ -26,33 +26,34 @@
 	par.epsilon_n = 0.5 * par.epsilon_b;
  }
  
- GNG::GNG(DVector NodeA, DVector NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonVals)
+ GNG::GNG(DVector& NodeA, DVector& NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonVals)
  {
  	create(NodeA, NodeB, MaximumAge, DecreaseError, AlphaVal, EpsilonVals);
  }
  
- void GNG::create(DVector NodeA, DVector NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonVals)
+ void GNG::create(DVector& NodeA, DVector& NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonVals)
  {
  	par.age_max = MaximumAge;
 	par.d = DecreaseError;
 	par.alpha = AlphaVal;
 	par.epsilon_b = EpsilonVals;
 	par.epsilon_n = 0.5 * par.epsilon_b;
-	
 	//create first node in neural gas network
 	NodeListElement *nodeA;
 	nodeA = new NodeListElement;
 	(*nodeA).next = NULL;
-	(*((*nodeA).vector)) = NodeA;
+	(*nodeA).vector = new DVector(NodeA);
 	(*nodeA).DeltaError = 0;
+	(*nodeA).firstEdge = NULL;
 	//create second node in neural gas network
 	NodeListElement *nodeB;
 	nodeB = new NodeListElement;
 	(*nodeB).next = nodeA;
-	(*((*nodeB).vector)) = NodeB;
+	(*nodeB).vector = new DVector(NodeB);
 	(*nodeB).DeltaError = 0;
 	(*nodeA).last = nodeB;
 	(*nodeB).last = NULL;
+	(*nodeB).firstEdge = NULL;
 	first = nodeB;
  }
  
@@ -82,7 +83,7 @@
 	vei_t NodeNum0, NodeNum1;
 	currNode = first;
 	bool edgeex=false;
-	do
+	while (currNode != NULL)
 	{
 		tmp = input.dis_eucl(*((*currNode).vector));
 		if (tmp < MinDis0)
@@ -103,21 +104,24 @@
 		}
 		currNode = (*currNode).next;
 	}
-	while (currNode!=NULL);
 	(*mindisel0).DeltaError += (MinDis0 * MinDis0);
-	(*((*mindisel0).vector)) += par.epsilon_b * (input - (*((*mindisel0).vector)));
+	if ((*mindisel0).vector == NULL)
+		(*mindisel0).vector = new DVector;
 		
+	(*((*mindisel0).vector)) += par.epsilon_b * (input - (*((*mindisel0).vector)));
 	EdgeListElement *currEdge;
 	currEdge = (*mindisel0).firstEdge;
-	do
+	while (currEdge != NULL)
 	{
 		(*currEdge).age++;
+		if ((*currEdge).connectB->vector == NULL)
+			(*currEdge).connectB->vector = new DVector;
+			
 		(*((*currEdge).connectB->vector)) +=  par.epsilon_n * (input - (*((*currEdge).connectB->vector)));
 		if ((*currEdge).connectB == mindisel0)
 			edgeex = true;
 		currEdge = (*currEdge).next;
 	}
-	while (currEdge!=NULL);
 	if (not edgeex)
 		newEdge(mindisel0, mindisel1);
  }
@@ -130,7 +134,7 @@
 	maxelem = NULL;
 	oas_t MaxError = 0;
 	vei_t NodeNum;
- 	do
+ 	while (current!=NULL)
 	{
 		if ((*current).DeltaError>MaxError)
 		{
@@ -140,7 +144,6 @@
 		}	
 		current = (*current).next;
 	}
-	while (current!=NULL);
 	
 	//create a new entry in the node list
 	NodeListElement *node;
@@ -155,6 +158,7 @@
 	count++;
 	NodeListElement *nextelem;
 	nextelem = GetNeighborMaxErr(maxelem);
+	(*node).vector = new DVector;
 	(*((*node).vector)) = 0.5 * ((*((*maxelem).vector)) + (*((*nextelem).vector)));
 	newEdge(maxelem, nextelem);	
 	
@@ -168,22 +172,20 @@
  	EdgeListElement *edgeAB, *edgeBA;
 	edgeAB = new EdgeListElement;
 	edgeBA = new EdgeListElement;
-	
+
 	(*edgeAB).next = (*nodeA).firstEdge;
-	(*nodeA).firstEdge->last = edgeAB;
+	(*nodeA).firstEdge = edgeAB;
 	(*edgeAB).last = NULL;
-	(*edgeBA).next = (*nodeB).firstEdge;
-	(*nodeA).firstEdge->last = edgeAB;
-	(*edgeBA).last = NULL;
 	
+	(*edgeBA).next = (*nodeB).firstEdge;
+	(*nodeB).firstEdge = edgeBA;
+	(*edgeBA).last = NULL;
+
 	(*edgeAB).connectA = nodeA;
 	(*edgeAB).connectB = nodeB;
 	
 	(*edgeBA).connectA = nodeB;
 	(*edgeBA).connectB = nodeA;
-	
-	(*nodeA).firstEdge = edgeAB;
-	(*nodeB).firstEdge = edgeBA;
 	
 	(*edgeAB).age = 0;
 	(*edgeBA).age = 0;
@@ -221,7 +223,7 @@
 	NodeListElement *maxNode;
 	maxNode = NULL;
 	currEdge = (*center).firstEdge;
-	do
+	while (currEdge!=NULL)
 	{
 		if ((*currEdge).connectB->DeltaError > tmp)
 		{
@@ -230,12 +232,20 @@
 		}
 		currEdge = (*currEdge).next;
 	}
-	while (currEdge!=NULL);
 	
 	return maxNode;
  }
  
- 
+ void GNG::decreaseErrors()
+ {
+ 	NodeListElement *current;
+	current = first;
+ 	while (current!=NULL)
+	{
+		(*current).DeltaError *= par.d;
+		current = (*current).next;
+	}
+ }
  
  
  

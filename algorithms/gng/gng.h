@@ -50,6 +50,15 @@
  	public:
 		NodeListElement() {vector=NULL;next=NULL;}
 		NodeListElement(vei_t nsize) {vector = new DVector(nsize);}
+		NodeListElement(const NodeListElement& vect) 
+		{
+			vector = new DVector(*(vect.vector));
+			next = vect.next;
+		   	last = vect.last;   
+			NodeNumber = vect.NodeNumber;
+			DeltaError = vect.DeltaError;
+			firstEdge = vect.firstEdge;
+		}
 		~NodeListElement() {if (vector) delete vector;}
 		void create(vei_t nsize) {vector = new DVector(nsize);}
 		DVector *vector;
@@ -64,11 +73,12 @@
  {
  public:
  	GNG();
-	GNG(DVector NodeA, DVector NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonVals);
+	GNG(DVector& NodeA, DVector& NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonVals);
 	~GNG();
  	
-	void create(DVector NodeA, DVector NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonVals);
+	void create(DVector& NodeA, DVector& NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonVals);
 	void feed(DVector& input);
+	void decreaseErrors();
  private:
 	NodeListElement *first;
 	GNG_PARAM par;
