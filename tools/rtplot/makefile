@@ -13,6 +13,7 @@ all:	rtplot
 
 clean:
 	@-rm -f ./*~
+	@-rm -f ./*.o
 	
 rtplot:	rtplot.o
 	$(CC)  -L/usr/X11R6/lib/ -lX11 \

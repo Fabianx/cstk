@@ -38,10 +38,9 @@ int main(int ac, char **args) {
   unsigned int i;
   int ret;
   char quit=false;
-  signed int *cols = NULL;       // these variables are for passing 
-  char* channel_types = NULL;    // information along to the read methods
-  DataCell* columns=NULL;        // of the various types of sensordata
-  uint* select=NULL;             //
+  char* channel_types = NULL;    // these variables are for passing 
+  DataCell* columns=NULL;        // information along to the read methods
+  uint* select=NULL;             // of the various types of sensordata
   
   if (ac<2) {
     printf("\n RTPlot - by Kristof Van Laerhoven.");
@@ -115,7 +114,6 @@ int main(int ac, char **args) {
    }
   
   // create a vector and peak per column:
-   cols = new signed int[kprof.is.numcols];
    vect = new KVector[kprof.is.numcols];
    peak = new Peak[kprof.is.numcols];
    kprof.is.firstcol();
@@ -124,7 +122,6 @@ int main(int ac, char **args) {
       i = kprof.is.get_col_id();
       vect[i].createVector(kprof.win.get_res(i, PTYPE_TMSER));      
       peak[i].createPeak(kprof.win.get_res(i, PTYPE_PEAKS));
-      cols[i] = kprof.is.get_col_channel();
    } while (kprof.is.nextcol());
   
   // Main Loop until the task is interrupted:
@@ -140,8 +137,8 @@ int main(int ac, char **args) {
              kprof.win.firstplot();
              do {
                if (kprof.win.get_type()==PTYPE_PEAKS) {
-                   vect[kprof.win.get_src()].get_peak(&pk.s, &pk.a, &pk.l, &pk.p);
-                   peak[kprof.win.get_src()].add_peak(&pk);
+                 vect[kprof.win.get_src()].get_peak(&pk.s, &pk.a, &pk.l, &pk.p);
+                 peak[kprof.win.get_src()].add_peak(&pk);
                }   
              } while (kprof.win.nextplot());
             // check then for the output type:
@@ -154,13 +151,15 @@ int main(int ac, char **args) {
                  case PTYPE_HISTO: // if histogram
                        kprof.win.get_title(tmpstr);
                        kp.histogram(kprof.win.get_id()+1, kprof.win.numids,
-                                    vect[kprof.win.get_src()], kprof.win.get_colour(), 
+                                    vect[kprof.win.get_src()],
+                                    kprof.win.get_colour(), 
                                     kprof.win.get_res(), tmpstr);
                        break;
                  case PTYPE_TMSER: // if timeseries
                        kprof.win.get_title(tmpstr);
                        kp.timeseries(kprof.win.get_id()+1, kprof.win.numids,
-                                     vect[kprof.win.get_src()], kprof.win.get_colour(),
+                                     vect[kprof.win.get_src()],
+                                     kprof.win.get_colour(),
                                      tmpstr, kprof.win.get_scale());
                        break;
                  case PTYPE_PEAKS: // if peakplot
@@ -201,7 +200,6 @@ int main(int ac, char **args) {
    if (select!=NULL) delete []select;
    if (vect!=NULL) delete []vect;
    if (peak!=NULL) delete []peak;
-   if (cols!=NULL) delete []cols;
    if (columns!=NULL) delete []columns;
   return 0;
 }

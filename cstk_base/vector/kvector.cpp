@@ -31,6 +31,7 @@ KVector::KVector(vei_t size, bool stats)
   pvect_size = size;
   pvect = new ve_t[pvect_size];
   strout = NULL;
+  pvect_sorted = NULL;
   if (stats) {
      vei_t i;
      pvect_sorted = new ve_t[pvect_size];

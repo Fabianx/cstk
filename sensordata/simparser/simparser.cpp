@@ -80,7 +80,7 @@ int SimParser::read(char* channel_types, uint numchannels,
   for (i=0; i<size; i++) {
      if (sim[i] < lower) sim[i] += baserate;
      if (sim[i] > upper) sim[i] -= baserate;
-     bias[i] = (signed int)((2*incr*rand())/RAND_MAX)-incr;
+     bias[i] = (signed int)((2.0*incr*rand())/RAND_MAX) - (signed int)incr;
      if ((sim[i]+bias[i])<0)   sim[i] = 50+(127*rand())/RAND_MAX; else
      if ((sim[i]+bias[i])>255) sim[i] = 50+(127*rand())/RAND_MAX; else
      sim[i] += bias[i];
