@@ -37,8 +37,12 @@ class KVPlot : public X11Plot {
   char peakplot(uint cscr, uint tscr, Peak& peak, char* title=NULL); 
   
   char textplot(uint cscr, uint tscr, KVector& vector);
+
+  char spiketrain(uint cscr, uint tscr, KVector& vector, int colour, 
+                  char* title=NULL);  
+  
 private: 
-  XPoint plot_point[256];
+  XPoint plot_point[1024];
 };
 
 #endif

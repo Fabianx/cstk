@@ -31,15 +31,31 @@
 #include "cstk_base/types.h"
 #include "sensordata/sensordata.h"
 
+#define BIN_MODE 1
+#define ASC_MODE 2
+
 /**Class for parsing rs232 output
   *@author Kristof Van Laerhoven
   */
+  
+struct Rs232ParserSettings {
+  Rs232ParserSettings() {device[0]='\0';poll_char[0]='\0';}
+  char  device[128];              // the name of the rs232 device
+  int   baudrate;              
+  char  poll_char[128];           // what to send to ask for data
+  unsigned int buff_size;
+  short databits;
+  short stopbits;
+  bool  parity;
+  short mode;
+};
 
 class Rs232Parser : virtual public SensorData {
 
-public:
+ public:
   Rs232Parser();
-  Rs232Parser(int baud, int buff, char* poll, char* dev);
+  Rs232Parser(int baud, int buff, char* poll, char* dev, short mod = BIN_MODE);
+  Rs232Parser(Rs232ParserSettings* settings);
   ~Rs232Parser();
 
   int read(char* channel_types, uint numchannels, 
@@ -48,20 +64,16 @@ public:
   int read(DataCell* channels, uint* numchannels);
   int read(char *line);
 
-  /* set/get poll character */
   void set_poll(char* new_poll_char);
   void get_poll(char* ret_poll_char);
-  /* set/get baud rate */
   void set_baudrate(int new_baudrate) {baudrate = new_baudrate;};
   int get_baudrate() {return baudrate;};
-  /* set/get buffer size */
   void set_buff_size(int new_buff_size) {buff_size = new_buff_size;};
   int get_buff_size() {return buff_size;};
-  /* set/get device */
   void set_device(char* new_device);
   void get_device(char* ret_device);
 
-private:
+ private:
   int open_rs232(char* devicename);
   void close_rs232();
 
@@ -74,7 +86,7 @@ private:
   struct termios oldtio,newtio;
   unsigned char *buf;
   unsigned int bufcounter; // an iterator for buffers that weren't polled
+  short mode;
 }; 
 
 #endif
-

@@ -27,11 +27,8 @@ InputSettings::InputSettings() {
   numcols = 0;
   numchs = 0;
   filename[0] = '\0';
-  serport[0] = '\0';
-  bits = 0;
-  baudrate = 0;
   port = 0;
-  poll[0] = '\0';
+  rs232 = new Rs232ParserSettings;
 }
 
 InputSettings::~InputSettings() {
@@ -51,6 +48,7 @@ InputSettings::~InputSettings() {
          csps = csps->next;
          delete cspstemp;
   }
+  if (rs232!=NULL) delete rs232;
 }
 
 char InputSettings::addch() {
@@ -185,6 +183,10 @@ void InputSettings::add_col_format(char newformat) {
   csps->format = newformat;
 }
 
+void InputSettings::add_col_res(int newres) {
+  csps->res = newres;
+}
+
 char InputSettings::firstcol() {
   csps = collist;
   return ((csps==NULL)?0:1);
@@ -220,6 +222,10 @@ bool InputSettings::get_col_sign() {
 
 char InputSettings::get_col_format() {
   return csps->format;
+}
+
+int InputSettings::get_col_res() {
+  return csps->res;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -571,7 +577,6 @@ char KProf::parse(char *filename, const unsigned int validtype){
 
   is.numcols = 0;
   par.size_iter = 0;
-  
   fp = fopen(filename, "r");
   try {  
    if (fp) {
@@ -609,6 +614,7 @@ char KProf::parse(char *filename, const unsigned int validtype){
 						_CONF_INT_ADD_ATTRIB("channel=\"",tempvalue,is.add_col_channel)
 						_CONF_STR_ADD_ATTRIB("name=\"",tempstr,is.add_col_name)
 						_CONF_INT_ADD_ATTRIB("bits=\"",tempvalue,is.add_col_bits)
+						_CONF_INT_ADD_ATTRIB("res=\"",tempvalue,is.add_col_res)
 						_IFATTRIB("format=\"") {
 							fscanf(fp, "%[^\"]", tempstr);
 							_IFSTR("integer")	is.add_col_format(DF_INTEGER);
@@ -645,21 +651,26 @@ char KProf::parse(char *filename, const unsigned int validtype){
 						switch(input_mode) {
 						   case IMODE_RS232:    _IFATTRIB("baudrate=\"") {
 										fscanf(fp,"%[^\"]", tempstr);
-										_SET_BR(is.baudrate);
+										_SET_BR(is.rs232->baudrate);
 									} else
-									_CONF_STR_ATTRIB("port=\"",is.serport)
-									_CONF_INT_ATTRIB("buffsize=\"",&is.buffsize)
+									_IFATTRIB("mode=\"") {
+										fscanf(fp,"%[^\"]", tempstr);
+										_IFSTR("ascii")   is.rs232->mode=ASC_MODE;
+										_IFSTR("binary")  is.rs232->mode=BIN_MODE;
+									} else
+									_CONF_STR_ATTRIB("port=\"",is.rs232->device)
+									_CONF_INT_ATTRIB("buffsize=\"",&is.rs232->buff_size)
 									_IFCOMMAND("poll") {
-										_CONF_STR_ATTRIB("command=\"", is.poll);
+										_CONF_STR_ATTRIB("command=\"", is.rs232->poll_char);
 									} 
 						   			break;
 						   case IMODE_FILE:	_CONF_STR_ATTRIB("filename=\"",is.filename);   
 						   			break;
-						   case IMODE_PIPE:
+						   case IMODE_PIPE:     
 						   			break;
 						   case IMODE_UDP:	_CONF_INT_ATTRIB("port=\"",&is.port);
 						   			break;
-						   case IMODE_SIM:
+						   case IMODE_SIM:      
 						   			break;
 						   case IMODE_INT:      _CONF_STR_ATTRIB("filename=\"",is.filename);   
 						   			break;

@@ -14,6 +14,7 @@ all:	topoplot
 clean:
 	@-rm -f ./*~
 	@-rm -f ./*.o
+	@-rm -f ./topoplot
 	
 topoplot:	topoplot.o
 	$(CC)  -L/usr/X11R6/lib/ -lX11 \

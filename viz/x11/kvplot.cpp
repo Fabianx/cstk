@@ -176,3 +176,32 @@ char KVPlot::textplot(uint cscr, uint tscr, KVector& vector){
   return 0;
 }
 
+char KVPlot::spiketrain(uint cscr, uint tscr, KVector& vector, int colour, 
+                         char* title){
+  drawframe(0, ((cscr-1)*win_height)/tscr, win_width, win_height/tscr);
+  uint sub_height = (uint)(win_height/tscr-4-10); 
+  uint tot_height=(uint)((cscr*win_height)/tscr-3);
+  uint scaling_fact=20;
+  for (vei_t i=1; i<vector.pvect_size; i++) {
+    plot_point[i].x = 2+i*(win_width-14)/vector.pvect_size;
+    plot_point[i].y = tot_height-(abs(vector.pvect[i]-vector.pvect[i-1])*sub_height)/255;
+  } 
+  // plot the line():
+  XSetForeground(display, gc, plot_colours[colour].pixel);
+  XDrawLines(display, buffer, gc, plot_point, 
+             vector.pvect_size, CoordModeOrigin);
+  // plot the stats:
+  XDrawLine(display, buffer, gc, win_width-12, 
+            tot_height-(vector.max()*sub_height)/255, win_width-3,
+            tot_height-(vector.max()*sub_height)/255);
+  XDrawLine(display, buffer, gc, win_width-12, 
+            tot_height-(vector.min()*sub_height)/255,
+            win_width-3,  tot_height-(vector.min()*sub_height)/255);
+  XDrawLine(display, buffer, gc, win_width-12,
+            tot_height-(vector.mean()*sub_height)/255,
+            win_width-3,  tot_height-(vector.mean()*sub_height)/255);
+
+  if (title!=NULL)
+        draw_text(title, 3, ((cscr-1)*win_height)/tscr+9, 2);
+  return 0;   
+}

@@ -84,8 +84,7 @@ int main(int ac, char **args) {
   // set up the input:
    switch (kprof.input_mode) {
      case IMODE_RS232 : 
-            sd = new Rs232Parser(kprof.is.baudrate, kprof.is.buffsize,
-                                 kprof.is.poll, kprof.is.serport);
+            sd = new Rs232Parser(*kprof.is.rs232);
             break;
      case IMODE_FILE  : 
             sd = new LogFileParser(kprof.is.filename); 
@@ -122,8 +121,9 @@ int main(int ac, char **args) {
              if ( sd->read(channel_types, kprof.is.numchs, 
                            columns, select, kprof.is.numcols)) 
              { 
-                for (i=0; i<kprof.is.numcols; i++)
+                for (i=0; i<kprof.is.numcols; i++) {
                        vect.add_comp(columns[i].get_u8b());
+                } 
              } 
              ksom.feed_bell(&vect, kprof.par.lr, kprof.par.nbr);
         }
@@ -134,8 +134,17 @@ int main(int ac, char **args) {
           for (vei_t y=0; y<(vei_t)kprof.par.gridsize[1]; y++) 
           {  
             ksom.getCell(x,y, &vect);
-            kp.barplot(x,y, kprof.par.gridsize[0], kprof.par.gridsize[1],
-                        &vect, ((ksom.winner_x==x)&&(ksom.winner_y==y))?8:15 );
+            switch (kprof.win.get_type()) 
+	    {    
+            case PTYPE_BARS:
+                 kp.barplot(x,y, kprof.par.gridsize[0], kprof.par.gridsize[1],
+                            &vect, ((ksom.winner_x==x)&&(ksom.winner_y==y))?8:15);
+                 break;    
+            case PTYPE_LINES:
+                 kp.lineplot(x,y, kprof.par.gridsize[0], kprof.par.gridsize[1],
+                            &vect, ((ksom.winner_x==x)&&(ksom.winner_y==y))?8:15 );
+                 break;
+            }     
           }
          }
         
@@ -165,5 +174,5 @@ int main(int ac, char **args) {
    if (select!=NULL) delete []select;
    if (columns!=NULL) delete []columns;
 
-  return 0;  
+  return 0;
 }

@@ -107,10 +107,9 @@ dtd = '''
 
 # xml header:
 head = '''
-<!-- RTPLOTGUI xml settings document: Please don't change
+<!-- RTPlotGUI xml settings document: Please don't change
  these lines, as they were automatically generated. See
- http://ubicomp.lancs.ac.uk/cstk/manual/quickstart.html
- for more details.
+ http://ubicomp.lancs.ac.uk/cstk/manual/ for more details.
 -->
 '''
 

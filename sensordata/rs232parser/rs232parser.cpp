@@ -30,7 +30,7 @@ Rs232Parser::Rs232Parser() {
    device = NULL;
 }
 
-Rs232Parser::Rs232Parser(int baud, int buff, char* poll, char* dev) 
+Rs232Parser::Rs232Parser(int baud, int buff, char* poll, char* dev, short mod) 
 {
    fd = 0;
    buf = NULL;
@@ -40,9 +40,24 @@ Rs232Parser::Rs232Parser(int baud, int buff, char* poll, char* dev)
    set_buff_size(buff);
    set_poll(poll);
    set_device(dev);
+   mode = mod;
 }
 
-Rs232Parser::~Rs232Parser() { 
+Rs232Parser::Rs232Parser(Rs232ParserSettings* settings) 
+{
+   fd = 0;
+   buf = NULL;
+   poll_char = NULL;
+   device    = NULL;
+   mode = settings->mode;
+   set_baudrate(settings->baudrate);
+   set_buff_size(settings->buff_size);
+   set_poll(settings->poll_char);
+   set_device(settings->device);
+}
+
+Rs232Parser::~Rs232Parser() 
+{ 
    close_rs232();
    if (device!=NULL) {
       delete []device;
@@ -53,22 +68,30 @@ Rs232Parser::~Rs232Parser() {
 }
   
 /* set/get poll character */
-void Rs232Parser::set_poll(char* new_poll_char) {
+void Rs232Parser::set_poll(char* new_poll_char) 
+{
    if (poll_char!=NULL) {
       delete []poll_char;
+      poll_char=NULL;
    }
-   poll_char = new char[strlen(new_poll_char)];
-   for (uint i=0; i<strlen(new_poll_char); i++)
-       poll_char[i] = new_poll_char[i];
+   if (new_poll_char!=NULL) {
+    if (new_poll_char[0]!='\0') {
+       poll_char = new char[strlen(new_poll_char)];
+       for (uint i=0; i<strlen(new_poll_char); i++)
+           poll_char[i] = new_poll_char[i];
+    }
+   }
 }
 
-void Rs232Parser::get_poll(char* ret_poll_char) {
+void Rs232Parser::get_poll(char* ret_poll_char) 
+{
     for (uint i=0; i<strlen(poll_char); i++)
        ret_poll_char[i] = poll_char[i];
 }
 
 /* set/get device */
-void Rs232Parser::set_device(char* new_device) {
+void Rs232Parser::set_device(char* new_device) 
+{
     if (device!=NULL) {
       delete []device;
     }
@@ -77,14 +100,16 @@ void Rs232Parser::set_device(char* new_device) {
        device[i] = new_device[i];
 }
 
-void Rs232Parser::get_device(char* ret_device) {
+void Rs232Parser::get_device(char* ret_device) 
+{
     for (uint i=0; i<strlen(device); i++)
        ret_device[i] = device[i];
 }
   
 /* read specific values from rs232 port, see SensorData class for more */
 int Rs232Parser::read(char* channel_types, uint numchannels, 
-                      DataCell* columns,  uint* filter, uint numcolumns) {
+                      DataCell* columns,  uint* filter, uint numcolumns) 
+{
    int res=-2;
    uint i, j, k;
    // if rs232=closed, open it:
@@ -95,7 +120,7 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
         }
    }
     
-   if (poll_char[0]!='\0') res = write(fd,poll_char,1);
+   if (poll_char!=NULL) res = write(fd,poll_char,1);
    if (res==-1) { 
          return 0;
    }
@@ -107,10 +132,18 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
          return 0;
    }
    else {     
-     j=0;  // counter for the datacells
      i=0;  // counter for the buffer array
+     // if the data is ascii, and no poll is given, wait for a return '\r':
+     while ((mode==ASC_MODE)&&(poll_char==NULL)&&(buf[i++]!='\r')) {
+            if (i==(unsigned int)res) break;
+     }
+     // if the data is binary, and no poll is given, wait for a return 0xFF:
+     while ((mode==BIN_MODE)&&(poll_char==NULL)&&(buf[i++]!=0xFF)) {
+            if (i==(unsigned int)res) break;
+     }
+     j=0;  // counter for the datacells
      k=0;  // temp counter
-     while (j<(uint)res) { 
+     while (i<(unsigned int)res) { 
         switch(channel_types[j]) {
          case U8B_TYPE: 
 	     for (k=0; k<numcolumns; k++) {
@@ -180,8 +213,8 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
 }
 
 /* read 1 value from rs232 port, see SensorData class for more */
-int Rs232Parser::read(DataCell* channels, uint numchannels) {
-
+int Rs232Parser::read(DataCell* channels, uint numchannels) 
+{
    int res=-2;
    uint i, j;
    
@@ -232,7 +265,7 @@ int Rs232Parser::read(DataCell* channels, uint numchannels) {
              i+=4;
         }
 #ifdef U64_TYPE
-	  else
+	else
 	if (channels[j].test_type(U64B_TYPE)) {    
 	     channels[j].set_u64val(buf[i],buf[i+1],buf[i+2],buf[i+3],
 		                    buf[i+4],buf[i+5],buf[i+6],buf[i+7]);
@@ -240,7 +273,7 @@ int Rs232Parser::read(DataCell* channels, uint numchannels) {
         } 
 #endif 
 #ifdef S64_TYPE
-	  else
+	else
 	if (channels[j].test_type(S64B_TYPE)) {    
 	     channels[j].set_s64val(buf[i],buf[i+1],buf[i+2],buf[i+3],
 		                    buf[i+4],buf[i+5],buf[i+6],buf[i+7]);
@@ -248,7 +281,6 @@ int Rs232Parser::read(DataCell* channels, uint numchannels) {
         }
 #endif 
 	else; //  errormsg?
-	
 	j++;
      }
    }

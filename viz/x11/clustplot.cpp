@@ -18,6 +18,8 @@
 #include "clustplot.h"
 
 ClustPlot::ClustPlot(){
+  win_width_old = 0;
+  win_height_old = 0;
 }
 
 ClustPlot::~ClustPlot(){
@@ -26,10 +28,16 @@ ClustPlot::~ClustPlot(){
 void ClustPlot::barplot(uint x, uint y, uint max_x, uint max_y, 
                        KVector *vector, int bgcolour)
 {
-  int cell_width  = (win_width-4)/max_x;
-  int cell_height = (win_height-4)/max_y;
-  int bar_width   = (cell_width-2)/vector->get_dim();
-  int bar_max     = (cell_height-2);
+  if (win_width_old != win_width) {
+       cell_width  = (win_width-4)/max_x;
+       bar_width   = (cell_width-2)/vector->get_dim();
+       win_width_old = win_width;
+  }
+  if (win_height_old != win_height) {
+       cell_height = (win_height-4)/max_y;
+       bar_max     = (cell_height-2);
+       win_height_old = win_height;
+  }
   
   XSetForeground(display, gc, BlackPixel(display,screen_num));
   XDrawRectangle(display, buffer, gc, 2+cell_width*x, 2+cell_height*y, 
@@ -43,6 +51,38 @@ void ClustPlot::barplot(uint x, uint y, uint max_x, uint max_y,
        XFillRectangle(display, buffer, gc, 2+cell_width*x+1+(bar_width*i),
                       2+cell_height*y+1+bar_max-vector->pvect[i]*bar_max/255,
                       bar_width, vector->pvect[i]*bar_max/255);
+  }
+  
+}
+
+void ClustPlot::lineplot(uint x, uint y, uint max_x, uint max_y, 
+                       KVector *vector, int bgcolour)
+{
+  if (win_width_old != win_width) {
+       cell_width  = (win_width-4)/max_x;
+       bar_width   = (cell_width-2)/vector->get_dim();
+       win_width_old = win_width;
+  }
+  if (win_height_old != win_height) {
+       cell_height = (win_height-4)/max_y;
+       bar_max     = (cell_height-2);
+       win_height_old = win_height;
+  }
+    
+  XSetForeground(display, gc, BlackPixel(display,screen_num));
+  XDrawRectangle(display, buffer, gc, 2+cell_width*x, 2+cell_height*y, 
+                                               cell_width, cell_height);
+  XSetForeground(display, gc, plot_colours[bgcolour].pixel);
+  XFillRectangle(display, buffer, gc, 2+cell_width*x+1, 2+cell_height*y+1, 
+                                              cell_width-2, cell_height-2);
+  
+  for (vei_t i=1; i<vector->get_dim(); i++) {
+       XSetForeground(display, gc, plot_colours[i].pixel);
+       XDrawLine( display, buffer, gc, 
+                  2+cell_width*x+1+(bar_width*i),
+                  2+cell_height*y+1+bar_max - vector->pvect[i-1]*bar_max/255,
+                  2+cell_width*x+1+(bar_width*i)+bar_width/2, 
+                  2+cell_height*y+1+bar_max - vector->pvect[i]*bar_max/255);
   }
   
 }

@@ -34,16 +34,20 @@
 #include <string.h>
 #include <stdio.h>
 #include "sensordata/sensordata.h"
+#include "sensordata/rs232parser/rs232parser.h"    // settings
 
 #include <termios.h>  // for the baudrate ids
 
-#define PTYPE_NULL  0x00
+#define PTYPE_NULL  0x00 // rtplot
 #define PTYPE_HISTO 0x01
 #define PTYPE_TMSER 0x02
 #define PTYPE_PEAKS 0x03
 #define PTYPE_IMPLS 0x04
 #define PTYPE_SCATT 0x05   
 #define PTYPE_TEXT  0x06
+#define PTYPE_TRAIN 0x07
+#define PTYPE_BARS  0x10 // topoplot
+#define PTYPE_LINES 0x11
 
 #define SEC_INPUT  0x10
 #define SEC_OUTPUT 0x11
@@ -118,11 +122,13 @@ const char dtypes[NUMDOCTYPES][32] = { "none",    "any",     "rtplotsettings",
 					"topoplotsettings", "dataplotsettings"};
 const int  dtypesmap[NUMDOCTYPES]  = {SETTP_NON, SETTP_ALL, SETTP_RTP, SETTP_TPP, SETTP_DTP};
 
-#define NUMSPLOTTYPES 7
+#define NUMSPLOTTYPES 10
 const char sptypes[NUMSPLOTTYPES][32] = {"none",        "histogram",   "timeseries", "peakplot", 
-					"impulseplot", "scatterplot", "textplot" };
+					"impulseplot", "scatterplot", "textplot", "spiketrain",
+					"barplot", "linesplot" };
 const int  sptypesmap[NUMSPLOTTYPES]  = {PTYPE_NULL, PTYPE_HISTO, PTYPE_TMSER, PTYPE_PEAKS, 
-					PTYPE_IMPLS, PTYPE_SCATT, PTYPE_TEXT};
+					PTYPE_IMPLS, PTYPE_SCATT, PTYPE_TEXT, PTYPE_TRAIN,
+					PTYPE_BARS, PTYPE_LINES};
 
 /////////////////////////////////////////////////
 
@@ -146,6 +152,7 @@ struct ColumnSettings{
    int bits;
    bool sign;
    char format;
+   int res;
    ColumnSettings *next;
 };
 
@@ -160,14 +167,14 @@ class InputSettings{
     void add_name(char* newname);
     void add_bits(int newbits);    
     void add_sign(bool newsign);
-	void add_format(char newformat);
+    void add_format(char newformat);
     char firstch();
     char nextch();
     int  get_id();
     void get_name(char* newname);
     int  get_bits();
     bool get_sign();
-	char get_format();
+    char get_format();
 
     char addcol();
     void add_col_id(int newid);
@@ -175,7 +182,8 @@ class InputSettings{
     void add_col_name(char* newname);
     void add_col_bits(int newbits);
     void add_col_sign(bool newsign);
-	void add_col_format(char newformat);
+    void add_col_format(char newformat);
+    void add_col_res(int newres);
     char firstcol();
     char nextcol();
     int  get_col_id();
@@ -183,17 +191,16 @@ class InputSettings{
     void get_col_name(char* newname);
     int  get_col_bits();
     bool get_col_sign();
-	char get_col_format();
+    char get_col_format();
+    int  get_col_res();
     
     unsigned int numcols;
     unsigned int numchs;
+    
     char filename[255];
     int port;
-    int baudrate;
-    char poll[255];
     int bits;
-    char serport[255];
-    int buffsize;
+    Rs232ParserSettings *rs232;
     
   private:
     ColumnSettings  *collist, *csps;
@@ -297,7 +304,7 @@ class WinSettings {
    int skip;
 
  private:
-   SubPlotSettings *plotlist, *sps;  // root pointer, and last iteration pointer
+   SubPlotSettings *plotlist, *sps;  // root pointer, and last iterater
 };
   
 class ParamSettings{
