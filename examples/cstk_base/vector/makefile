@@ -8,12 +8,20 @@ BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ../../..;pwd)
 VECTOR_DIR=$(BASE_DIR)/cstk_base/vector
 SD_DIR=$(BASE_DIR)/sensordata
 
-all:	binvector_demo bvector_demo dvector_demo kvector_demo
+all:	binvector_demo bvector_demo dvector_demo kvector_demo datacell_demo
 
 clean:
 	@-rm -f ./*.o
 	@-rm -f ./*~
 	@-rm -f ./*_demo
+	
+##### Datacell Demo ###############################################################
+
+datacell_demo: datacell_t.o
+	$(CC) ./datacell_t.o $(VECTOR_DIR)/datacell.o -o ./datacell_demo
+	
+datacell_t.o: datacell.o
+	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
 	
 ##### BinVector Demo ##############################################################
 
