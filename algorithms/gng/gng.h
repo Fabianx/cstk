@@ -79,14 +79,25 @@
 	void create(DVector& NodeA, DVector& NodeB, vei_t MaximumAge, oas_t DecreaseError, oas_t AlphaVal, oas_t EpsilonVals);
 	void feed(DVector& input);
 	void decreaseErrors();
+	
+	DVector getFirst_node();
+	DVector getNext_node();
+	
+	DVector getFirst_edge();
+	DVector getNext_edge();
+	
+	void newNode();
  private:
 	NodeListElement *first;
+	NodeListElement *currentlyReturned;
+	EdgeListElement *currentlyRetEdge;
 	GNG_PARAM par;
 	vei_t count;
 	NodeListElement *GetNeighborMaxErr(NodeListElement* center);
-	void newNode();
+	
 	void newEdge(NodeListElement* nodeA, NodeListElement* nodeB);
-	void removeEdge();
+	void removeEdgeNode();
+	void removeEdge(NodeListElement* nodeA, NodeListElement* nodeB);
  };
  
  #endif

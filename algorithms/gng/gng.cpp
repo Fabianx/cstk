@@ -118,12 +118,17 @@
 			(*currEdge).connectB->vector = new DVector;
 			
 		(*((*currEdge).connectB->vector)) +=  par.epsilon_n * (input - (*((*currEdge).connectB->vector)));
-		if ((*currEdge).connectB == mindisel0)
+		if ((*currEdge).connectB == mindisel1)
 			edgeex = true;
 		currEdge = (*currEdge).next;
 	}
 	if (not edgeex)
 		newEdge(mindisel0, mindisel1);
+	
+	if (currNode != NULL)
+		delete currNode;
+	
+	//removeEdgeNode();
  }
  
  void GNG::newNode()
@@ -152,16 +157,20 @@
 	(*first).last = node;
 	(*node).last = NULL;
 	first = node;
- 
 	//fill entry with data
 	node->NodeNumber = count;
 	count++;
 	NodeListElement *nextelem;
 	nextelem = GetNeighborMaxErr(maxelem);
+
 	(*node).vector = new DVector;
+
 	(*((*node).vector)) = 0.5 * ((*((*maxelem).vector)) + (*((*nextelem).vector)));
-	newEdge(maxelem, nextelem);	
-	
+	newEdge(maxelem, node);	
+	newEdge(nextelem, node);
+
+	removeEdge(maxelem, nextelem);	
+
 	(*maxelem).DeltaError *= par.alpha;
 	(*nextelem).DeltaError *= par.alpha;
 	(*node).DeltaError = (*maxelem).DeltaError;
@@ -173,17 +182,23 @@
 	edgeAB = new EdgeListElement;
 	edgeBA = new EdgeListElement;
 
+	if ((*nodeA).firstEdge != NULL)
+		(*nodeA).firstEdge->last = edgeAB;
+		
 	(*edgeAB).next = (*nodeA).firstEdge;
 	(*nodeA).firstEdge = edgeAB;
 	(*edgeAB).last = NULL;
-	
+
+	if ((*nodeB).firstEdge != NULL)
+		(*nodeB).firstEdge->last = edgeBA;
+
 	(*edgeBA).next = (*nodeB).firstEdge;
 	(*nodeB).firstEdge = edgeBA;
 	(*edgeBA).last = NULL;
 
 	(*edgeAB).connectA = nodeA;
 	(*edgeAB).connectB = nodeB;
-	
+
 	(*edgeBA).connectA = nodeB;
 	(*edgeBA).connectB = nodeA;
 	
@@ -191,29 +206,74 @@
 	(*edgeBA).age = 0;
  }
  
- void GNG::removeEdge()
+ void GNG::removeEdgeNode()
  {
  	NodeListElement *node;
 	EdgeListElement *edge,*tmp;
-	while (first!=NULL) 
+	node = first;
+	edge = node->firstEdge;
+	printf("test1\n");
+	while (node != NULL) 
 	{
-		node = first;
-		edge = node->firstEdge;
-		do
+		printf("test2\n");
+		while (edge!=NULL)
 		{
+			printf("test3\n");
 			if (edge->age > par.age_max)
 			{
+				printf("test4\n");
 				tmp = edge->next;
-				
-				delete edge;
+				printf("test5\n");
+				removeEdge(edge->connectA,edge->connectB);
+				printf("test6\n");
 				edge = tmp;
+				printf("test7\n");
 			}	
 			else
 				edge = edge->next;
-		}
-		while (edge!=NULL);	   
-		first = first->next;
+		} 
+		node = node->next;
 	}
+	printf("test8\n");
+ }
+ 
+ void GNG::removeEdge(NodeListElement* nodeA, NodeListElement* nodeB)
+ {
+	EdgeListElement *edge,*tmp1,*tmp2;
+	edge = nodeA->firstEdge;
+	while (edge!=NULL)
+	{
+		if (edge->connectB == nodeB)
+		{
+			tmp1 = edge->next;
+			tmp2 = edge->last;
+			delete edge;
+			if (tmp1 != NULL)
+				tmp1->last = tmp2;
+				
+			tmp2->next = tmp1;
+			edge = tmp1;
+		}	
+		else
+			edge = edge->next;
+	} 
+	edge = nodeB->firstEdge;
+	while (edge!=NULL)
+	{
+		if (edge->connectB == nodeA)
+		{
+			tmp1 = edge->next;
+			tmp2 = edge->last;
+			delete edge;
+			if (tmp1 != NULL)
+				tmp1->last = tmp2;
+
+			tmp2->next = tmp1;
+			edge = tmp1;
+		}	
+		else
+			edge = edge->next;
+	} 
  }
  
  NodeListElement* GNG::GetNeighborMaxErr(NodeListElement* center)
@@ -247,5 +307,69 @@
 	}
  }
  
+ DVector GNG::getFirst_node()
+ {
+ 	currentlyReturned = first;
+	return (*(first->vector));
+ }
+
+DVector GNG::getNext_node()
+{
+	if (currentlyReturned->next != NULL)
+	{
+		currentlyReturned = currentlyReturned->next;
+		return (*(currentlyReturned->vector));
+	}
+	else 
+	{
+		DVector tmp(*(currentlyReturned->vector));
+		tmp.set_comp(0,U8B_TYPE,0);
+		return tmp;
+	}
+}
+	
+DVector GNG::getFirst_edge()
+{
+	if (currentlyReturned->firstEdge != NULL)
+	{
+		currentlyRetEdge = currentlyReturned->firstEdge;
+		if (currentlyRetEdge->connectB->vector != NULL)
+			return (*(currentlyRetEdge->connectB->vector));
+		else
+		{
+			DVector tmp((*(currentlyReturned->vector)));
+			tmp.set_comp(0,U8B_TYPE,0);
+			return tmp;
+		}
+	}
+	else
+	{
+		DVector tmp((*(currentlyReturned->vector)));
+		tmp.set_comp(0,U8B_TYPE,0);
+		return tmp;
+	}
+}
+
+DVector GNG::getNext_edge()
+{
+	if (currentlyRetEdge->next != NULL)
+	{
+		currentlyRetEdge = currentlyRetEdge->next;
+		if (currentlyRetEdge->connectB->vector != NULL)
+			return (*(currentlyRetEdge->connectB->vector));
+		else
+		{
+			DVector tmp((*(currentlyReturned->vector)));
+			tmp.set_comp(0,U8B_TYPE,0);
+			return tmp;
+		}
+	}
+	else 
+	{
+		DVector tmp((*(currentlyReturned->vector)));
+		tmp.set_comp(0,U8B_TYPE,0);
+		return tmp;
+	}
+}
  
  
