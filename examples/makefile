@@ -1,3 +1,4 @@
+###################################################################################
 # CSTK examples makefile, by kristof:
 #
 
@@ -9,7 +10,8 @@ SD_DIR=$(BASE_DIR)/sensordata
 
 all:	binvector_demo bvector_demo dvector_demo kvector_demo rs232parser_demo \
 	logfileparser_demo nmeaparser_demo udp_snd_demo udp_rec_demo \
-	simparser_demo sensordata_demo kprof_demo bpnn_demo peak_demo kvplot_demo
+	simparser_demo sensordata_demo kprof_demo bpnn_demo peak_demo kvplot_demo \
+	kmeans_demo knn_demo
 
 clean:
 	@-rm -f ./*.o
@@ -137,6 +139,15 @@ kmeans_demo: kmeans_t.o
 kmeans_t.o: kmeans.o datacell.o dvector.o  
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
+##### KNN Demo ###################################################################
+
+knn_demo: knn_t.o
+	$(CC) knn_t.o $(VECTOR_DIR)/dvector.o $(VECTOR_DIR)/datacell.o \
+	      $(BASE_DIR)/algorithms/knn/knn.o -o ./$@
+	
+knn_t.o: knn.o datacell.o dvector.o  
+	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+
 ##### Peak Demo ##################################################################
 
 peak_demo: peak_t.o
@@ -195,6 +206,9 @@ peak.o:
 	@cd $(BASE_DIR)/algorithms/$*; make $@ BASE_DIR=$(BASE_DIR)
 	
 kmeans.o:
+	@cd $(BASE_DIR)/algorithms/$*; make $@ BASE_DIR=$(BASE_DIR)
+	
+knn.o:
 	@cd $(BASE_DIR)/algorithms/$*; make $@ BASE_DIR=$(BASE_DIR)
 	
 kvplot.o:

@@ -35,9 +35,9 @@ int main(int ac, char **args) {
     
   printf("\n\rINPUT: ");
   switch (profile.input_mode) {
-    case IMODE_RS232: printf("rs232 (poll='%s')", profile.is.poll); 
-                      printf("[port='%s', br=%i]", profile.is.serport,
-		              profile.is.baudrate);      
+    case IMODE_RS232: printf("rs232 (poll='%s')", profile.is.rs232->poll_char); 
+                      printf("[port='%s', br=%i]", profile.is.rs232->device,
+                      profile.is.rs232->baudrate);      
                       break;
     case IMODE_FILE:  printf("datafile (file='%s')", profile.is.filename); 
                       break; 
