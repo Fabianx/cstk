@@ -25,12 +25,12 @@ SDMA::SDMA()
 
 SDMA::SDMA(vei_t nsize, vei_t nasize, vei_t ndsize, oas_t thp) 
 {
-   size = nsize;
-   asize = nasize;
-   dsize = ndsize;
-   thresholdp = thp;
-   av = new BinVector[size];
-   dvd = new BVector<oas_t>[size];
+   par.size = nsize;
+   par.asize = nasize;
+   par.dsize = ndsize;
+   par.thresholdp = thp;
+   av = new BinVector[par.size];
+   dvd = new BVector<oas_t>[par.size];
 }
 
 SDMA::~SDMA() 
@@ -41,20 +41,20 @@ SDMA::~SDMA()
 
 void SDMA::create(vei_t nsize, vei_t nasize, vei_t ndsize, oas_t thp) 
 {
-   size = nsize;
-   asize = nasize;
-   dsize = ndsize;
-   thresholdp = thp;
-   av = new BinVector[size];
-   dvd = new BVector<oas_t>[size];
+   par.size = nsize;
+   par.asize = nasize;
+   par.dsize = ndsize;
+   par.thresholdp = thp;
+   av = new BinVector[par.size];
+   dvd = new BVector<oas_t>[par.size];
 }
 
 void SDMA::random_init() 
 {
-  for (vei_t j=0;j<size;j++) {
-    av[j].create(asize);
-    dvd[j].create(dsize);
-    for (vei_t i=0;i<asize;i++) {
+  for (vei_t j=0;j<par.size;j++) {
+    av[j].create(par.asize);
+    dvd[j].create(par.dsize);
+    for (vei_t i=0;i<par.asize;i++) {
          dvd[j].set_comp(0,i);
          av[j].set_comp(floor(2.0*rand()/(RAND_MAX+1.0)),i); 
     }
@@ -66,21 +66,21 @@ vei_t SDMA::retrieve(BinVector& v1, BinVector& tsum, BVector<oas_t>& tempsum, bo
   vei_t c=0,h=0;
   tmp = 0.0;
   if (det_radius) h = radius(v1);
-  for (vei_t j=0;j<size;j++) {
+  for (vei_t j=0;j<par.size;j++) {
   	if (det_radius)
-  		tmp = (1-(thresholdp * (double)(v1.dis_ham(av[j])-h)));
+  		tmp = (1-(par.thresholdp * (double)(v1.dis_ham(av[j])-h)));
 	else
-		tmp = (1-(thresholdp * (double)(v1.dis_ham(av[j]))));
+		tmp = (1-(par.thresholdp * (double)(v1.dis_ham(av[j]))));
     	if (tmp>0) 
 	{
-        	for (vei_t i=0;i<dsize;i++) 
+        	for (vei_t i=0;i<par.dsize;i++) 
 		{
 	  	tempsum.set_comp( tempsum.get_comp(i) + (dvd[j].get_comp(i)*tmp), i ); 
 		}
 	c++;
     	}    
   }
-  for (vei_t i=0;i<dsize;i++) {
+  for (vei_t i=0;i<par.dsize;i++) {
      if (tempsum.get_comp(i)>=0) 
         tsum.set_comp(1,i);
      else           
@@ -93,18 +93,18 @@ vei_t SDMA::retrieve(BinVector& v1, BinVector& tsum, BVector<oas_t>& tempsum, bo
 vei_t SDMA::remove(oas_t usage)
 {
 	vei_t h, count=0;
-	av_tmp = new BVector<oas_t>[size];
-	for (vei_t j=0; j<size; j++)
+	av_tmp = new BVector<oas_t>[par.size];
+	for (vei_t j=0; j<par.size; j++)
 	{
-		av_tmp[j].create(asize);
+		av_tmp[j].create(par.asize);
 		h=0;
-		for (vei_t i=0; i<dsize; i++)
+		for (vei_t i=0; i<par.dsize; i++)
 		{
 			if ((dvd[j].get_comp(i)>=-usage) && (dvd[j].get_comp(i)<=usage)) h++;
 		}
-		if (h!=dsize)
+		if (h!=par.dsize)
 		{
-			for (vei_t k=0; k<asize; k++)
+			for (vei_t k=0; k<par.asize; k++)
 			{
 				av_tmp[count].set_comp(av[j].get_comp(k),k);
 			}
@@ -113,30 +113,30 @@ vei_t SDMA::remove(oas_t usage)
 	}
 	delete []dvd;
 	delete []av;
-	size = count;
-	av = new BinVector[size];
-   	dvd = new BVector<oas_t>[size];
-	for (vei_t j=0; j<size; j++)
+	par.size = count;
+	av = new BinVector[par.size];
+   	dvd = new BVector<oas_t>[par.size];
+	for (vei_t j=0; j<par.size; j++)
 	{
-		av[j].create(asize);
-		dvd[j].create(dsize);
-		for (vei_t k=0; k<asize; k++)
+		av[j].create(par.asize);
+		dvd[j].create(par.dsize);
+		for (vei_t k=0; k<par.asize; k++)
 		{
 			av[j].set_comp(av_tmp[j].get_comp(k),k);	
 		}
-		for (vei_t k=0; k<dsize; k++)
+		for (vei_t k=0; k<par.dsize; k++)
 		{
 			dvd[j].set_comp(0,k);
 		}
 	}
 	delete []av_tmp;
-	return size;
+	return par.size;
 }
 
 vei_t SDMA::radius(BinVector& v1)
 {
 	vei_t hold = 100;
-	for (vei_t i=0; i<size; i++)
+	for (vei_t i=0; i<par.size; i++)
 	{
 		if (v1.dis_ham(av[i])<hold)
 			hold = v1.dis_ham(av[i]);
@@ -149,15 +149,15 @@ vei_t SDMA::store(BinVector& v1, BinVector& b1, bool det_radius)
 	vei_t c=0, h=0;
   	tmp=0.0;
 	if (det_radius) h = radius(v1);
-  	for (vei_t j=0;j<size;j++) 
+  	for (vei_t j=0;j<par.size;j++) 
   	{
 		if (det_radius)
-  			tmp = (1-(thresholdp * (double)(v1.dis_ham(av[j])-h)));
+  			tmp = (1-(par.thresholdp * (double)(v1.dis_ham(av[j])-h)));
 		else
-			tmp = (1-(thresholdp * (double)(v1.dis_ham(av[j]))));	
+			tmp = (1-(par.thresholdp * (double)(v1.dis_ham(av[j]))));	
   		if (tmp>0.0)
 		{
- 			for (vei_t i=0;i<dsize;i++) 
+ 			for (vei_t i=0;i<par.dsize;i++) 
 			{
 	  			if (b1.get_comp(i)==1)
 	       				dvd[j].set_comp((dvd[j].get_comp(i)+tmp),i);

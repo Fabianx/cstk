@@ -19,32 +19,22 @@
 
 SDMAfct::SDMAfct() 
 {
-   //av = NULL;
-   //dvd = NULL;
 }
 
 SDMAfct::SDMAfct(vei_t nsize, vei_t nasize, vei_t ndsize) 
 {
-   //size = nsize;
-   //asize = nasize;
-   //dsize = ndsize;
-   //av = new BinVector[size];
-   //dvd = new BVector<oas_t>[size];
 }
 
 SDMAfct::~SDMAfct() 
 {
-  //if (av!=NULL) delete []av;
-  //if (dvd!=NULL) delete []dvd;
 }
-
 
 vei_t SDMAfct::store_gauss(BinVector& v1, BinVector& b1, bool det_radius, oas_t density) 
 { 
 	vei_t c=0, h=0;
   	tmp=0.0;
 	if (det_radius) h = radius(v1);
-  	for (vei_t j=0;j<size;j++) 
+  	for (vei_t j=0;j<par.size;j++) 
   	{
 		if (det_radius)
   			tmp = ((1/(density*sqrt(2*pi)))*pow(e,-(pow((double)(v1.dis_ham(av[j])-h),2)/(2*density*density))));
@@ -52,7 +42,7 @@ vei_t SDMAfct::store_gauss(BinVector& v1, BinVector& b1, bool det_radius, oas_t 
 			tmp = ((1/(density*sqrt(2*pi)))*pow(e,-(pow((double)(v1.dis_ham(av[j])),2)/(2*density*density))));	
   		if (tmp>0.0)
 		{
- 			for (vei_t i=0;i<dsize;i++) 
+ 			for (vei_t i=0;i<par.dsize;i++) 
 			{
 	  			if (b1.get_comp(i)==1)
 	       				dvd[j].set_comp((dvd[j].get_comp(i)+tmp),i);
@@ -70,15 +60,15 @@ vei_t SDMAfct::store_nand(BinVector& v1, BinVector& b1, bool det_radius)
 	vei_t c=0, h=0;
   	tmp=0.0;
 	if (det_radius) h = radius_nand(v1);
-  	for (vei_t j=0;j<size;j++) 
+  	for (vei_t j=0;j<par.size;j++) 
   	{
 		if (det_radius)
-  			tmp = (1-(thresholdp * (double)(v1.dis_nand(av[j])-h)));
+  			tmp = (1-(par.thresholdp * (double)(v1.dis_nand(av[j])-h)));
 		else
-			tmp = (1-(thresholdp * (double)(v1.dis_nand(av[j]))));	
+			tmp = (1-(par.thresholdp * (double)(v1.dis_nand(av[j]))));	
   		if (tmp>0.0)
 		{
- 			for (vei_t i=0;i<dsize;i++) 
+ 			for (vei_t i=0;i<par.dsize;i++) 
 			{
 	  			if (b1.get_comp(i)==1)
 	       				dvd[j].set_comp((dvd[j].get_comp(i)+tmp),i);
@@ -96,21 +86,21 @@ vei_t SDMAfct::retrieve_gauss(BinVector& v1, BinVector& tsum, BVector<oas_t>& te
   vei_t c=0,h=0;
   tmp = 0.0;
   if (det_radius) h = radius(v1);
-  for (vei_t j=0;j<size;j++) {
+  for (vei_t j=0;j<par.size;j++) {
   	if (det_radius)
   		tmp = ((1/(density*sqrt(2*pi)))*pow(e,-(pow((double)(v1.dis_ham(av[j])-h),2)/(2*density*density))));
 	else
 		tmp = ((1/(density*sqrt(2*pi)))*pow(e,-(pow((double)(v1.dis_ham(av[j])),2)/(2*density*density))));
     	if (tmp>0) 
 	{
-        	for (vei_t i=0;i<dsize;i++) 
+        	for (vei_t i=0;i<par.dsize;i++) 
 		{
 	  	tempsum.set_comp( tempsum.get_comp(i) + (dvd[j].get_comp(i)*tmp), i ); 
 		}
 	c++;
     	}    
   }
-  for (vei_t i=0;i<dsize;i++) {
+  for (vei_t i=0;i<par.dsize;i++) {
      if (tempsum.get_comp(i)>=0) 
         tsum.set_comp(1,i);
      else           
@@ -124,21 +114,21 @@ vei_t SDMAfct::retrieve_nand(BinVector& v1, BinVector& tsum, BVector<oas_t>& tem
   vei_t c=0,h=0;
   tmp = 0.0;
   if (det_radius) h = radius_nand(v1);
-  for (vei_t j=0;j<size;j++) {
+  for (vei_t j=0;j<par.size;j++) {
   	if (det_radius)
-  		tmp = (1-(thresholdp * (double)(v1.dis_nand(av[j])-h)));
+  		tmp = (1-(par.thresholdp * (double)(v1.dis_nand(av[j])-h)));
 	else
-		tmp = (1-(thresholdp * (double)(v1.dis_nand(av[j]))));
+		tmp = (1-(par.thresholdp * (double)(v1.dis_nand(av[j]))));
     	if (tmp>0) 
 	{
-        	for (vei_t i=0;i<dsize;i++) 
+        	for (vei_t i=0;i<par.dsize;i++) 
 		{
 	  	tempsum.set_comp( tempsum.get_comp(i) + (dvd[j].get_comp(i)*tmp), i ); 
 		}
 	c++;
     	}    
   }
-  for (vei_t i=0;i<dsize;i++) {
+  for (vei_t i=0;i<par.dsize;i++) {
      if (tempsum.get_comp(i)>=0) 
         tsum.set_comp(1,i);
      else           
@@ -150,7 +140,7 @@ vei_t SDMAfct::retrieve_nand(BinVector& v1, BinVector& tsum, BVector<oas_t>& tem
 vei_t SDMAfct::radius_nand(BinVector& v1)
 {
 	vei_t hold = 100;
-	for (vei_t i=0; i<size; i++)
+	for (vei_t i=0; i<par.size; i++)
 	{
 		if (v1.dis_nand(av[i])<hold)
 			hold = v1.dis_ham(av[i]);

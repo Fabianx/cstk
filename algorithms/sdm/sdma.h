@@ -18,61 +18,78 @@
 #ifndef SDMA_H
 #define SDMA_H
 
-/**Class for Creating and Maintaining a Sparse Distributed Memory
-  *@author Kristof Van Laerhoven
-
-  Sparse Distributed Memory (SDM) as described by Kanerva is pretty simple:
-
-  - storing happens by updating counters in the data memories in the 
-    neighbouring SDM addresses:
-     e.g., if we want to store '0110101' in '101101' then we'll update the 
-     counters of neighbours such as 001101, 101001, and 101111 by:
-     -1 +1 +1 -1 +1 -1 +1
-  - retrieving patterns happens by content: select all the neighbours for 
-    the data pattern, and sum up their counters. After thresholding, the
-    final vector should be close or equal to the written one.
-  
-*/
-
 #include <stdlib.h>
 #include "cstk_base/vector/binvector.h" // for addresses and data
 #include "cstk_base/vector/bvector.h" // for the counters
 
-//class SDMA : public SDM 
+typedef struct SDMA_PARAM
+{
+	// size of the memory in data and address vector tupels
+	vei_t size;
+	// size of the address vectors
+  	vei_t asize;
+	// size of the data vectors
+  	vei_t dsize;
+	// threshold percentage for distribution of the data according to the distance 
+	// of the address vectors
+	oas_t thresholdp;
+	// threshold for SOSDM
+	vei_t threshold;
+};
+
+/****************************************************************************************
+*	Sparse Distributed Memory Approach implementation that distributes the 		*
+*	input data vector weighted over the whole memory.				*
+****************************************************************************************/
 class SDMA
 {
  public:
  	SDMA();
   	SDMA(vei_t nsize, vei_t nasize, vei_t ndsize, oas_t thp=0);
   	~SDMA();
- 
+ 	
+	/********************************************************************************
+	*	Method to create the SDMA with specification for the size of the 	*
+	*	data and address vectors, size of the memory in entries and 		*
+	*	threshold percentage for the distribution of the input data.		*
+	********************************************************************************/
 	void create(vei_t nsize, vei_t nasize, vei_t ndsize, oas_t thp=0);
+	/********************************************************************************
+	*	This method initializes the data and address vectors of the memory	*
+	*	with random bits.							*
+	********************************************************************************/
 	void random_init();
 	
-	//void normal_init();
-	//void init_store(BinVector& v1, BinVector& b1);
+	/********************************************************************************
+	*	With this method address and data vector tupels are deleted from	*
+	*	the memory according to the usage value.				*
+	********************************************************************************/
 	vei_t remove(oas_t usage);
+	/********************************************************************************
+	*	Method to store data vectors in the memory according to the address	*
+	*	vector distances.							*	
+	********************************************************************************/
  	vei_t store(BinVector& v1, BinVector& b1, bool det_radius);
+	/********************************************************************************
+	*	Method to retrieve data vectors out of the memory according to the 	*
+	*	address	vector distances.						*
+	********************************************************************************/
 	vei_t retrieve(BinVector& v1, BinVector& tsum, 
 	               BVector<oas_t>& tempsum, bool det_radius);
 
- private:
- 
  protected:
  	BinVector      *av; // all the addresses are binary vectors
 	BVector<oas_t> *av_tmp; // temporary data vectors
 	BVector<oas_t> *dvd; // all the data vectors are vectors of counters
 	
+	// determines the smallest distance of input address and memory addresses
+	// for relative distribution of the data vector
 	vei_t radius(BinVector& v1);
-	
-	vei_t size;
-  	vei_t asize;
-  	vei_t dsize;
 	
 	oas_t tmp;
 
-	oas_t thresholdp;
+	SDMA_PARAM par;
 };
 
-#endif // SDM_A
+#endif 
 

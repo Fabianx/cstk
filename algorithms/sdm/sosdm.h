@@ -45,7 +45,7 @@ class SOSDM : public SDMA
 	                vei_t cunter);  
 	
  	BVector<oas_t> *errv; // all error vectors are vectors of counters
- 	vei_t threshold;
+	
 	oas_t total_sig;
 };
 

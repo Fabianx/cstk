@@ -18,15 +18,15 @@
 #ifndef SDMAFCT_H
 #define SDMAFCT_H
 
-/**Class for Creating and Maintaining a Sparse Distributed Memory
-  *@author Martin Berchtold
-
-*/
-
 #include "sdma.h" 
 #define e 2.7182818284    
 #define pi 3.1415926535   
 
+/****************************************************************************************
+*	Child class of SDMA that realizes several different store/retrieve methods	*
+*	for different distribution functions. The initialization method and the		*
+*	constructors are used form the parent class.					*
+****************************************************************************************/
 class SDMAfct : public SDMA
 {
  public:
@@ -34,12 +34,14 @@ class SDMAfct : public SDMA
 	SDMAfct(vei_t nsize, vei_t nasize, vei_t ndsize);
 	~SDMAfct();
 	
-	//void create_fct(vei_t nsize, vei_t nasize, vei_t ndsize);
+	// gauss distribution
 	vei_t store_gauss(BinVector& v1, BinVector& b1, bool det_radius, 
 	                  oas_t density);
 	vei_t retrieve_gauss(BinVector& v1, BinVector& tsum, 
 	                     BVector<oas_t>& tempsum, bool det_radius, 
 	                     oas_t density);
+			     
+	// NAND distance measurement
 	vei_t store_nand(BinVector& v1, BinVector& b1, bool det_radius);
 	vei_t retrieve_nand(BinVector& v1, BinVector& tsum, 
 	                    BVector<oas_t>& tempsum, bool det_radius);
@@ -48,5 +50,5 @@ class SDMAfct : public SDMA
 	vei_t radius_nand(BinVector& v1);
 };
 
-#endif // SDMAFCT_H
+#endif
 
