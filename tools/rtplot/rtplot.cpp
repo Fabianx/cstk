@@ -26,7 +26,18 @@
 #include <stdlib.h>  //strcmp()
 
 int main(int ac, char **args) {
-
+  
+  if (ac<2) {
+    printf("\n RTPlot - by Kristof Van Laerhoven.");
+    printf("\n syntax:");
+    printf("\n   %s <xml settings document>",args[0]);
+    printf("\n");
+    printf("\n\n More info can be found in the CSTK manual");
+    printf("\n\n (http://cstk.sf.net/). No really, read it.");
+    printf("\n\n");
+    exit(0);
+  }
+  
   char window_name[255];
   KVPlot kp;                     // X11 plotting of KVectors
   KVector *vect = NULL;          // KVector array for the vectors
@@ -41,17 +52,6 @@ int main(int ac, char **args) {
   char* channel_types = NULL;    // these variables are for passing 
   DataCell* columns=NULL;        // information along to the read methods
   uint* select=NULL;             // of the various types of sensordata
-  
-  if (ac<2) {
-    printf("\n RTPlot - by Kristof Van Laerhoven.");
-    printf("\n syntax:");
-    printf("\n   %s <xml settings document>",args[0]);
-    printf("\n");
-    printf("\n\n More info can be found in the CSTK manual");
-    printf("\n\n (http://cstk.sf.net/). No really, read it.");
-    printf("\n\n");
-    exit(0);
-  }
   
   // Prepare the Plotting Window:
     int res = kprof.parse(args[1],SETTP_RTP);
@@ -134,12 +134,12 @@ int main(int ac, char **args) {
             // read the sensordata: 
 	    int ret=sd->read(channel_types, kprof.is.numchs, 
                            columns, select, kprof.is.numcols);
-             if ( ret < 0 )
+             if ( ret < 0 ) {
 			    if (ret!=-12) printf("Error: %i\n",-ret);
+			 }
 		     else
                 for (i=0; i<kprof.is.numcols; i++) {
                        vect[i].add_comp(columns[i].get_u8b());
-		       
 		        }
             // update peaks according to the plot:
              kprof.win.firstplot();
