@@ -8,9 +8,10 @@ BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ..;pwd)
 VECTOR_DIR=$(BASE_DIR)/cstk_base/vector
 SD_DIR=$(BASE_DIR)/sensordata
 
-all: 	rs232parser_demo setparam_demo \
-	logfileparser_demo nmeaparser_demo udp_snd_demo udp_rec_demo \
-	simparser_demo sensordata_demo kprof_demo bpnn_demo peak_demo kvplot_demo 
+all: 	kvplot_demo iparse_demo \
+	rs232parser_demo logfileparser_demo nmeaparser_demo \
+	udp_snd_demo udp_rec_demo \
+	simparser_demo sensordata_demo bpnn_demo peak_demo 
 
 clean:
 	@-rm -f ./*.o
@@ -126,38 +127,6 @@ peak_demo: peak_t.o
 	      $(VECTOR_DIR)/kvector.o -o ./$@
 	
 peak_t.o: peak.o kvector.o
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
-
-##### SetParam Demo ##############################################################
-
-setparam_demo: setparam_t.o
-	$(CC) $(BASE_DIR)/kprof/kprof.o \
-	      $(SD_DIR)/rs232parser/rs232parser.o \
-	      $(VECTOR_DIR)/datacell.o \
-	      $(VECTOR_DIR)/kvector.o \
-	      $(BASE_DIR)/algorithms/peak/peak.o \
-	      $(SD_DIR)/logfileparser/logfileparser.o \
-	      $(SD_DIR)/udpparser/udpparser.o \
-	      $(SD_DIR)/simparser/simparser.o \
-	      $(SD_DIR)/bufferparser.o \
-	      $(BASE_DIR)/kprof/setparse.o \
-	      $(BASE_DIR)/kprof/rs232setparse.o \
-	      $(BASE_DIR)/kprof/udpsetparse.o \
-	      $(BASE_DIR)/kprof/logfilesetparse.o \
-	      $(BASE_DIR)/kprof/simsetparse.o \
-	      $(BASE_DIR)/kprof/channelsetparse.o \
-	      $(BASE_DIR)/kprof/inputcolumnsetparse.o \
-	      $(BASE_DIR)/kprof/windowsetparse.o \
-	      $(BASE_DIR)/kprof/plotsetparse.o \
-	      $(BASE_DIR)/viz/x11/x11plot.o \
-	      $(BASE_DIR)/viz/x11/kvplot.o \
-	      setparam_t.o -L/usr/X11R6/lib/ -lX11 -o ./$@
-	
-setparam_t.o: rs232parser.o logfileparser.o udpparser.o simparser.o \
-	rs232setparse.o udpsetparse.o logfilesetparse.o simsetparse.o \
-	channelsetparse.o inputcolumnsetparse.o plotsetparse.o \
-	windowsetparse.o bufferparser.o datacell.o kprof.o kvector.o peak.o\
-	kvplot.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### KVPlot Demo ################################################################
