@@ -6,10 +6,10 @@ CC=g++ -Wall -O3 -g
 BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ..;pwd)
 VECTOR_DIR=$(BASE_DIR)/cstk_base/vector
 
-all:	kprof.o setparse.o rs232setparse.o udpsetparse.o \
+all:	setparse.o rs232setparse.o udpsetparse.o \
 	logfilesetparse.o simsetparse.o channelsetparse.o \
 	windowsetparse.o plotsetparse.o ksomsetparse.o \
-	iparse.o wparse.o
+	iparse.o wparse.o pparse.o
 
 clean:
 	@-rm -f ./*.o
@@ -27,6 +27,11 @@ iparse.o: datacell.o binvector.o kvector.o dvector.o bufferparser.o \
 
 wparse.o: kvector.o peak.o plotsetparse.o windowsetparse.o \
 	ksomsetparse.o kvplot.o clustplot.o
+	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+
+##### Params Parsing ##############################################################
+
+pparse.o: 
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ###################################################################################
