@@ -61,10 +61,7 @@ void KMeans::initialize(DVector& min, DVector& max)
 
 void KMeans::initialize(DVector& bvec, vei_t bnum)
 {
-	if (bucket[bnum].get_dim() == 0)
-		bucket[bnum].create(bvec.get_dim());
-	for (vei_t i=0; i<bvec.get_dim(); i++)
-		bucket[bnum].set_comp(bvec.get_comp(i), bvec.get_type(i), i);
+	bucket[bnum] = bvec;
 }
 
 vei_t KMeans::update_bucket(DVector& vec)
@@ -81,14 +78,8 @@ vei_t KMeans::update_bucket(DVector& vec)
 		}		
 	}
 	for (vei_t i=0; i<vec.get_dim(); i++)
-	{
 		if (elem!=-1)
-		{
-			tmp = (bucket[elem].get_comp(i)+alpval*
-			      (vec.get_comp(i)-bucket[elem].get_comp(i)));
-			bucket[elem].set_comp(tmp, F64B_TYPE, i);
-		}
-	}
+			bucket[elem] += alpval * (vec - bucket[elem]);
 	
 	return elem;
 }
