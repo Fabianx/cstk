@@ -26,12 +26,16 @@
 #include "cstk_base/types.h"
 #include "cstk_base/matrix/dvectormatrix.h"
 
+/****************************************************************************************
+*	Abstract base class for all stochastical analyses classes. The methods		*
+*	are matrix, vector and value corresponding to the return values.		*
+****************************************************************************************/
 struct Stochastics{
-	virtual ~Stochastics() {}
+	virtual ~Stochastics() {};
 	
-	virtual DVectorMatrix matrix(DVectorList& veclist);
-	virtual DVector vector(DVector& vec);
-	virtual vei_t value(DMatrixList& matlist, DVector& I);
+	virtual DVectorMatrix matrix(DVectorList& veclist)=0;
+	virtual DVector vector(DVector& vec)=0;
+	virtual vei_t value(DMatrixList& matlist, DVector& I)=0;
 };
 
 #endif

@@ -39,6 +39,7 @@ vei_t MVG::value(DMatrixList& matlist, DVector& I)
 	{
 		result = I - (*((*current).mue));
 		tmp1 = ((result * (*current).matrix->T()) * result) + log((*current).matrix->det());
+		printf("   dist=%7.3e, class=%i\n",tmp1,(*current).classinf);
 		if (tmp1 < tmp2)
 		{
 			tmp2 = tmp1;

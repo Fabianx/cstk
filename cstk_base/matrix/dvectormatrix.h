@@ -22,7 +22,7 @@
 #include "cstk_base/vector/dvector.h"
 
 /********************************************************************************************************
-* 		List of DVector's with pointer to next element in list.					*
+* 		List of DVector's with pointer to next and last element in list. 			*
 ********************************************************************************************************/
 
 class DVectorList
@@ -30,10 +30,18 @@ class DVectorList
 	public:
 		DVectorList() {vector=NULL;next=NULL;}
 		DVectorList(vei_t nsize) {vector = new DVector(nsize);}
+		
 		~DVectorList() {if (vector) delete vector;}
+		
 		void create(vei_t nsize) {vector = new DVector(nsize);}
+		
+		//DVector that contains the data
 		DVector *vector;
+		
+		//pointer to the next DVectorList element in the list
 		DVectorList *next;
+		//pointer to the lsat DVectorList element in the list
+		DVectorList *last;
 };
 
 /********************************************************************************************************
@@ -47,29 +55,72 @@ class DVectorMatrix
 	public:
 		DVectorMatrix();
 		DVectorMatrix(vei_t hsize, vei_t vsize);
+		// Copy constructor
 		DVectorMatrix(const DVectorMatrix& input);
+		
 		~DVectorMatrix();
 		
 		void create(vei_t hsize, vei_t vsize); 
 		
+		/****************************************************************************************
+		*	Matrix transposition that makes out of the column elements row vectors.		*
+		*	Result is a Matrix that has instad of various type DVectors rows of homogenous 	*
+		*	DVectors that contain only one data type each					*
+		****************************************************************************************/ 
 		DVectorMatrix T();
+		
+		/****************************************************************************************
+		*	Matrix inversion according to the Coleman-Shipley inversion (Kron reduction)	*
+		*	algorithm. If one of the pivot elemnts gets zero the determinant inversion	*
+		*	is done instead.								*
+		****************************************************************************************/
 		DVectorMatrix INV();
+		
+		/****************************************************************************************
+		*	Straight forward implementation of the math algorithm that multiplies the	*
+		*	diagonals of the matrix and adds and subtracts the results			*
+		****************************************************************************************/
 		oas_t det();
 		
+		/****************************************************************************************
+		*	This equal operator does the same as the copy constructor, it uses the		*
+		*	equal operator of DVector to hand over each DVector of the matrix to 		*
+		*	DVectors in the new matrix							*
+		****************************************************************************************/
 		DVectorMatrix& operator=(const DVectorMatrix& b); 
 		
+		/****************************************************************************************
+		*	The multiplication between matrices multiplies each row vector from the		*
+		*	first matrix with each row vector of the second matrix using the DVector 	*
+		*	operator multiply. Dimensions have to fit and the second matrix has to be 	*
+		*	transposed!									*
+		****************************************************************************************/
 		friend DVectorMatrix& operator*(const DVectorMatrix& mat1, const DVectorMatrix& mat2_T); 
+		
+		/****************************************************************************************
+		*	The multiplication between a matrix and a vector multiplies each row vector 	*
+		*	from the matrix with the vector using the DVector multiplication operator. 	*
+		*	The dimenson of the row vectors and the vector have to be the same		*
+		****************************************************************************************/
 		friend DVector& operator*(const DVector& vec, const DVectorMatrix& mat_T);
 		friend DVector& operator*(const DVectorMatrix& mat_T, const DVector& vec);
 		
+		/****************************************************************************************
+		*	The plus and minus operators use also the plus and minus operators fom the 	*
+		*	DVector class to add and subtract the row vectors.				*
+		****************************************************************************************/
 		friend DVectorMatrix& operator+(const DVectorMatrix& mat1, const DVectorMatrix& mat2); 
 		friend DVectorMatrix& operator-(const DVectorMatrix& mat1, const DVectorMatrix& mat2); 
 		
+		//DVector that contains the data
 		DVector *vector;
+		//storage for the dimension information of the matrix
 		vei_t hosize, vesize;
 		
 	private:
+		//matrix inversion according to the determinant inversion
 		DVectorMatrix detinv(DVectorMatrix& mat);
+		//cofactor calculation needed for the determinant inversion
 		oas_t cofactor(DVectorMatrix& mat, vei_t i, vei_t j);
 };
 
@@ -84,11 +135,20 @@ class DMatrixList
 	public: 
 		DMatrixList();
 		DMatrixList(vei_t hsize, vei_t vsize);
+		
 		~DMatrixList();
+		
 		void create(vei_t hsize, vei_t vsize);
+		
+		//DVectorMatrix that contains the data of the list element
 		DVectorMatrix *matrix;
+		//pointer to the next DMatrixList element in the list
 		DMatrixList *next;
+		//pointer to the last DMatrixList element in the list
+		DMatrixList *last;
+		//special mean vector needed for the MVG
 		DVector *mue;
+		//class information needed for MVG
 		vei_t classinf;
 };
 

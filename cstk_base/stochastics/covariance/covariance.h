@@ -20,22 +20,38 @@
 
 #include "cstk_base/stochastics/stochastics.h"
 
-class Covariance// : virtual public Stochastics 
+/********************************************************************************
+*	This class produces out of a DVectorList a covariance matrix.		*
+********************************************************************************/
+
+class Covariance : virtual public Stochastics 
 {
 	public:
 		Covariance();
 		~Covariance();
-			
+		
+		/************************************************************************
+		*	This is the main method that outputs as return value the 	*
+		*	calculated covariace matrix. The input of the method is a	*
+		* 	list of DVectors that represent a senor-arrays output over 	*
+		*	the time.							*
+		************************************************************************/
 		DVectorMatrix matrix(DVectorList& veclist);
+		
+		//empty return method since there is no vector as result possible
 		DVector vector(DVector& vec) {return vec;}
+		//empty return method since there is no value as result possible
 		vei_t value(DMatrixList& matlist, DVector& I) {return 0;}
 		
+		//over the time mean vector produced in calculations, needed for MVG
 		DVector *mean;
 	
 	protected:	
+		//pointer to the resulting covariance matrix
 		DVectorMatrix *matrix_cov;
 		
 	private: 
+		//calculation of the i'th row j'th column covariance matrix element
 		oas_t cov(vei_t i, vei_t j, DVectorList& veclis);
 };
 

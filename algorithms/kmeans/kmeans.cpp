@@ -67,7 +67,6 @@ void KMeans::initialize(DVector& bvec, vei_t bnum)
 vei_t KMeans::update_bucket(DVector& vec)
 {
 	f_96b dis = 2*f_96b_max;
-	oas_t tmp;
 	vei_t elem=-1;
 	for (vei_t j=0; j<bucket_num; j++)
 	{
@@ -77,9 +76,8 @@ vei_t KMeans::update_bucket(DVector& vec)
 			elem = j;
 		}		
 	}
-	for (vei_t i=0; i<vec.get_dim(); i++)
-		if (elem!=-1)
-			bucket[elem] += alpval * (vec - bucket[elem]);
+	if (elem!=-1)
+		bucket[elem] += alpval * (vec - bucket[elem]);
 	
 	return elem;
 }
