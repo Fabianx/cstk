@@ -95,10 +95,11 @@ typedef double f_64b;
 #define f_64b_min DBL_MIN
 #define f_64b_max DBL_MAX
 #define f_64b_dig DBL_DIG
+// depricated:
 // 96-bit float, [2.2250738585072014e-308L,1.7976931348623157e+308L] 
-typedef long double f_96b;
-#define f_96b_min LDBL_MIN
-#define f_96b_max LDBL_MAX
-#define f_96b_dig LDBL_DIG
+//typedef long double f_96b;
+//#define f_96b_min LDBL_MIN
+//#define f_96b_max LDBL_MAX
+//#define f_96b_dig LDBL_DIG
 
 #endif
