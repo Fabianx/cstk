@@ -171,7 +171,9 @@ function doParseXML(data)
 
 	var imode = window.frames['inputt'].document.getElementById('device');
 	imode.removeItemAt(6); // last
-	imode.appendItem(xmldoc.getElementsByTagName("input").item(0).attributes.item(0).nodeValue,-1);
+	var input_id = xmldoc.getElementsByTagName("input");
+	if (input_id.length > 0)
+		imode.appendItem(input_id.item(0).attributes.item(0).nodeValue,-1);
 	imode.selectedIndex=6; // last
 
 	if ( xmldoc.getElementsByTagName("rs232").length > 0 )
@@ -182,9 +184,14 @@ function doParseXML(data)
 		parseAtts(xmldoc.getElementsByTagName("poll"),'inputt','iparams',
 					"http://cstk.sf.net/iparams#","poll", false);
 	}
-
-	//parseAtts(xmldoc.getElementsByTagName("logfile"),'outputt','oparams',
-	//		"http://cstk.sf.net/oparams#","logfile");
+	if ( xmldoc.getElementsByTagName("sim").length > 0 )
+	if ( xmldoc.getElementsByTagName("sim").item(0).parentNode.nodeName =="input")
+		parseAtts(xmldoc.getElementsByTagName("sim"),'inputt','iparams',
+					"http://cstk.sf.net/iparams#","sim", true);
+	if ( xmldoc.getElementsByTagName("logfile").length > 0 )
+	if ( xmldoc.getElementsByTagName("logfile").item(0).parentNode.nodeName =="input")
+		parseAtts(xmldoc.getElementsByTagName("logfile"),'inputt','iparams',
+					"http://cstk.sf.net/iparams#","logfile", true);
 
 	parseAtts(xmldoc.getElementsByTagName("window"),'windowt','wparams',
 				"http://cstk.sf.net/wparams#", "window", true);
@@ -246,13 +253,12 @@ function parseAtts(tag, tab_id, tree_id, schema, rootname, unassert_bool)
 	ds = (ds.getNext(),ds.getNext());
 	ds = ds.QueryInterface(Components.interfaces.nsIRDFDataSource);
 
-	var sub, pred, obj;
-
 	if (unassert_bool) unassert_all(ds);
 	
+	var sub, pred, obj;
+
 	obj  = rdf.GetResource( schema+"node-"+rootname );
 	ds.Assert(root, child, obj, true);
-	alert("asserted"+rootname);
 	sub  = obj;
 	ds.Assert(sub, rdf.GetResource(schema+"att"), rdf.GetLiteral(rootname), true);
  
@@ -296,10 +302,8 @@ function parseCols(tag, tab_id, tree_id, schema, cols, xmlcols)
 
 	var sub, pred, obj;
 
-	// first unassert all: (there should be an easier way!)
 	unassert_all(ds);
 	
-
 	for (var j=0; j<tag.length; j++)
 	{
 		obj = rdf.GetResource( schema+"node-"+j );
