@@ -69,20 +69,23 @@ void xbow(void) {
  
   int i=0, j=0;
     
-  SensorData* pr=NULL;
-  pr = new Rs232Parser(B38400,1024,"G","/dev/ttyS0");
+  Rs232Parser pr(B38400,1024,"G","/dev/tty.usbserial0");
 
   DataCell channels[2];
+  char channel_types[2];
+  unsigned int select[2];
   for (i=0; i<2; i++) channels[i].set_type(U16B_TYPE);
+  for (i=0; i<2; i++) channel_types[i] = U16B_TYPE;
+  select[0] = 0; select[1] = 1;
   
-  for (i=0; i<100; i++) 
+  for (i=0; i<10; i++) 
   {
-    pr->read(channels,2);
+    pr.read(channels,2);
+	pr.read(channel_types,2, channels, select, 2);
     for (j=0; j<2; j++) printf("%i ",channels[j].get_u16b());
-    printf(".\n\r");
+    printf("  err=%i\n",pr.get_err());
+	usleep(100000);
   }  
-  
-  if (pr != NULL) delete pr;
   
 }
  

@@ -34,15 +34,21 @@
 #define BIN_MODE 1
 #define ASC_MODE 2
 
+#define RS232ERR_CANTOPEN  10
+#define RS232ERR_CANTWRITE 11
+#define RS232ERR_CANTREAD  12
+#define RS232ERR_CANTFLUSH 13
+#define RS232ERR_CANTSET   14
+
 /**Class for parsing rs232 output
   *@author Kristof Van Laerhoven
   */
   
 struct Rs232ParserSettings {
   Rs232ParserSettings() {device[0]='\0';poll_char[0]='\0';}
-  char  device[128];              // the name of the rs232 device
+  char  device[256];              // the name of the rs232 device
   int   baudrate;              
-  char  poll_char[128];           // what to send to ask for data
+  char  poll_char[256];           // what to send to ask for data
   unsigned int buff_size;
   short databits;
   short stopbits;
@@ -54,8 +60,8 @@ class Rs232Parser : virtual public SensorData {
 
  public:
   Rs232Parser();
-  Rs232Parser(int baud, int buff, char* poll, char* dev, short mod = BIN_MODE);
-  Rs232Parser(Rs232ParserSettings* settings);
+  Rs232Parser(int baud, int buff, char* poll, char* dev, short mod=BIN_MODE);
+  Rs232Parser(Rs232ParserSettings rs232_param);
   ~Rs232Parser();
 
   int read(char* channel_types, uint numchannels, 
@@ -64,29 +70,30 @@ class Rs232Parser : virtual public SensorData {
   int read(DataCell* channels, uint* numchannels);
   int read(char *line);
 
-  void set_poll(char* new_poll_char);
-  void get_poll(char* ret_poll_char);
-  void set_baudrate(int new_baudrate) {baudrate = new_baudrate;};
-  int get_baudrate() {return baudrate;};
-  void set_buff_size(int new_buff_size) {buff_size = new_buff_size;};
-  int get_buff_size() {return buff_size;};
-  void set_device(char* new_device);
-  void get_device(char* ret_device);
-
+  void  set_poll(char* poll_char);
+  void  get_poll(char* poll_char);
+  void  set_baudrate(int baudrate);
+  int   get_baudrate();
+  void  set_buff_size(int buff_size);
+  int   get_buff_size();
+  void  set_device(char* dev);
+  void  get_device(char* dev);
+  void  set_mode(short mode);
+  short get_mode();
+  void  set_rs232(Rs232ParserSettings rs232_param);
+  void  get_rs232(Rs232ParserSettings& rs232_param);
+  int   get_err(); // get last error identifier
+  
  private:
-  int open_rs232(char* devicename);
-  void close_rs232();
+	int open_rs232(char* devicename);
+	void close_rs232();
 
-private:
-  char* poll_char;
-  int fd;
-  int baudrate;
-  unsigned int buff_size;
-  char* device;
-  struct termios oldtio,newtio;
-  unsigned char *buf;
-  unsigned int bufcounter; // an iterator for buffers that weren't polled
-  short mode;
+ 	Rs232ParserSettings rs232_param;
+	int fd;
+	struct termios oldtio,newtio;
+	unsigned char *buf;
+	unsigned int bufcounter; // an iterator for buffers that weren't polled
+	int err;
 }; 
 
 #endif
