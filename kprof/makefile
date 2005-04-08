@@ -31,7 +31,7 @@ wparse.o: kvector.o peak.o plotsetparse.o windowsetparse.o \
 
 ##### Params Parsing ##############################################################
 
-pparse.o: 
+pparse.o: setparse.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ###################################################################################

@@ -53,52 +53,37 @@ int main(int ac, char **args)
 	// parse the input section of the xml:
 	FILE* fp = fopen(args[1],"r");
 	if (!fp) {printf("Error opening file %s.\n", args[1]); return -1;}
-
 	input.init(fp);   // parse file and setup inputcolumns
-
 	if (input.error()) 
-		{ input.export_err(buff); printf("Input error: %s\n",buff); return -1;}
+		{ input.export_err(buff);  printf("Input error: %s\n",buff);  return -1;}
 
 	fp = freopen(args[1],"r",fp);
 	window.init(fp);  // parse file for visualisation settings & display
-
 	if (window.error()) 
 		{ window.export_err(buff); printf("Window error: %s\n",buff); return -1;}
 
 	fp = freopen(args[1],"r",fp);
 	params.init(fp);  // parse file for ksom and kmeans parameters
-
 	if (params.error()) 
 		{ params.export_err(buff); printf("Params error: %s\n",buff); return -1;}
 
 	
-	/*  this is how params should work:
-
-		params.init(fp);
-		ksomset.autol     = params.get_bool("autolearn");
-		ksomset.nfct      = params.get_string("nbfunction");
-		ksomset.nb_radius = params.get_float("nbradius");
-		ksomset.dist      = params.get_string("distmeasure");
-		ksomset.max_x     = params.get_int("width");
-		ksomset.max_y     = params.get_int("height");
-		ksomset.lfct      = params.get_int("lfunction");
-		ksomset.lfct      = params.get_int("c");
-		ksomset.epoch     = params.get_int("epoch");
-		ksomset.d         = params.get_float("mexhatd");
-		ksomset.roh       = params.get_float("mexhatrho");
-		ksomset.minkexp   = params.get_int("minkexp");
-		
-		ksomset.vecdim    = input.num_icols;
-	*/
-
-
 	KSOMSettings ksomset;
-	ksomset.autol     = false;
-	ksomset.nfct      = GAUSSNB;
-	ksomset.nb_radius = 0.9;
+	ksomset.autol     = params.get_bool("autolearn");
+	ksomset.nb_radius = params.get_float("nbradius");
+	ksomset.max_x     = params.get_int("width");
+	ksomset.max_y     = params.get_int("height");
+	ksomset.c         = params.get_float("learnc");
+	ksomset.epoch     = params.get_int("epoch");
+	ksomset.d         = params.get_float("mexhatd");
+	ksomset.roh       = params.get_float("mexhatrho");
+	ksomset.minkexp   = params.get_int("minkexp");
+	//ksomset.dist      = _TO_KSOM_CONST( params.get_string("distmeasure") );
+	//ksomset.nfct      = _TO_KSOM_CONST( params.get_string("distmeasure") );
+	//ksomset.lfct      = _TO_KSOM_CONST( params.get_int("lfunction")      );
 	ksomset.dist      = DIS_EUCL;
-	ksomset.max_x     = 66;
-	ksomset.max_y     = 68;
+	ksomset.nfct      = GAUSSNB;
+	ksomset.lfct      = LIN;
 	ksomset.vecdim    = input.num_icols;
 
 	ksom.create(&ksomset);
@@ -108,7 +93,7 @@ int main(int ac, char **args)
 	// initialize by giving a prototype vector:
 	DVector *vect = new DVector(ksomset.vecdim);
 	for (int i=0; i<ksomset.vecdim; i++) 
-		vect->set_comp(0, input.icols[i].get_type() /*U8B_TYPE*/,i);
+		vect->set_comp(0, input.icols[i].get_type(), i);
 	ksom.initRandom(*vect);
 	delete vect;
 

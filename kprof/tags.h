@@ -65,6 +65,10 @@ const char output_att_tags[NUM_A_OTAGS][16] = {
 const char window_att_tags[NUM_A_WTAGS][16] = {
 	"plot"
 	};
+#define NUM_A_PTAGS 1
+const char params_att_tags[NUM_A_WTAGS][16] = {
+	"param"
+	};
 // valid but empty CSTK tags:
 #define NUM_SUBTAGS 3
 const char sub_tags[NUM_SUBTAGS][16] = {

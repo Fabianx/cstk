@@ -41,7 +41,7 @@ int SetParse::read_set(FILE* fp) {
 				do {
 					c = getc(fp);
 					val[token_counter++] = c;
-					if ((c=='>')||(feof(fp))||(token_counter>TOK_MAX-1)) 
+					if ((c=='>')||(feof(fp))||(token_counter>TOK_MAX-1))
 						return -1; // error!!!
 				} while (c!='"');
 				val[token_counter-1] = '\0';
