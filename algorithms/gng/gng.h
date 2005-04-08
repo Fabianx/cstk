@@ -34,6 +34,8 @@
  	oas_t d;
 	oas_t alpha;
 	oas_t epsilon_b, epsilon_n;
+	
+	vei_t vecdim;
  };
  
  class EdgeListElement
