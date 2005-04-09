@@ -67,7 +67,7 @@ int main(int ac, char **args)
 	if (params.error()) 
 		{ params.export_err(buff); printf("Params error: %s\n",buff); return -1;}
 
-	
+	// get the parameter settings:
 	KSOMSettings ksomset;
 	ksomset.autol     = params.get_bool("autolearn");
 	ksomset.nb_radius = params.get_float("nbradius");
@@ -78,12 +78,34 @@ int main(int ac, char **args)
 	ksomset.d         = params.get_float("mexhatd");
 	ksomset.roh       = params.get_float("mexhatrho");
 	ksomset.minkexp   = params.get_int("minkexp");
-	//ksomset.dist      = _TO_KSOM_CONST( params.get_string("distmeasure") );
-	//ksomset.nfct      = _TO_KSOM_CONST( params.get_string("distmeasure") );
-	//ksomset.lfct      = _TO_KSOM_CONST( params.get_int("lfunction")      );
-	ksomset.dist      = DIS_EUCL;
-	ksomset.nfct      = GAUSSNB;
-	ksomset.lfct      = LIN;
+	if ( strcasecmp(params.get_string("distmeasure"),"euclidean")==0 ) 
+		ksomset.dist = DIS_EUCL;
+	else if ( strcasecmp(params.get_string("distmeasure"),"manhattan")==0 ) 
+		ksomset.dist = DIS_MANH;
+	else if ( strcasecmp(params.get_string("distmeasure"),"chebychev")==0 ) 
+		ksomset.dist = DIS_CHEB;
+	else if ( strcasecmp(params.get_string("distmeasure"),"minkowski")==0 ) 
+		ksomset.dist = DIS_MINK;
+	else ksomset.dist = DIS_EUCL;
+	if ( strcasecmp(params.get_string("nbfunction"),"euclidean")==0 ) 
+		ksomset.dist = EUCLNB;
+	else if ( strcasecmp(params.get_string("nbfunction"),"manhattan")==0 ) 
+		ksomset.dist = MANHNB;
+	else if ( strcasecmp(params.get_string("nbfunction"),"chebychev")==0 ) 
+		ksomset.dist = CHEBNB;
+	else if ( strcasecmp(params.get_string("nbfunction"),"minkowski")==0 ) 
+		ksomset.dist = MINKNB;
+	else if ( strcasecmp(params.get_string("nbfunction"),"mexicanhat")==0 ) 
+		ksomset.dist = MEXNB;
+	else if ( strcasecmp(params.get_string("nbfunction"),"gaussian")==0 ) 
+		ksomset.dist = GAUSSNB;
+	else ksomset.dist = GAUSSNB;
+	if ( strcasecmp(params.get_string("lfunction"),"linear")==0 ) 
+		ksomset.dist = LIN;
+	else if ( strcasecmp(params.get_string("lfunction"),"log")==0 ) 
+		ksomset.dist = LOG;
+	else if ( strcasecmp(params.get_string("lfunction"),"exp")==0 ) 
+		ksomset.dist = EXP;
 	ksomset.vecdim    = input.num_icols;
 
 	ksom.create(&ksomset);
