@@ -70,48 +70,36 @@ int main(int ac, char **args)
 		{ params.export_err(buff); printf("Params error: %s\n",buff); return -1;}
 	
 		
-	/*  this is how params should work:
-		
-		params.init(fp);
-		gngset.age_max		= params.get_bool("age_max");
- 		gngset.d		= params.get_bool("d");
-		gngset.alpha		= params.get_bool("alpha");
-		gngset.epsilon_b	= params.get_bool("epsilon_b");
-		gngset.epsilon_n	= params.get_bool("epsilon_n");
-		gngset.vecdim	= params.get_bool("vecdim");
-	*/
-	
-	
+	params.init(fp);
 	GNG_PARAM gngset;
-	gngset.age_max    	= 10;
-	gngset.d      		= 0.8;
-	gngset.alpha 		= 0.8;
-	gngset.epsilon_b      	= 0.05;
-	gngset.epsilon_n     	= 0.01;
-	gngset.vecdim     	= 2;
+	gngset.age_max    	= params.get_int("maxage");
+	gngset.d      		= params.get_float("d");
+	gngset.alpha 		= params.get_float("alpha");
+	gngset.epsilon_b      	= params.get_float("epsilonb");
+	gngset.epsilon_n     	= params.get_float("epsilonn");
 	
 	// initialize by giving two start vectors:
-	ret1 = input.read_dvect();
-	ret2 = input.read_dvect();
+	ret1=ret2=0;
+	
+	while ( (ret1<=0) || (ret2<=0) ) {
+		ret1 = input.read_dvect();
+		ret2 = input.read_dvect();
+	}
 	DVector *vect1 = new DVector(*(input.dvect));
 	DVector *vect2 = new DVector(*(input.dvect));
-	if (( ret1 <= 0 ) || ( ret2 <= 0 )) 
-		printf("Input error(%i)\n",ret);
-	else
-		gng.create(*vect1,*vect2,gngset);
-
-	KVector kvect(gngset.vecdim, false); // false: no stats-keeping 
-
-	delete vect1,vect2;
+	gng.create(*vect1,*vect2,gngset);
+	delete vect1; delete vect2;
 	
+	KVector kvect(input.num_icols, false); // false: no stats-keeping 
+
 	// counter for amount of nodes
 	int nodes;
 	// current node and edge pointers
 	DVector *nodeT, *edgeT;
 	// color counter for the edges
 	int clr=0;
-	int x_max = 255;
-	int y_max = 255;
+	int x_max = 10024;
+	int y_max = 10024;
 	while (!quit)
 	{
 		ret = input.read_dvect();
@@ -135,7 +123,7 @@ int main(int ac, char **args)
 			
 			// plotting the whole lists (node/edge)
 			while (nodeT != NULL)
-			{	
+			{
 				nodes++;
 				window.wn->drawframe(
 					(int)(((float)(nodeT->get_comp(0))/x_max)*window.wn->win_width),
@@ -146,10 +134,7 @@ int main(int ac, char **args)
 				else
 					clr=0;
 					
-				if (gng.getFirst_edge() != NULL)
-					edgeT = gng.getFirst_edge();
-				else
-					edgeT = NULL;
+				edgeT = gng.getFirst_edge();
 				while (edgeT != NULL)
 				{
 					window.wn->drawline(
@@ -164,6 +149,7 @@ int main(int ac, char **args)
 			}
 			if (nodeT != NULL) delete nodeT;
 			if (edgeT != NULL) delete edgeT;
+			window.wn->swap_buffers();
 		}
 		if (!window.check_events()) quit=true;
 	}
