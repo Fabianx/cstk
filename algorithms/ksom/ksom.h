@@ -28,26 +28,24 @@
 #define DIS_CHEB 1
 #define DIS_EUCL 2
 #define DIS_MINK 3
-
 #define LIN 0
 #define LOG 1
 #define EXP 2
-
-#define EUCLNB 0
-#define MANHNB 1
-#define CHEBNB 2
-#define MINKNB 3
-#define MEXNB 4
+#define EUCLNB  0
+#define MANHNB  1
+#define CHEBNB  2
+#define MINKNB  3
+#define MEXNB   4
 #define GAUSSNB 5
 
 struct KSOMSettings
-{	
+{
 	/*---parameters used for automatig determination of the learning rate---*/
 	/*----------------------------------------------------------------------*/
 	/*automatic decreasing learning rate*/
-  	bool autol;
+	bool autol;
 	/*specification of the function that decreases the learning rate*/
-  	ve_t lfct;
+	ve_t lfct;
 	/*constant that is used by learning rate calculations*/
 	oas_t c;
 	/*number of epochs trained jet*/ 

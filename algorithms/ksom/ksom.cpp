@@ -86,7 +86,7 @@ int KSOM::restorefromFile()
 }
 
 void KSOM::initRandom(DVector& prototyp)
-{   
+{
 for (vei_t x=0; x<max_xy->pvect[0]; x++) 
 {
       	for (vei_t y=0; y<max_xy->pvect[1]; y++) 
@@ -95,9 +95,9 @@ for (vei_t x=0; x<max_xy->pvect[0]; x++)
 		{
 			switch (prototyp.get_type(n))
 			{
-				case U8B_TYPE:  vect[_to2(x,y)].set_comp(((u_8b_max)*((double)(rand())/(double)(RAND_MAX+1))),U8B_TYPE,n); 
+				case U8B_TYPE:  vect[_to2(x,y)].set_comp( ((u_8b)rand()), U8B_TYPE, n);   // random numbers
 						break;
-				case U16B_TYPE: vect[_to2(x,y)].set_comp(((u_16b_max)*((double)(rand())/(double)(RAND_MAX+1))),U16B_TYPE,n); 
+				case U16B_TYPE: vect[_to2(x,y)].set_comp( ((u_8b)rand()), U16B_TYPE, n ); // small random numbers!
 						break;
 				case U32B_TYPE: vect[_to2(x,y)].set_comp(((u_32b_max)*((double)(rand())/(double)(RAND_MAX+1))),U32B_TYPE,n); 
 						break;
@@ -135,7 +135,7 @@ for (vei_t x=0; x<max_xy->pvect[0]; x++)
 						break;
 			}
         	}           
-	}        
+	}
 }
 }
 
