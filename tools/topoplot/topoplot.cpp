@@ -87,24 +87,24 @@ int main(int ac, char **args)
 		ksomset.dist = DIS_MINK;
 	else ksomset.dist = DIS_EUCL;
 	if ( strcasecmp(params.get_string("nbfunction"),"euclidean")==0 ) 
-		ksomset.dist = EUCLNB;
+		ksomset.nfct = EUCLNB;
 	else if ( strcasecmp(params.get_string("nbfunction"),"manhattan")==0 ) 
-		ksomset.dist = MANHNB;
+		ksomset.nfct = MANHNB;
 	else if ( strcasecmp(params.get_string("nbfunction"),"chebychev")==0 ) 
-		ksomset.dist = CHEBNB;
+		ksomset.nfct = CHEBNB;
 	else if ( strcasecmp(params.get_string("nbfunction"),"minkowski")==0 ) 
-		ksomset.dist = MINKNB;
+		ksomset.nfct = MINKNB;
 	else if ( strcasecmp(params.get_string("nbfunction"),"mexicanhat")==0 ) 
-		ksomset.dist = MEXNB;
+		ksomset.nfct = MEXNB;
 	else if ( strcasecmp(params.get_string("nbfunction"),"gaussian")==0 ) 
-		ksomset.dist = GAUSSNB;
-	else ksomset.dist = GAUSSNB;
+		ksomset.nfct = GAUSSNB;
+	else ksomset.nfct = GAUSSNB;
 	if ( strcasecmp(params.get_string("lfunction"),"linear")==0 ) 
-		ksomset.dist = LIN;
+		ksomset.lfct = LIN;
 	else if ( strcasecmp(params.get_string("lfunction"),"log")==0 ) 
-		ksomset.dist = LOG;
+		ksomset.lfct = LOG;
 	else if ( strcasecmp(params.get_string("lfunction"),"exp")==0 )
-		ksomset.dist = EXP;
+		ksomset.lfct = EXP;
 	ksomset.vecdim    = input.num_icols;
 
 	ksom.create(&ksomset);
