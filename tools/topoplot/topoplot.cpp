@@ -56,12 +56,10 @@ int main(int ac, char **args)
 	input.init(fp);   // parse file and setup inputcolumns
 	if (input.error()) 
 		{ input.export_err(buff);  printf("Input error: %s\n",buff);  return -1;}
-
 	fp = freopen(args[1],"r",fp);
 	window.init(fp);  // parse file for visualisation settings & display
 	if (window.error()) 
 		{ window.export_err(buff); printf("Window error: %s\n",buff); return -1;}
-
 	fp = freopen(args[1],"r",fp);
 	params.init(fp);  // parse file for ksom and kmeans parameters
 	if (params.error()) 
@@ -70,6 +68,7 @@ int main(int ac, char **args)
 	// get the parameter settings:
 	KSOMSettings ksomset;
 	ksomset.autol     = params.get_bool("autolearn");
+	float lr          = params.get_float("learnrate");
 	ksomset.nb_radius = params.get_float("nbradius");
 	ksomset.max_x     = params.get_int("width");
 	ksomset.max_y     = params.get_int("height");
@@ -104,7 +103,7 @@ int main(int ac, char **args)
 		ksomset.dist = LIN;
 	else if ( strcasecmp(params.get_string("lfunction"),"log")==0 ) 
 		ksomset.dist = LOG;
-	else if ( strcasecmp(params.get_string("lfunction"),"exp")==0 ) 
+	else if ( strcasecmp(params.get_string("lfunction"),"exp")==0 )
 		ksomset.dist = EXP;
 	ksomset.vecdim    = input.num_icols;
 
@@ -127,13 +126,26 @@ int main(int ac, char **args)
 		else
 		{
 			//printf("%s\n", input.dvect->to_string());
-			ksom.feed( *(input.dvect), 0.5);
-			// plot each cell
+			ksom.feed( *(input.dvect), lr);
+			// plot each cell (and keep mins and maxs)
+			float max_k= ksom.getCell(0,0,0);
+			float min_k= ksom.getCell(0,0,0);
+			for (vei_t x=0; x<ksomset.max_x; x++) 
+				for (vei_t y=0; y<ksomset.max_y; y++) 
+					for (ve_t h=0; h<ksomset.vecdim; h++) 
+					{
+						if (min_k > (ksom.getCell(x,y,h)) ) {
+							min_k = (ksom.getCell(x,y,h));
+						}
+						if (max_k < (ksom.getCell(x,y,h)) ) {
+							max_k = (ksom.getCell(x,y,h));
+						}
+					}
 			for (vei_t x=0; x<ksomset.max_x; x++) 
 				for (vei_t y=0; y<ksomset.max_y; y++) 
 				{
 					for (ve_t h=0; h<ksomset.vecdim; h++) {
-						kvect.add_comp(   /*to_u8b*/(ksom.getCell(x,y,h))/10 ,h);
+						kvect.add_comp( 255 * (ksom.getCell(x,y,h)-min_k-2)/(max_k-min_k), h);
 					}
 					window.ktplot( x, y, ksomset.max_x, ksomset.max_y, 
 					   ((ksom.winner_x==x)&&(ksom.winner_y==y))?8:15,
