@@ -107,7 +107,7 @@ void X11Plot::create(int x1,int x2,int y1,int y2, int bw, char* window_name)
 void X11Plot::prepare_colours()
 {
 	colour_map = DefaultColormap(display, screen_num);
-	for (int i=0; i<16; i++) {    
+	for (int i=0; i<64; i++) {    
 		plot_colours[i].red   = plot_clrs[i][0];  
 		plot_colours[i].green = plot_clrs[i][1];  
 		plot_colours[i].blue  = plot_clrs[i][2];
