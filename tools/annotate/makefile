@@ -21,22 +21,23 @@ annotate: annotate.o
 	      $(VECTOR_DIR)/binvector.o \
 	      $(VECTOR_DIR)/kvector.o \
 	      $(VECTOR_DIR)/dvector.o \
-	      $(SD_DIR)/rs232parser/rs232parser.o \
-	      $(SD_DIR)/logfileparser/logfileparser.o \
-	      $(SD_DIR)/udpparser/udpparser.o \
-	      $(SD_DIR)/simparser/simparser.o \
-	      $(SD_DIR)/bufferparser.o \
-	      $(BASE_DIR)/kprof/iparse.o \
 	      $(BASE_DIR)/kprof/setparse.o \
-	      $(BASE_DIR)/kprof/rs232setparse.o \
-	      $(BASE_DIR)/kprof/logfilesetparse.o \
-	      $(BASE_DIR)/kprof/udpsetparse.o \
-	      $(BASE_DIR)/kprof/simsetparse.o \
-	      $(BASE_DIR)/kprof/channelsetparse.o \
-	      $(BASE_DIR)/kprof/inputcolumnsetparse.o \
+	      $(BASE_DIR)/kprof/iparse.o \
+	       $(SD_DIR)/rs232parser/rs232parser.o \
+	       $(SD_DIR)/logfileparser/logfileparser.o \
+	       $(SD_DIR)/udpparser/udpparser.o \
+	       $(SD_DIR)/simparser/simparser.o \
+	       $(SD_DIR)/bufferparser.o \
+	       $(BASE_DIR)/kprof/rs232setparse.o \
+	       $(BASE_DIR)/kprof/logfilesetparse.o \
+	       $(BASE_DIR)/kprof/udpsetparse.o \
+	       $(BASE_DIR)/kprof/simsetparse.o \
+	       $(BASE_DIR)/kprof/channelsetparse.o \
+	       $(BASE_DIR)/kprof/inputcolumnsetparse.o \
+	      $(BASE_DIR)/kprof/pparse.o \
 	      annotate.o -o ./$@
 	
-annotate.o: iparse.o datacell.o binvector.o kvector.o dvector.o
+annotate.o: iparse.o pparse.o datacell.o binvector.o kvector.o dvector.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### Dependencies: ##############################################################
@@ -57,6 +58,9 @@ setparse.o:
 	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
 
 iparse.o:
+	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
+
+pparse.o:
 	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
 
 

@@ -19,9 +19,11 @@
 #include "cstk_base/vector/kvector.h"
 #include "cstk_base/vector/dvector.h"
 #include "kprof/iparse.h"
+#include "kprof/pparse.h"
 #include "misc/conio.h"
 #include <sys/time.h>     // for timings
 
+#define BUFFER_MODE    0
 #define BINVECTOR_MODE 1
 #define KVECTOR_MODE   2
 #define DVECTOR_MODE   3
@@ -54,35 +56,53 @@ int main(int ac, char **args) {
 	}
   
 	char buff[0x10000]; // for error msgs
-	IParse input;       // reads xml file and plots
+	IParse input;       // reads xml file for input
+	PParse params;      // reads xml file for parameters
 	ConIO con;          // keyboard io
-	
+
 	FILE* fp = fopen(args[1],"r");
 	if (!fp) {printf("Error opening file %s.\n", args[1]); return -1;}
-	
+
 	bool iterator = false;
 	bool timestamp = false;
 	char mode = 0;
-	
-	for (int i=2; i<ac; i++) {
-		if (ac>i) {
-			if (strcasecmp(args[i],"-i")==0) 
-				iterator=true;
-			else if (strcasecmp(args[i],"-t")==0) 
-				timestamp=true;
-			else if (strcasecmp(args[i],"-b")==0) 
-				mode=BINVECTOR_MODE;
-			else if (strcasecmp(args[i],"-k")==0) 
-				mode=KVECTOR_MODE;
-			else if (strcasecmp(args[i],"-d")==0) 
-				mode=DVECTOR_MODE;
-		}
-	}
 
 	input.init(fp); // parse file and setup inputcolumns
-
 	if (input.error()) 
-		{ input.export_err(buff); printf("%s\n",buff); return -1;}
+		{ input.export_err(buff); printf("Input error: %s\n",buff); return -1;}
+	fp = freopen(args[1],"r",fp);
+	params.init(fp);  // parse file for ksom and kmeans parameters
+	if (params.error()) 
+		{ params.export_err(buff); printf("Params error: %s\n",buff); return -1;}
+
+	if (params.get_string("vectortype")!=NULL) {
+		if ( strcasecmp(params.get_string("vectortype"),"binary")==0 ) 
+			mode = BINVECTOR_MODE;
+		else if ( strcasecmp(params.get_string("vectortype"),"bytes")==0 ) 
+			mode = KVECTOR_MODE;
+		else if ( strcasecmp(params.get_string("vectortype"),"dvector")==0 ) 
+			mode = BINVECTOR_MODE;
+		else if ( strcasecmp(params.get_string("vectortype"),"buffer")==0 ) 
+			mode = BUFFER_MODE;
+	}	
+	iterator  = params.get_bool("iterator");
+	timestamp = params.get_bool("timestamp");
+
+	fclose(fp);
+	
+	// command line parameters override the XML file:	
+	for (int i=2; i<ac; i++) {
+		if (strcasecmp(args[i],"-i")==0) 
+			iterator=true;
+		else if (strcasecmp(args[i],"-t")==0) 
+			timestamp=true;
+		else if (strcasecmp(args[i],"-b")==0) 
+			mode=BINVECTOR_MODE;
+		else if (strcasecmp(args[i],"-k")==0) 
+			mode=KVECTOR_MODE;
+		else if (strcasecmp(args[i],"-d")==0) 
+			mode=DVECTOR_MODE;
+	}
 
 	long unsigned int t=0;
 	char ch=0, cl='0'; // input character, class id
@@ -102,12 +122,9 @@ int main(int ac, char **args) {
 				break;
 			default: 	ret = input.read_buffer(buff);
 				break;
-		}
-		
+		}		
 		if ( ret <= 0 ) 
-		{
 			printf("Error(%i)\n",ret);
-		}
 		else
 		{
 			if (iterator) printf("%6lu\t",t);
@@ -131,15 +148,13 @@ int main(int ac, char **args) {
 					break;
 			}
 			printf("%c\n",cl);
-		}
-		
+		}		
 		ch = con.kb_getc();
 		if (ch!=0) cl = ch;
 		if ( (ch=='q') || (ch=='Q') ) quit = true;
 		t++; // increment integer timestamp
 	}
 	
-	fclose(fp);
 	return 0; // no error
 }
 
