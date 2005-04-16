@@ -81,7 +81,7 @@ int main(int ac, char **args) {
 		else if ( strcasecmp(params.get_string("vectortype"),"bytes")==0 ) 
 			mode = KVECTOR_MODE;
 		else if ( strcasecmp(params.get_string("vectortype"),"dvector")==0 ) 
-			mode = BINVECTOR_MODE;
+			mode = DVECTOR_MODE;
 		else if ( strcasecmp(params.get_string("vectortype"),"buffer")==0 ) 
 			mode = BUFFER_MODE;
 	}	
