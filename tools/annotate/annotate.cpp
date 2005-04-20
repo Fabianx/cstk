@@ -23,13 +23,10 @@
 #include "misc/conio.h"
 #include <sys/time.h>     // for timings
 
-#define BUFFER_MODE    0
-#define BINVECTOR_MODE 1
-#define KVECTOR_MODE   2
-#define DVECTOR_MODE   3
+enum { BUFFER_MODE, BINVECTOR_MODE, KVECTOR_MODE, DVECTOR_MODE};
 
-int main(int ac, char **args) {
-	
+int main(int ac, char **args) 
+{
 	if (ac<2) 
 	{
 		printf("\n  This tool reads a CSTK XML file and\n");
@@ -89,7 +86,7 @@ int main(int ac, char **args) {
 	timestamp = params.get_bool("timestamp");
 
 	fclose(fp);
-	
+
 	// command line parameters override the XML file:	
 	for (int i=2; i<ac; i++) {
 		if (strcasecmp(args[i],"-i")==0) 
@@ -154,7 +151,7 @@ int main(int ac, char **args) {
 		if ( (ch=='q') || (ch=='Q') ) quit = true;
 		t++; // increment integer timestamp
 	}
-	
+
 	return 0; // no error
 }
 

@@ -17,25 +17,17 @@
 #ifndef TAGS_H
 #define TAGS_H
 
-#define ERR_INVATTR      1
-#define ERR_INVTAG       2
-#define ERR_INVCH        3
-#define ERR_TAGOVERFLOW  4
-#define ERR_NOINPUT      5
-#define ERR_UPDATE       6
-#define ERR_NOFILE       7
-#define ERR_NOSET        8
-#define ERR_CHSET        9
-#define ERR_ICOLSET      10
-#define ERR_NOICOLS      11
-#define ERR_NOWINDOW     12
+// types of errors that can occur while parsing the tags:
+enum { ERR_INVATTR, ERR_INVTAG, ERR_INVCH, ERR_TAGOVERFLOW, ERR_NOINPUT,
+       ERR_UPDATE,  ERR_NOFILE, ERR_NOSET, ERR_CHSET,       ERR_ICOLSET,
+       ERR_NOICOLS, ERR_NOWINDOW };
 
 #define MAX_TAG_LENGTH   255
 #define MAX_DTD_LENGTH   2048
 #define MAX_XSD_LENGTH   1024
 
 #define NUM_KPERRS       13
-const char kperr_strings[NUM_KPERRS][32] = 
+const char kperr_strings[NUM_KPERRS][32] =
 	{ "No error found.",
 	  "Invalid attribute found.",
 	  "Invalid tag found.",
