@@ -3,13 +3,13 @@
 #
 
 CC=g++ -Wall -O3 -g
-
+CC_ARM=/skiff/local/bin/arm-linux-g++ -Wall -O3 -g
 BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ..;pwd)
 VECTOR_DIR=$(BASE_DIR)/cstk_base/vector
 SD_DIR=$(BASE_DIR)/sensordata
 
 all: 	kvplot_demo iparse_demo \
-	rs232parser_demo logfileparser_demo nmeaparser_demo \
+	logfileparser_demo nmeaparser_demo \
 	udp_snd_demo udp_rec_demo \
 	simparser_demo sensordata_demo bpnn_demo peak_demo 
 
@@ -29,6 +29,22 @@ rs232parser_demo: rs232parser_t.o
 rs232parser_t.o: rs232parser.o datacell.o bufferparser.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
 
+##### Porcupine Demo ############################################################
+
+porcupine_demo: porcupine_t.o
+	$(CC) porcupine_t.o $(SD_DIR)/rs232parser/rs232parser.o \
+	      $(SD_DIR)/bufferparser.o \
+	      $(VECTOR_DIR)/datacell.o \
+	      $(BASE_DIR)/algorithms/peak/peak.o \
+	      $(VECTOR_DIR)/kvector.o \
+	      $(BASE_DIR)/viz/x11/kvplot.o \
+	      $(BASE_DIR)/viz/x11/x11plot.o \
+	      -L/usr/X11R6/lib/ -lX11 -o ./$@
+	
+porcupine_t.o: rs232parser.o datacell.o bufferparser.o  kvector.o peak.o kvplot.o x11plot.o
+	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
+
+	
 ##### LogFileParser Demo ##########################################################
 
 logfileparser_demo: logfileparser_t.o
@@ -140,8 +156,20 @@ kvplot_demo: kvplot_t.o
 	      $(BASE_DIR)/viz/x11/x11plot.o \
 	      -L/usr/X11R6/lib/ -lX11 -o ./$@
 	
+kvplot_demo_arm: kvplot_t_arm.o
+	$(CC_ARM) kvplot_t_arm.o \
+	      $(BASE_DIR)/algorithms/peak/peak_arm.o \
+	      $(VECTOR_DIR)/datacell_arm.o \
+	      $(VECTOR_DIR)/kvector_arm.o \
+	      $(BASE_DIR)/viz/x11/kvplot_arm.o \
+	      $(BASE_DIR)/viz/x11/x11plot_arm.o \
+	      -L/skiff/local/arm-linux/lib/X11/ -lX11 -o ./$@
+	
 kvplot_t.o: datacell.o kvector.o peak.o kvplot.o x11plot.o
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+
+kvplot_t_arm.o: datacell_arm.o kvector_arm.o peak_arm.o kvplot_arm.o x11plot_arm.o
+	$(CC_ARM) -c ./kvplot_t.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### Dependencies: ##############################################################
 
@@ -154,7 +182,13 @@ dvector.o:
 datacell.o:
 	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
 	
+datacell_arm.o:
+	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
+	
 kvector.o:
+	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
+
+kvector_arm.o:
 	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
 
 bufferparser.o:
@@ -184,10 +218,19 @@ bpnn.o:
 peak.o:
 	@cd $(BASE_DIR)/algorithms/$*; make $@ BASE_DIR=$(BASE_DIR)
 	
+peak_arm.o:
+	@cd $(BASE_DIR)/algorithms/peak; make $@ BASE_DIR=$(BASE_DIR)
+	
 kvplot.o:
 	@cd $(BASE_DIR)/viz/x11; make $@ BASE_DIR=$(BASE_DIR)
 
+kvplot_arm.o:
+	@cd $(BASE_DIR)/viz/x11; make $@ BASE_DIR=$(BASE_DIR)
+
 x11plot.o:
+	@cd $(BASE_DIR)/viz/x11; make $@ BASE_DIR=$(BASE_DIR)
+
+x11plot_arm.o:
 	@cd $(BASE_DIR)/viz/x11; make $@ BASE_DIR=$(BASE_DIR)
 
 iparse.o:
