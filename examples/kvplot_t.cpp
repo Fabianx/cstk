@@ -74,6 +74,6 @@ int main(int ac, char **args) {
     window->swap_buffers();
     window->delay(10000);
   } // while     
-                    
+                  
  return 0;  
 }

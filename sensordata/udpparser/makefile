@@ -1,7 +1,10 @@
-# CSTK udpparser makefile, by kristof
-#
+# CSTK makefile, by kristof:
+# tiny and clean :)
 
-CC=g++ -Wall -O3 -g
+BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ../..;pwd)
+
+include $(BASE_DIR)/export_vars
+
 VECTOR_DIR  =$(BASE_DIR)/cstk_base/vector
 
 all:	udpparser.o
@@ -11,10 +14,19 @@ clean:
 	@-rm -f ./*~
 	
 udpparser.o:	datacell.o bufferparser.o
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)/" -o ./$*.o 
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)/" -o ./$*.o 
+	
+udpparser_arm.o:	datacell_arm.o bufferparser_arm.o
+	$(CC_ARM) $(CC_FLAGS_ARM) -c ./udpparser.cpp -I"$(BASE_DIR)/" -o ./$*.o 
 	
 datacell.o:
 	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
 
+datacell_arm.o:
+	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
+
 bufferparser.o:
-	@cd $(BASE_DIR)/sensordata; make $@ BASE_DIR=$(BASE_DIR)
+	@cd $(BASE_DIR)/sensordata/bufferparser; make $@ BASE_DIR=$(BASE_DIR)
+
+bufferparser_arm.o:
+	@cd $(BASE_DIR)/sensordata/bufferparser; make $@ BASE_DIR=$(BASE_DIR)

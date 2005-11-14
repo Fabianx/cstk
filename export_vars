@@ -1,0 +1,7 @@
+CC=g++
+CC_FLAGS= -Wall -O3 -g
+CC_X11= -L/usr/X11R6/lib/ -lX11
+
+CC_ARM=/skiff/local/bin/arm-linux-g++
+CC_FLAGS_ARM= -Wall -O3 -g
+CC_X11_ARM= -L/skiff/local/arm-linux/lib/X11/ -lX11

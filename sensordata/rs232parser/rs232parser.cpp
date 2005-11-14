@@ -24,17 +24,23 @@
 Rs232Parser::Rs232Parser() 
 {
    buf = NULL;
+   tbuf = NULL;
    fd = 0;
    bufcounter = 0;
    err = 0;
+   sep = false;
+   tbuf_counter = 0;
 }
 
 Rs232Parser::Rs232Parser(int baud, int buff, char* poll, char* dev, short mod) 
 {
    buf = NULL;
+   tbuf = NULL;
    fd = 0;
    bufcounter = 0;
    err = 0;
+   sep = false;
+   tbuf_counter = 0;
    rs232_param.baudrate = baud;
    rs232_param.buff_size = buff;
    int i=-1;
@@ -47,8 +53,11 @@ Rs232Parser::Rs232Parser(Rs232ParserSettings rs232_param)
 {
    fd = 0;
    buf = NULL;   
+   tbuf = NULL;   
    bufcounter = 0;
    err = 0;
+   sep = false;
+   tbuf_counter = 0;
    this->rs232_param = rs232_param; // bitwise copy of all
 }
 
@@ -157,9 +166,10 @@ int Rs232Parser::read(char* channel_types, uint numchannels,
 		return err;
 	}
 	else {
-		if (rs232_param.mode==ASC_MODE)
+		if (rs232_param.mode==ASC_MODE) {
 			i = bp.parse_asc( buf, channel_types,
 			              numchannels, columns, filter, numcolumns);
+		}
 		else if (rs232_param.mode==BIN_MODE)
 			i = bp.parse_bin( buf, res, channel_types, 
 			              numchannels, columns, filter, numcolumns);
@@ -201,7 +211,7 @@ int Rs232Parser::read(char *line)
 		}
 	}
 	usleep(rs232_param.poll_wait); 
- 
+	
 	res = ::read(fd,buf,rs232_param.buff_size);  
 	if (res==-1) {
 		return RS232ERR_CANTREAD;
@@ -227,6 +237,7 @@ int Rs232Parser::open_rs232(char* devicename)
 	char *test = NULL;
 	test = new char[1200];
 	buf = new char [rs232_param.buff_size];
+	tbuf = new char [rs232_param.buff_size];
 	// open the device to be non-blocking (read will return immediatly)
 	fd = open(devicename, O_RDWR | O_NONBLOCK | O_NOCTTY); //
 	if (fd ==-1) {     // error:

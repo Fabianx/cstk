@@ -23,7 +23,7 @@
 #include <limits.h>
 #include <float.h>
 #include "sensordata/sensordata.h"
-#include "sensordata/bufferparser.h"
+#include "sensordata/bufferparser/bufferparser.h"
 
 #ifndef BIN_MODE
 #define BIN_MODE 1

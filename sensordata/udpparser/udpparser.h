@@ -28,7 +28,7 @@
 #include <string.h> /* memset() */
 #include "cstk_base/types.h"
 #include "sensordata/sensordata.h"
-#include "sensordata/bufferparser.h"
+#include "sensordata/bufferparser/bufferparser.h"
 
 #define UDPERR_CANNOTOPEN -11
 #define UDPERR_CANNOTBIND -12

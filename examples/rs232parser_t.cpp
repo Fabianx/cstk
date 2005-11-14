@@ -16,92 +16,47 @@
  ***************************************************************************/
 
 #include "sensordata/rs232parser/rs232parser.h"
-
-#define COLS  7
-#define CHANS 8
-  
-void smartit(void) { 
- 
-  int i=0, j=0;
-  Rs232Parser prs; 
-  char poll[16];
-  poll[0] = 'G'; poll[1] = 0;
-  
-  prs.set_baudrate(B115200);
-  prs.set_buff_size(1024);
-  prs.set_poll(poll);
-  prs.set_device("/dev/ttyS1");
-  
-  char channel_types[CHANS];  
-  DataCell channels[CHANS];
-  DataCell columns[COLS];
-  uint select[COLS];
-  
-  // read 8 unsigned bits from the serial line, and store the last seven
-  // in this order:
-  select[0] = 1;  select[1] = 2;  select[2] = 3;  select[3] = 4;
-  select[4] = 5;  select[5] = 6;  select[6] = 7;  
-  for (i=0; i<CHANS; i++) channel_types[i] = U8B_TYPE;
-  for (i=0; i<COLS; i++) { 
-     columns[i].set_type(U8B_TYPE);
-  }                    
-  // read 100 samples:
-  for (i=0; i<100; i++) 
-  {
-    prs.read(channel_types,CHANS, columns, select, COLS);
-    
-    for (j=0; j<COLS; j++) printf("%i ",columns[j].get_u8b());
-    printf(".\n\r");
-  }
-  // read 100 times all channels:
-  for (i=0; i<CHANS; i++) channels[i].set_type(U8B_TYPE);
-  for (i=0; i<100; i++) 
-  {
-    prs.read(channels,CHANS);
-    
-    for (j=0; j<CHANS; j++) printf("%i ",channels[j].get_u8b());
-    printf(".\n\r");
-  }    
-  
-}
-
-void xbow(void) {
- 
-  int i=0, j=0;
-    
-  Rs232Parser pr(B38400,1024,"G","/dev/tty.usbserial0");
-
-  DataCell channels[2];
-  char channel_types[2];
-  unsigned int select[2];
-  for (i=0; i<2; i++) channels[i].set_type(U16B_TYPE);
-  for (i=0; i<2; i++) channel_types[i] = U16B_TYPE;
-  select[0] = 0; select[1] = 1;
-  
-  for (i=0; i<10; i++) 
-  {
-    pr.read(channels,2);
-	pr.read(channel_types,2, channels, select, 2);
-    for (j=0; j<2; j++) printf("%i ",channels[j].get_u16b());
-    printf("  err=%i\n",pr.get_err());
-	usleep(100000);
-  }  
-  
-}
- 
+#include "viz/x11/kvplot.h"
  
 int main(void) {
   
-    /*printf("testing serial parsing routines for a smart-it:\n\r");
-    smartit();
-    printf("\n\rdone.\n\r");     
-    */
+  int i=0, j=0;
     
-    printf("testing serial parsing routines for a xbow adxl202eb:\n\r");
-    xbow();
-    printf("\n\rdone.\n\r");     
+  Rs232Parser pr(B38400,1024,"","/dev/tty.usbserial-ICNQM242");
+  KVPlot kp;
+
+  char buffer[24];
+  bool quit=false;
+  
+  while (!quit) 
+  {
+	// user input
+	 window->delay(0);
+     temp_evnt = window->eventloop();
+     if (temp_evnt==24)          // 'q'
+        quit = true;      
     
-    return 0;
+	// read serial data in buffer
+	 for (j=0; j<24; j++) buffer[j] = 0;
+     pr.read(buffer);
+	
+	// extract vect from buffer
+	 vect.add_comp(126); 
+	
+	// show histogram in top third area:
+     kp.histogram(1,4, vect,0, 58, "Histogram");
+    // show scrolling plot in second third area:
+     kp.timeseries(2,4, vect,2, "Time Series");
+    // show peak plot in bottom third area:
+     vect.get_peak(&psiz, &pamp, &plen, &sign);
+     peak.add_peak( psiz,  pamp,  plen, sign);
+     kp.peakplot(3,4, peak,"Peak Analysis");
+     kp.textplot(4,4, vect);
+     window->swap_buffers();
+     window->delay(10000);
+  }  
+  
+  return 0;
 }
  
 
