@@ -7,7 +7,7 @@ include $(BASE_DIR)/export_vars
 
 VECTOR_DIR  =$(BASE_DIR)/cstk_base/vector
 
-all:	simparser.o
+all:	simparser.o simparser_arm.o
  
 clean:
 	@-rm -f ./*.o
@@ -16,11 +16,8 @@ clean:
 simparser.o:	datacell.o
 	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)/" -o ./$*.o 
 	
-simparser_arm.o:	datacell.o
+simparser_arm.o:	datacell_arm.o
 	$(CC_ARM) $(CC_FLAGS_ARM) -c ./$*.cpp -I"$(BASE_DIR)/" -o ./$*.o 
 	
-datacell.o:
-	@cd $(VECTOR_DIR); make datacell.o BASE_DIR=$(BASE_DIR)
-
-datacell_arm.o:
+datacel%.o:
 	@cd $(VECTOR_DIR); make datacell.o BASE_DIR=$(BASE_DIR)

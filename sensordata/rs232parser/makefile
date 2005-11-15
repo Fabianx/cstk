@@ -19,14 +19,9 @@ rs232parser.o:	datacell.o bufferparser.o
 rs232parser_arm.o:	datacell_arm.o bufferparser_arm.o
 	$(CC_ARM) $(CC_FLAGS_ARM) -c ./$*.cpp -I"$(BASE_DIR)/" -o ./$*.o 
 	
-datacell.o:
+datacel%.o:
 	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
 
-bufferparser.o:
+bufferparse%.o:
 	@cd $(BASE_DIR)/sensordata/bufferparser; make $@ BASE_DIR=$(BASE_DIR)
 
-datacell_arm.o:
-	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
-
-bufferparser_arm.o:
-	@cd $(BASE_DIR)/sensordata/bufferparser; make $@ BASE_DIR=$(BASE_DIR)

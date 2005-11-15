@@ -7,7 +7,7 @@ include $(BASE_DIR)/export_vars
 
 VECTOR_DIR  =$(BASE_DIR)/cstk_base/vector
 
-all:	udpparser.o
+all:	udpparser.o udpparser_arm.o
  
 clean:
 	@-rm -f ./*.o
@@ -19,14 +19,8 @@ udpparser.o:	datacell.o bufferparser.o
 udpparser_arm.o:	datacell_arm.o bufferparser_arm.o
 	$(CC_ARM) $(CC_FLAGS_ARM) -c ./udpparser.cpp -I"$(BASE_DIR)/" -o ./$*.o 
 	
-datacell.o:
+datacel%.o:
 	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
 
-datacell_arm.o:
-	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
-
-bufferparser.o:
-	@cd $(BASE_DIR)/sensordata/bufferparser; make $@ BASE_DIR=$(BASE_DIR)
-
-bufferparser_arm.o:
+bufferparse%.o:
 	@cd $(BASE_DIR)/sensordata/bufferparser; make $@ BASE_DIR=$(BASE_DIR)

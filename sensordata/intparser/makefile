@@ -1,13 +1,10 @@
-# CSTK tmp makefile, by kristof
-#
+# CSTK makefile, by kristof:
+# tiny and clean :)
 
-CC=g++ -Wall -O3 -g
-SUBDIRS = $(notdir $(subst .,,$(shell find . -maxdepth 1 -type d)))
+BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ../..;pwd)
 
-all:
-	@-for i in $(SUBDIRS); do cd $$i; make all BASE_DIR=$(BASE_DIR); cd ..; done
+include $(BASE_DIR)/export_vars
 
 clean:
 	@-rm -f ./*~
-	@-for i in $(SUBDIRS); do cd $$i; make clean; cd ..; done
 	
