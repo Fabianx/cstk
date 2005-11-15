@@ -21,7 +21,7 @@
 /* return a format descriptor, using sign (0=unsigned, 1=signed)
    number of bits (1-64), and format (integer, float)
 */
-char DC_typecast(bool sign, int bits, char format)
+signed char DC_typecast(bool sign, int bits, signed char format)
 {
   if (format==DF_INTEGER) {
     if (!sign) {
@@ -50,7 +50,7 @@ char DC_typecast(bool sign, int bits, char format)
 /* return a format descriptor, using a value
    and format (integer, float)
 */
-char FL_typecast(f_64b value, char format) 
+signed char FL_typecast(f_64b value, signed char format) 
 {
 	if ((format<20) && (format>0))
 	{

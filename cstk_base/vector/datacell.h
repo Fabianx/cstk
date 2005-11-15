@@ -78,11 +78,11 @@
 /* return a format descriptor, using sign (0=unsigned, 1=signed) 
    number of bits (1-64), and format (integer, float)
   */
-char DC_typecast(bool sign, int bits, char format);
+signed char DC_typecast(bool sign, int bits, signed char format);
 
-char FL_typecast(double value, char format);
+signed char FL_typecast(double value, signed char format);
 
-#define isfloat(a) ((a==trunc(a))? 0 : 1)
+#define isfloat(a) ((a==floor(a))? 0 : 1)
 
 /** DataCell, to be used for converting sensor data packets from 
     elsewhere to import or export into the CSTK tools, also a pretty
@@ -94,7 +94,7 @@ class DataCell {
 	~DataCell();
   
 	unsigned char get_bits();
-	char get_type();
+	signed char get_type();
 	void set_bits(unsigned char newbits);
 	void set_type(char newtype);
 	bool test_type(char testtype);
@@ -132,7 +132,7 @@ class DataCell {
 			u_8b b5, u_8b b6, u_8b b7, u_8b b8);
    
  private:
-	char type; // see defines above
+	signed char type; // see defines above
 	union Value {
 		bool	boolval;
 		s_8b	s8val;  	u_8b	u8val;
