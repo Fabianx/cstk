@@ -1,15 +1,18 @@
-# CSTK peak makefile, by kristof:
-#
+# CSTK makefile, by kristof:
+# tiny and clean :)
 
-CC=g++ -Wall -O3 -g
-BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ../..;pwd)
+BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ..;pwd)
 
-all:	peak.o
+include $(BASE_DIR)/export_vars
+
+all:	peak.o peak_arm.o
 
 clean:
 	@-rm -f ./*.o
 	@-rm -f ./*~
 	
 peak.o: 
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
+	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
+peak_arm.o: 
+	$(CC_ARM) -c ./peak.cpp -I"$(BASE_DIR)" -o ./$@

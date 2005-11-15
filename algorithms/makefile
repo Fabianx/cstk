@@ -1,8 +1,10 @@
-# CSTK algorithms makefile, by kristof
-#
+# CSTK makefile, by kristof:
+# tiny and clean :)
 
-CC=g++ -Wall -O3 -g
 BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ..;pwd)
+
+include $(BASE_DIR)/export_vars
+
 SUBDIRS = $(notdir $(subst .,,$(shell find . -maxdepth 1 -type d)))
 
 all:
