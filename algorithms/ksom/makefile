@@ -1,15 +1,19 @@
-# CSTK ksom makefile, by kristof:
-#
+# CSTK makefile, by kristof:
+# tiny and clean :)
 
-CC=g++ -Wall -O3 -g
 BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ../..;pwd)
 
-all:	ksom.o
+include $(BASE_DIR)/export_vars
+
+all:	ksom.o ksom_arm.o
 
 clean:
 	@-rm -f ./*.o
 	@-rm -f ./*~
 	
 ksom.o: 
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+
+ksom_arm.o: 
+	$(CC_ARM) $(CC_FLAGS_ARM) -c ./ksom.cpp -I"$(BASE_DIR)" -o ./$@
 

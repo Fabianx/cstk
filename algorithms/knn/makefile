@@ -1,15 +1,18 @@
-# CSTK knn makefile, by kristof:
-#
+# CSTK makefile, by kristof:
+# tiny and clean :)
 
-CC=g++ -Wall -O3 -g
 BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ../..;pwd)
 
-all:	knn.o
+include $(BASE_DIR)/export_vars
+
+all:	knn.o knn_arm.o
 
 clean:
 	@-rm -f ./*.o
 	@-rm -f ./*~
 	
 knn.o: 
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
+knn_arm.o: 
+	$(CC_ARM) $(CC_ARM_FLAGS) -c ./knn.cpp -I"$(BASE_DIR)" -o ./$@

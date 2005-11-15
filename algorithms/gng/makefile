@@ -1,15 +1,19 @@
-# CSTK gng makefile, by martin:
-#
+# CSTK makefile, by kristof:
+# tiny and clean :)
 
-CC=g++ -Wall -O3 -g
 BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ../..;pwd)
 
-all:	gng.o
+include $(BASE_DIR)/export_vars
+
+all:	gng.o gng_arm.o
 
 clean:
 	@-rm -f ./*.o
 	@-rm -f ./*~
 	
 gng.o: 
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+
+gng_arm.o: 
+	$(CC_ARM) $(CC_ARM_FLAGS) -c ./gng.cpp -I"$(BASE_DIR)" -o ./$@
 
