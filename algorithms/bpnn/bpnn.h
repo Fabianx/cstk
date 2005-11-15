@@ -18,10 +18,6 @@
 #ifndef KBPNN_H
 #define KBPNN_H
 
-#ifndef uint
-#define uint unsigned int
-#endif
-
 #ifndef sint
 #define sint signed int
 #endif
@@ -41,7 +37,7 @@ public:
     if (delta!=NULL) delete[] delta;
     if (weight!=NULL) delete[] weight;
   };
-  uint create(uint newsize, uint newweights) {
+  unsigned int create(unsigned int newsize, unsigned int newweights) {
      size = newsize; num_weights = newweights;
      neuron = new float[size];
      err = new float[size];
@@ -49,8 +45,8 @@ public:
      weight = new float[num_weights*size];
      return 0;
   };                       
-  uint size;     // number of neurons
-  uint num_weights;  // number of weights per neuron
+  unsigned int size;     // number of neurons
+  unsigned int num_weights;  // number of weights per neuron
   float *neuron;     // neuron i
   float *weight;     // weights arriving at neuron i
   float *delta;      // previous delta's (for momentum)
@@ -63,11 +59,11 @@ public:
 
 class BPNN {
 public: 
-  BPNN(uint newnum_inputs, uint newnum_outputs, uint newnum_layers);
+  BPNN(unsigned int newnum_inputs, unsigned int newnum_outputs, unsigned int newnum_layers);
   ~BPNN();
 
-  int add_layer(uint iter, uint num_neurons, uint num_weigths);
-  int print_layer(uint iter);
+  int add_layer(unsigned int iter, unsigned int num_neurons, unsigned int num_weigths);
+  int print_layer(unsigned int iter);
   int random_init();
   int feed();
   float calc_sserror();
@@ -75,18 +71,18 @@ public:
   int backprop(float lr, float mom=0.0);
   float sigmoid(float val);
   float sigmoid_diff(float val);
-  uint train_from_file(char* filename, float threshold, 
-                       uint maxiter, float lr, float mom=0.0);
+  unsigned int train_from_file(char* filename, float threshold, 
+                       unsigned int maxiter, float lr, float mom=0.0);
   float test_from_file(char* filename, short int print=1);
 
   float *inputs;
-  uint num_inputs; 
+  unsigned int num_inputs; 
   float *outputs;
-  uint num_outputs;
+  unsigned int num_outputs;
 
 private:
   Layer *layers;
-  uint num_layers;
+  unsigned int num_layers;
   
 };
 

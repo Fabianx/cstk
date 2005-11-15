@@ -17,7 +17,7 @@
 
 #include "bpnn.h"
 
-BPNN::BPNN(uint newnum_inputs, uint newnum_outputs, uint newnum_layers)
+BPNN::BPNN(unsigned int newnum_inputs, unsigned int newnum_outputs, unsigned int newnum_layers)
 {
   num_inputs = newnum_inputs;
   inputs = new float[num_inputs];
@@ -34,9 +34,9 @@ BPNN::~BPNN()
   delete[] layers;
 }
   
-int BPNN::add_layer(uint iter, uint num_neurons, uint num_weights)
+int BPNN::add_layer(unsigned int iter, unsigned int num_neurons, unsigned int num_weights)
 {
-  uint i,j;
+  unsigned int i,j;
   layers[iter].create(num_neurons, num_weights);
   for (i=0; i<num_neurons;i++) {
      layers[iter].neuron[i] = 0.0;
@@ -47,9 +47,9 @@ int BPNN::add_layer(uint iter, uint num_neurons, uint num_weights)
   return 0;  
 }
 
-int BPNN::print_layer(uint iter)
+int BPNN::print_layer(unsigned int iter)
 {
-  uint i,j;
+  unsigned int i,j;
   printf("Layer %i:\n\r", iter);
   for (i=0; i<layers[iter].size;i++) {
      printf("  %f (", layers[iter].neuron[i]);
@@ -63,7 +63,7 @@ int BPNN::print_layer(uint iter)
 
 int BPNN::random_init()
 {
-  uint i,j,k;
+  unsigned int i,j,k;
   for (k=0; k<num_layers;k++) {
    for (i=0; i<layers[k].size;i++) {
      for (j=0; j<layers[k].num_weights;j++) {
@@ -76,7 +76,7 @@ int BPNN::random_init()
 
 int BPNN::feed()
 {
-  uint i,j,k;
+  unsigned int i,j,k;
   float sum;
   // start with the first layer taking data from the input vector:        
    for (i=0;i<layers[0].size;i++) {
@@ -108,7 +108,7 @@ int BPNN::feed()
 /* calculate the sum squared error for the entire net for the current input and current desired output */
 float BPNN::calc_sserror()
 {
-  uint i;
+  unsigned int i;
   float sum=0;
   feed(); // feed input to the net
   for (i=0; i<num_outputs;i++) {    // targets      real outputs:
@@ -121,7 +121,7 @@ float BPNN::calc_sserror()
 /* reset the sum squared error */
 float BPNN::reset_sserror()
 {
-  uint i;
+  unsigned int i;
   for (i=0; i<num_outputs;i++) {             
      layers[num_layers-1].err[i] = 0.0;
   }
@@ -130,7 +130,7 @@ float BPNN::reset_sserror()
 
 int BPNN::backprop(float lr, float mom)
 {
-  uint i,j,k;
+  unsigned int i,j,k;
 
   // clear all errors but the top ones.. 
   for (k=0; k<num_layers-1; k++) {                 // go through the layers (output -> input)
@@ -180,9 +180,9 @@ float BPNN::sigmoid_diff(float val)
   //return (val*(1-val));
 }
 
-uint BPNN::train_from_file(char* filename, float threshold, uint maxiter, float lr, float mom)
+unsigned int BPNN::train_from_file(char* filename, float threshold, unsigned int maxiter, float lr, float mom)
 {
-  uint i=0,j;
+  unsigned int i=0,j;
   float tot_error=threshold+1.0;
   FILE *fp;
 
@@ -212,7 +212,7 @@ uint BPNN::train_from_file(char* filename, float threshold, uint maxiter, float 
  
 float BPNN::test_from_file(char* filename, short int print)
 {
-  uint i,j;
+  unsigned int i,j;
   float tot_error=0;
   FILE *fp;
 
