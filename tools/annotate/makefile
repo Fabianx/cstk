@@ -1,9 +1,10 @@
-###################################################################################
-# CSTK annotate makefile, by kristof:
-#
+# CSTK makefile, by kristof:
+# tiny and clean :)
 
-CC=g++ -Wall -O3 -g
 BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ../..;pwd)
+
+include $(BASE_DIR)/export_vars
+
 VECTOR_DIR=$(BASE_DIR)/cstk_base/vector
 SD_DIR=$(BASE_DIR)/sensordata
 
@@ -17,7 +18,7 @@ clean:
 ##### Annotate Tool ##############################################################
 
 annotate: annotate.o
-	$(CC) $(VECTOR_DIR)/datacell.o \
+	$(CC) $(CC_FLAGS) $(VECTOR_DIR)/datacell.o \
 	      $(VECTOR_DIR)/binvector.o \
 	      $(VECTOR_DIR)/kvector.o \
 	      $(VECTOR_DIR)/dvector.o \
@@ -27,7 +28,7 @@ annotate: annotate.o
 	       $(SD_DIR)/logfileparser/logfileparser.o \
 	       $(SD_DIR)/udpparser/udpparser.o \
 	       $(SD_DIR)/simparser/simparser.o \
-	       $(SD_DIR)/bufferparser.o \
+	       $(SD_DIR)/bufferparser/bufferparser.o \
 	       $(BASE_DIR)/kprof/rs232setparse.o \
 	       $(BASE_DIR)/kprof/logfilesetparse.o \
 	       $(BASE_DIR)/kprof/udpsetparse.o \
@@ -38,31 +39,18 @@ annotate: annotate.o
 	      annotate.o -o ./$@
 	
 annotate.o: iparse.o pparse.o datacell.o binvector.o kvector.o dvector.o
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### Dependencies: ##############################################################
 
 datacell.o:
 	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
 
-binvector.o:
+%vector.o:
 	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
 
-kvector.o:
-	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
-
-dvector.o:
-	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
-
-setparse.o:
+%parse.o:
 	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
-
-iparse.o:
-	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
-
-pparse.o:
-	@cd $(BASE_DIR)/kprof; make $@ BASE_DIR=$(BASE_DIR)
-
 
 ###################################################################################
 
