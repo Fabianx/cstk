@@ -14,7 +14,7 @@ clean:
 	@-rm -f ./*~
 	
 nmeaparser.o:	datacell.o
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)/" -o ./$*.o 
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)/" -o ./$@
 	
 datacell.o:
 	@cd $(VECTOR_DIR); make datacell.o BASE_DIR=$(BASE_DIR)
