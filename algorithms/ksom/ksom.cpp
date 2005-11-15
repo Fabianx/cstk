@@ -64,7 +64,7 @@ void KSOM::savetoFile()
 	FILE *f = fopen("grid.sav","w");
 	for (vei_t i=0; i<(_to2(par->max_x-1,par->max_y)); i++)
 		for (vei_t j=0; j<vect[i].get_dim(); j++)
-			fprintf(f,"(%i,%i,%i)%lf ",i,j,vect[i].get_type(j),vect[i].get_comp(j));
+			fprintf(f,"(%i,%i,%i)%f ",i,j,vect[i].get_type(j),vect[i].get_comp(j));
 	fclose(f);
 }
 
@@ -215,8 +215,8 @@ oas_t KSOM::det_nb(KVector& vec1, KVector& vec2, ve_t fct)
 		case MEXNB:	if ((vec1.dis_eucl(vec2)) <= par->d)
 					return det_nb(vec1,vec2,GAUSSNB);
 				else if ((par->d < vec1.dis_eucl(vec2)) 
-					and 
-					(vec1.dis_eucl(vec2) <= (3*par->d+1)))
+					  && 
+					 (vec1.dis_eucl(vec2) <= (3*par->d+1)))
 					return -(det_nb(vec1,vec2,GAUSSNB)/par->roh); 
 				else if (vec1.dis_eucl(vec2) > (3*par->d+1))
 					return 0.0;
@@ -308,7 +308,7 @@ oas_t KSOMfct::det_nb(oas_t dist, ve_t fct)
 		case MINKNB:	return (1.0/(1.0 + dist));
 		case MEXNB:	if (dist <= par->d)
 					return det_nb(dist,GAUSSNB);
-				else if ((par->d < dist) and (dist <= (3*par->d+1)))
+				else if ((par->d < dist) && (dist <= (3*par->d+1)))
 					return -(det_nb(dist,GAUSSNB)/par->roh); 
 				else if (dist > (3*par->d+1))
 					return 0.0;
