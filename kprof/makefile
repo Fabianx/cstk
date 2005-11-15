@@ -11,7 +11,7 @@ all:	setparse.o rs232setparse.o udpsetparse.o \
 	logfilesetparse.o simsetparse.o channelsetparse.o \
 	windowsetparse.o plotsetparse.o ksomsetparse.o \
 	iparse.o wparse.o pparse.o \
-	setparse_arm rs232setparse_arm.o udpsetparse_arm.o \
+	setparse_arm.o rs232setparse_arm.o udpsetparse_arm.o \
 	logfilesetparse_arm.o simsetparse_arm.o channelsetparse_arm.o \
 	windowsetparse_arm.o plotsetparse_arm.o ksomsetparse_arm.o \
 	iparse_arm.o wparse_arm.o pparse_arm.o
@@ -46,6 +46,12 @@ wparse_arm.o: kvector_arm.o peak_arm.o plotsetparse_arm.o windowsetparse_arm.o \
 
 ##### Params Parsing ##############################################################
 
+setparse.o:
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+
+setparse_arm.o:
+	$(CC_ARM) $(CC_FLAGS_ARM) -c ./setparse.cpp -I"$(BASE_DIR)" -o ./$@
+
 %parse.o: setparse.o
 	$(CC) $(CC_FLAGS) -c ./$*parse.cpp -I"$(BASE_DIR)" -o ./$@
 
@@ -53,12 +59,6 @@ wparse_arm.o: kvector_arm.o peak_arm.o plotsetparse_arm.o windowsetparse_arm.o \
 	$(CC_ARM) $(CC_FLAGS_ARM) -c ./$*parse.cpp -I"$(BASE_DIR)" -o ./$@
 
 ###################################################################################
-
-setparse.o:
-	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
-
-setparse_arm.o:
-	$(CC_ARM) $(CC_FLAGS_ARM) -c ./setparse.cpp -I"$(BASE_DIR)" -o ./$@
 
 kprof.o:	peak.o
 	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
