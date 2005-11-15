@@ -1,8 +1,11 @@
-# CSTK examples makefile, by Martin:
-#
+# CSTK makefile, by kristof:
+# tiny and clean :)
 
-CC=g++ -Wall -O3 -g
-BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ../..;pwd)
+BASE_DIR= $(if(BASE_DIR==NULL)$(shell cd ..;pwd)
+
+include $(BASE_DIR)/export_vars
+
+all:	dvectormatrix.o dvectormatrix_arm.o
 
 clean:
 	@-rm -f ./*.o
@@ -11,4 +14,5 @@ clean:
 dvectormatrix.o:
 	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
 
-all:	dvectormatrix.o
+dvectormatrix_arm.o:
+	$(CC_ARM) -c ./dvectormatrix.cpp -I"$(BASE_DIR)" -o ./$*.o
