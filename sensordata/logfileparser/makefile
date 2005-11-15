@@ -16,17 +16,11 @@ clean:
 logfileparser.o:	datacell.o bufferparser.o
 	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)/" -o ./$*.o 
 	
-logfileparser.o:	datacell_arm.o bufferparser_arm.o
+logfileparser_arm.o:	datacell_arm.o bufferparser_arm.o
 	$(CC_ARM) $(CC_FLAGS_ARM) -c ./$*.cpp -I"$(BASE_DIR)/" -o ./$*.o 
 	
-datacell.o:
+datacel%.o:
 	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
 
-bufferparser.o:
-	@cd $(BASE_DIR)/sensordata/bufferparser; make $@ BASE_DIR=$(BASE_DIR)
-
-datacell_arm.o:
-	@cd $(VECTOR_DIR); make $@ BASE_DIR=$(BASE_DIR)
-
-bufferparser_arm.o:
+bufferparse%.o:
 	@cd $(BASE_DIR)/sensordata/bufferparser; make $@ BASE_DIR=$(BASE_DIR)
