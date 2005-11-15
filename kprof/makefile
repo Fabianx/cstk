@@ -46,12 +46,6 @@ wparse_arm.o: kvector_arm.o peak_arm.o plotsetparse_arm.o windowsetparse_arm.o \
 
 ##### Params Parsing ##############################################################
 
-setparse.o:
-	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
-
-setparse_arm.o:
-	$(CC_ARM) $(CC_FLAGS_ARM) -c ./setparse.cpp -I"$(BASE_DIR)" -o ./$@
-
 %parse.o: setparse.o
 	$(CC) $(CC_FLAGS) -c ./$*parse.cpp -I"$(BASE_DIR)" -o ./$@
 
@@ -60,11 +54,17 @@ setparse_arm.o:
 
 ###################################################################################
 
+setparse.o:
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+
+setparse_arm.o:
+	$(CC_ARM) $(CC_FLAGS_ARM) -c ./setparse.cpp -I"$(BASE_DIR)" -o ./$@
+
 kprof.o:	peak.o
 	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
-kprof_arm.o:	peak.o
-	$(CC_ARM) $(CC_FLAGS_ARM) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+kprof_arm.o:	peak_arm.o
+	$(CC_ARM) $(CC_FLAGS_ARM) -c ./kprof.cpp -I"$(BASE_DIR)" -o ./$@
 
 
 ##### Dependencies: ##############################################################
@@ -91,7 +91,7 @@ datacell_arm.o:
 	@cd $(BASE_DIR)/sensordata/$*parser; make $@ BASE_DIR=$(BASE_DIR)
 
 %parser_arm.o:
-	@cd $(BASE_DIR)/sensordata/$*parser_arm; make $@ BASE_DIR=$(BASE_DIR)
+	@cd $(BASE_DIR)/sensordata/$*parser; make $@ BASE_DIR=$(BASE_DIR)
 
 %plot.o:
 	@cd $(BASE_DIR)/viz/x11; make $@ BASE_DIR=$(BASE_DIR)
