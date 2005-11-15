@@ -15,5 +15,5 @@ kmeans.o:
 	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 kmeans_arm.o: 
-	$(CC_ARM) $(CC_ARM_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC_ARM) $(CC_ARM_FLAGS) -c ./kmeans.cpp -I"$(BASE_DIR)" -o ./$@
 

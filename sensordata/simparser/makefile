@@ -17,7 +17,7 @@ simparser.o:	datacell.o
 	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)/" -o ./$*.o 
 	
 simparser_arm.o:	datacell_arm.o
-	$(CC_ARM) $(CC_FLAGS_ARM) -c ./$*.cpp -I"$(BASE_DIR)/" -o ./$*.o 
+	$(CC_ARM) $(CC_FLAGS_ARM) -c ./simparser.cpp -I"$(BASE_DIR)/" -o ./$*.o 
 	
 datacel%.o:
 	@cd $(VECTOR_DIR); make datacell.o BASE_DIR=$(BASE_DIR)
