@@ -147,11 +147,11 @@ u_8b  DataCell::convert_u8b()
 }
 
 // type/bits getting, setting and testing:
-char DataCell::get_type() { return type;}
+signed char DataCell::get_type() { return type;}
 unsigned char DataCell::get_bits() { return bits;}
-void DataCell::set_type(char newtype) {type=newtype;}
+void DataCell::set_type(signed char newtype) {type=newtype;}
 void DataCell::set_bits(unsigned char newbits)  {bits=newbits;}
-bool DataCell::test_type(char testtype) {return type==testtype;}
+bool DataCell::test_type(signed char testtype) {return type==testtype;}
 
 // set base type and value:
 void DataCell::set_boolval(bool newval) {val.boolval=newval;type = BOOL_TYPE;}

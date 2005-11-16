@@ -96,8 +96,8 @@ class DataCell {
 	unsigned char get_bits();
 	signed char get_type();
 	void set_bits(unsigned char newbits);
-	void set_type(char newtype);
-	bool test_type(char testtype);
+	void set_type(signed char newtype);
+	bool test_type(signed char testtype);
   
 	// generic get and set:
 	f_64b get();
