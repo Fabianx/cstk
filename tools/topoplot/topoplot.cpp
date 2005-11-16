@@ -145,7 +145,7 @@ int main(int ac, char **args)
 				for (vei_t y=0; y<ksomset.max_y; y++) 
 				{
 					for (ve_t h=0; h<ksomset.vecdim; h++) {
-						kvect.add_comp( 255 * (ksom.getCell(x,y,h)-min_k-2)/(max_k-min_k), h);
+						kvect.add_comp( (ve_t) (255 * (ksom.getCell(x,y,h)-min_k-2)/(max_k-min_k)), h);
 					}
 					window.ktplot( x, y, ksomset.max_x, ksomset.max_y, 
 					   ((ksom.winner_x==x)&&(ksom.winner_y==y))?8:15,
