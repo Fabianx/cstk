@@ -84,12 +84,12 @@
 	EdgeListElement *currEdge;
 	currNode = first;
 	int i=0;
-	fprintf(f1,"MaximumAge=%i, DecreaseError=%lf, AlphaVal=%lf, EpsilonValB=%lf, EpsilonValN=%lf, VecDim=%i\n",
+	fprintf(f1,"MaximumAge=%i, DecreaseError=%f, AlphaVal=%f, EpsilonValB=%f, EpsilonValN=%f, VecDim=%i\n",
 		    par.age_max, par.d, par.alpha, par.epsilon_b, par.epsilon_n, first->vector->get_dim());
 	while (currNode != NULL)
 	{
 		for (vei_t j=0; j<currNode->vector->get_dim(); j++)
-			fprintf(f1,"(%i)(%i,%i,%i)%lf\n",(int)currNode,
+			fprintf(f1,"(%i)(%i,%i,%i)%f\n",(int)currNode,
 				i,j,currNode->vector->get_type(j),currNode->vector->get_comp(j));
 		
 		currEdge = (*currNode).firstEdge;
@@ -115,7 +115,7 @@
 		vei_t i, j, t, n;
 		ves_t nodenum;
 		first = NULL;
-		fscanf(f,"MaximumAge=%hi, DecreaseError=%lf, AlphaVal=%lf, EpsilonValB=%lf, EpsilonValN=%lf, VecDim=%hi\n",
+		fscanf(f,"MaximumAge=%hi, DecreaseError=%f, AlphaVal=%f, EpsilonValB=%f, EpsilonValN=%f, VecDim=%i\n",
 		    &par.age_max, &par.d, &par.alpha, &par.epsilon_b, &par.epsilon_n, &n);
 		while (!feof(f))
 		{
@@ -126,7 +126,7 @@
 			(*node).vector = new DVector(n);
 			while ((i<n) || (!feof(f)))
 			{
-				fscanf(f,"(%li)(%hi,%hi,%hi)%lf\n",&nodenum,&i,&j,&t,&out);
+				fscanf(f,"(%i)(%i,%i,%i)%f\n",&nodenum,&i,&j,&t,&out);
 				(*node).vector->set_comp(out,t,j);
 			}
 			(*node).DeltaError = 0;

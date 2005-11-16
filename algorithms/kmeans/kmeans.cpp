@@ -57,7 +57,7 @@ void KMeans::savetoFile()
 			bucket_num,alpval,selected_dist,exponent,bucket[0].get_dim());
 	for (vei_t i=0; i<bucket_num; i++)
 		for (vei_t j=0; j<bucket[i].get_dim(); j++)
-			fprintf(f,"(%i,%i,%i)%lf ",i,j,bucket[i].get_type(j),bucket[i].get_comp(j));
+			fprintf(f,"(%i,%i,%i)%f ",i,j,bucket[i].get_type(j),bucket[i].get_comp(j));
 	fclose(f);
 }
 
@@ -70,7 +70,7 @@ int KMeans::restorefromFile()
 		float alph; 
 		unsigned int dist;
 		fscanf(f,"#clusters=%i, alphavalue=%f, distance=%u, exponent=%u, n=%i\n",&num,&alph,&dist,&expo,&n);
-		//printf("#clusters=%i, alphavalue=%g, distance=%u, exponent=%u, n=%i\n",num,alph,dist,expo,n);
+		//printf("#clusters=%i, alphavalue=%f, distance=%u, exponent=%u, n=%i\n",num,alph,dist,expo,n);
 		create(num,alph,dist,expo);
 		for (int i=0; i<num; i++)
 			bucket[i].create(n);
@@ -78,8 +78,8 @@ int KMeans::restorefromFile()
 		int i,j,t;
 		while (!feof(f))
 		{
-			fscanf(f,"(%i,%i,%i)%lf ",&i,&j,&t,&out);
-			//printf("(%i,%i,%i)%lf",i,j,t,out);
+			fscanf(f,"(%i,%i,%i)%f ",&i,&j,&t,&out);
+			//printf("(%i,%i,%i)%f",i,j,t,out);
 			bucket[i].set_comp(out,t,j);
 		}
 		fclose(f);
