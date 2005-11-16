@@ -87,6 +87,7 @@ int main(int ac, char **args)
 	}
 	DVector *vect1 = new DVector(*(input.dvect));
 	DVector *vect2 = new DVector(*(input.dvect));
+	gngset.vecdim = 2;
 	gng.create(*vect1,*vect2,gngset);
 	delete vect1; delete vect2;
 	
