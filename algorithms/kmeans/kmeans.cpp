@@ -67,9 +67,9 @@ int KMeans::restorefromFile()
 	if (!ferror(f))
 	{
 		int num, expo,n;
-		double alph; 
+		float alph; 
 		unsigned int dist;
-		fscanf(f,"#clusters=%i, alphavalue=%g, distance=%u, exponent=%u, n=%i\n",&num,&alph,&dist,&expo,&n);
+		fscanf(f,"#clusters=%i, alphavalue=%f, distance=%u, exponent=%u, n=%i\n",&num,&alph,&dist,&expo,&n);
 		//printf("#clusters=%i, alphavalue=%g, distance=%u, exponent=%u, n=%i\n",num,alph,dist,expo,n);
 		create(num,alph,dist,expo);
 		for (int i=0; i<num; i++)
