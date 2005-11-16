@@ -89,12 +89,13 @@
 	while (currNode != NULL)
 	{
 		for (vei_t j=0; j<currNode->vector->get_dim(); j++)
-			fprintf(f1,"(%i)(%i,%i,%i)%lf\n",currNode,i,j,currNode->vector->get_type(j),currNode->vector->get_comp(j));
+			fprintf(f1,"(%i)(%i,%i,%i)%lf\n",(int)currNode,
+				i,j,currNode->vector->get_type(j),currNode->vector->get_comp(j));
 		
 		currEdge = (*currNode).firstEdge;
 		while (currEdge != NULL)
 		{
-			fprintf(f2,"(%i,%i,%i)\n",i,currEdge->connectA,currEdge->connectB);
+			fprintf(f2,"(%i,%i,%i)\n",i,(int)currEdge->connectA,(int)currEdge->connectB);
 			currEdge = (*currEdge).next;
 		}	
 		
@@ -185,7 +186,7 @@
 			edgeex = true;
 		currEdge = (*currEdge).next;
 	}
-	if ((not edgeex) && (mindisel1 != NULL))
+	if ((!edgeex) && (mindisel1 != NULL))
 		newEdge(mindisel0, mindisel1);
 	if (currNode != NULL)
 	{
