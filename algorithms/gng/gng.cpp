@@ -123,7 +123,7 @@
 			node = new NodeListElement;
 			(*node).next = first;
 			(*node).vector = new DVector(n);
-			while ((i<n) or (!feof(f)))
+			while ((i<n) || (!feof(f)))
 			{
 				fscanf(f,"(%li)(%hi,%hi,%hi)%lf\n",&nodenum,&i,&j,&t,&out);
 				(*node).vector->set_comp(out,t,j);
@@ -160,7 +160,7 @@
 			NodeNum0 = (*currNode).NodeNumber;
 			mindisel0 = currNode;
 		}	
-		else if ((tmp < MinDis1) and (tmp > MinDis0))
+		else if ((tmp < MinDis1) && (tmp > MinDis0))
 		{;
 			MinDis1 = tmp;
 			NodeNum1 = (*currNode).NodeNumber;
@@ -185,7 +185,7 @@
 			edgeex = true;
 		currEdge = (*currEdge).next;
 	}
-	if ((not edgeex) and (mindisel1 != NULL))
+	if ((not edgeex) && (mindisel1 != NULL))
 		newEdge(mindisel0, mindisel1);
 	if (currNode != NULL)
 	{
@@ -319,7 +319,7 @@
 			printf("Dead edge deleted\n");
 			temp1 = edge->next;
 			temp2 = edge->last;
-			if ((temp2 == NULL) and (temp1 == NULL))
+			if ((temp2 == NULL) && (temp1 == NULL))
 			{
 				if (node == first)
 					node->firstEdge = NULL;
@@ -351,7 +351,7 @@
 			tmp2 = edge->last;
 			if (DelNodeIfNecessary) 
 			{
-				if ((tmp2 == NULL) and (tmp1 == NULL))
+				if ((tmp2 == NULL) && (tmp1 == NULL))
 				 	if (nodeA != first)
 				 		removeNode(nodeA);
 				 	else
@@ -384,7 +384,7 @@
 			tmp2 = edge->last;
 			if (DelNodeIfNecessary) 
 			{
-				if ((tmp2 == NULL) and (tmp1 == NULL))
+				if ((tmp2 == NULL) && (tmp1 == NULL))
 					if (nodeB != first)
 						removeNode(nodeB);	
 					else
@@ -495,5 +495,5 @@ DVector* GNG::getNext_edge()
 	else
 		return NULL;
 }
- 
+
  
