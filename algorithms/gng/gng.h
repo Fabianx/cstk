@@ -30,10 +30,10 @@
  
  struct GNG_PARAM
  {
- 	vei_t age_max;
- 	oas_t d;
-	oas_t alpha;
-	oas_t epsilon_b, epsilon_n;
+ 	int age_max;
+ 	float d;
+	float alpha;
+	float epsilon_b, epsilon_n;
 	
 	vei_t vecdim;
  };

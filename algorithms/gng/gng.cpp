@@ -85,12 +85,13 @@
 	currNode = first;
 	int i=0;
 	fprintf(f1,"MaximumAge=%i, DecreaseError=%f, AlphaVal=%f, EpsilonValB=%f, EpsilonValN=%f, VecDim=%i\n",
-		    par.age_max, par.d, par.alpha, par.epsilon_b, par.epsilon_n, first->vector->get_dim());
+		    par.age_max, (oas_t)par.d, (oas_t)par.alpha, (oas_t)par.epsilon_b, (oas_t)par.epsilon_n, 
+	            first->vector->get_dim());
 	while (currNode != NULL)
 	{
 		for (vei_t j=0; j<currNode->vector->get_dim(); j++)
 			fprintf(f1,"(%i)(%i,%i,%i)%f\n",(int)currNode,
-				i,j,currNode->vector->get_type(j),currNode->vector->get_comp(j));
+				i,j,currNode->vector->get_type(j),(oas_t)currNode->vector->get_comp(j));
 		
 		currEdge = (*currNode).firstEdge;
 		while (currEdge != NULL)
@@ -111,11 +112,11 @@
  	FILE *f = fopen("node.sav","r");
 	if (!ferror(f))
 	{
-		oas_t out;	
-		vei_t i, j, t, n;
-		ves_t nodenum;
+		float out;	
+		int i, j, t, n;
+		int nodenum;
 		first = NULL;
-		fscanf(f,"MaximumAge=%hi, DecreaseError=%f, AlphaVal=%f, EpsilonValB=%f, EpsilonValN=%f, VecDim=%i\n",
+		fscanf(f,"MaximumAge=%i, DecreaseError=%f, AlphaVal=%f, EpsilonValB=%f, EpsilonValN=%f, VecDim=%i\n",
 		    &par.age_max, &par.d, &par.alpha, &par.epsilon_b, &par.epsilon_n, &n);
 		while (!feof(f))
 		{
@@ -127,7 +128,7 @@
 			while ((i<n) || (!feof(f)))
 			{
 				fscanf(f,"(%i)(%i,%i,%i)%f\n",&nodenum,&i,&j,&t,&out);
-				(*node).vector->set_comp(out,t,j);
+				(*node).vector->set_comp((oas_t)out,t,j);
 			}
 			(*node).DeltaError = 0;
 			(*node).firstEdge = NULL;
