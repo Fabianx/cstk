@@ -53,7 +53,8 @@ void KMeans::create(vei_t buckets, oas_t alpha, ve_t seldist, vei_t exp)
 void KMeans::savetoFile()
 {
 	FILE *f = fopen("cluster.sav","w");
-	fprintf(f,"#clusters=%i, alphavalue=%f, distance=%u, exponent=%u, n=%i\n",bucket_num,alpval,selected_dist,exponent,bucket[0].get_dim());
+	fprintf(f,"#clusters=%i, alphavalue=%f, distance=%u, exponent=%u, n=%i\n",
+			bucket_num,alpval,selected_dist,exponent,bucket[0].get_dim());
 	for (vei_t i=0; i<bucket_num; i++)
 		for (vei_t j=0; j<bucket[i].get_dim(); j++)
 			fprintf(f,"(%i,%i,%i)%lf ",i,j,bucket[i].get_type(j),bucket[i].get_comp(j));
@@ -68,8 +69,8 @@ int KMeans::restorefromFile()
 		int num, expo,n;
 		double alph; 
 		unsigned int dist;
-		fscanf(f,"#clusters=%i, alphavalue=%f, distance=%u, exponent=%u, n=%i\n",&num,&alph,&dist,&expo,&n);
-		//printf("#clusters=%i, alphavalue=%f, distance=%u, exponent=%u, n=%i\n",num,alph,dist,expo,n);
+		fscanf(f,"#clusters=%i, alphavalue=%g, distance=%u, exponent=%u, n=%i\n",&num,&alph,&dist,&expo,&n);
+		//printf("#clusters=%i, alphavalue=%g, distance=%u, exponent=%u, n=%i\n",num,alph,dist,expo,n);
 		create(num,alph,dist,expo);
 		for (int i=0; i<num; i++)
 			bucket[i].create(n);
