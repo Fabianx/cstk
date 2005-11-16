@@ -15,5 +15,5 @@ gng.o:
 	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 gng_arm.o: 
-	$(CC_ARM) $(CC_ARM_FLAGS) -c ./gng.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC_ARM) $(CC_FLAGS_ARM) -c ./gng.cpp -I"$(BASE_DIR)" -o ./$@
 

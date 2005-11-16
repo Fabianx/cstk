@@ -12,7 +12,7 @@ clean:
 	@-rm -f ./*~
 	
 peak.o: 
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 peak_arm.o: 
-	$(CC_ARM) -c ./peak.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC_ARM) $(CC_FLAGS_ARM) -c ./peak.cpp -I"$(BASE_DIR)" -o ./$@
