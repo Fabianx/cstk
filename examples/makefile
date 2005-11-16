@@ -21,66 +21,66 @@ clean:
 ##### RS232Parser Demo ############################################################
 
 rs232parser_demo: rs232parser_t.o
-	$(CC) rs232parser_t.o $(SD_DIR)/rs232parser/rs232parser.o \
+	$(CC) $(CC_FLAGS) rs232parser_t.o $(SD_DIR)/rs232parser/rs232parser.o \
 	      $(SD_DIR)/bufferparser/bufferparser.o \
 	      $(VECTOR_DIR)/datacell.o \
 	      -o ./$@
 	
 rs232parser_t.o: rs232parser.o datacell.o bufferparser.o
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
 
 ##### LogFileParser Demo ##########################################################
 
 logfileparser_demo: logfileparser_t.o
-	$(CC) logfileparser_t.o $(SD_DIR)/logfileparser/logfileparser.o \
+	$(CC) $(CC_FLAGS) logfileparser_t.o $(SD_DIR)/logfileparser/logfileparser.o \
 	      $(SD_DIR)/bufferparser/bufferparser.o \
 	      $(VECTOR_DIR)/datacell.o -o ./$@
 	
 logfileparser_t.o: logfileparser.o datacell.o bufferparser.o
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### NMEAParser Demo #############################################################
 
 nmeaparser_demo: nmeaparser_t.o
-	$(CC) nmeaparser_t.o $(SD_DIR)/nmeaparser/nmeaparser.o \
+	$(CC) $(CC_FLAGS) nmeaparser_t.o $(SD_DIR)/nmeaparser/nmeaparser.o \
 	      $(SD_DIR)/bufferparser/bufferparser.o \
 	      $(SD_DIR)/logfileparser/logfileparser.o \
 	      $(VECTOR_DIR)/datacell.o -o ./$@
 	
 nmeaparser_t.o: nmeaparser.o logfileparser.o datacell.o bufferparser.o
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### UDPParser Demos ############################################################
 
 udp_snd_demo: udp_snd_t.o
-	$(CC) udp_snd_t.o $(SD_DIR)/udpparser/udpparser.o \
+	$(CC) $(CC_FLAGS) udp_snd_t.o $(SD_DIR)/udpparser/udpparser.o \
 	      $(SD_DIR)/bufferparser/bufferparser.o \
 	      $(VECTOR_DIR)/datacell.o -o ./$@
 	
 udp_snd_t.o: udpparser.o datacell.o bufferparser.o
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 udp_rec_demo: udp_rec_t.o
-	$(CC) udp_rec_t.o $(SD_DIR)/udpparser/udpparser.o \
+	$(CC) $(CC_FLAGS) udp_rec_t.o $(SD_DIR)/udpparser/udpparser.o \
 	      $(SD_DIR)/bufferparser/bufferparser.o \
 	      $(VECTOR_DIR)/datacell.o -o ./$@
 	
 udp_rec_t.o: udpparser.o datacell.o bufferparser.o
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### SimParser Demo #############################################################
 
 simparser_demo: simparser_t.o
-	$(CC) simparser_t.o $(SD_DIR)/simparser/simparser.o \
+	$(CC) $(CC_FLAGS) simparser_t.o $(SD_DIR)/simparser/simparser.o \
 	      $(VECTOR_DIR)/datacell.o -o ./$@
 	
 simparser_t.o: simparser.o datacell.o
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### Sensordata Demo ############################################################
 
 sensordata_demo: sensordata_t.o
-	$(CC) $(SD_DIR)/bufferparser/bufferparser.o \
+	$(CC) $(CC_FLAGS) $(SD_DIR)/bufferparser/bufferparser.o \
 	      $(SD_DIR)/rs232parser/rs232parser.o \
 	      $(SD_DIR)/logfileparser/logfileparser.o \
 	      $(SD_DIR)/udpparser/udpparser.o \
@@ -88,12 +88,12 @@ sensordata_demo: sensordata_t.o
 	      $(VECTOR_DIR)/datacell.o sensordata_t.o -o ./$@
 	
 sensordata_t.o:  rs232parser.o logfileparser.o simparser.o udpparser.o 
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### IParse Demo ################################################################
 
 iparse_demo: iparse_t.o
-	$(CC) $(BASE_DIR)/kprof/iparse.o \
+	$(CC) $(CC_FLAGS) $(BASE_DIR)/kprof/iparse.o \
 	      $(BASE_DIR)/kprof/setparse.o \
 	      $(SD_DIR)/rs232parser/rs232parser.o $(BASE_DIR)/kprof/rs232setparse.o \
 	      $(SD_DIR)/udpparser/udpparser.o $(BASE_DIR)/kprof/udpsetparse.o \
@@ -110,29 +110,29 @@ iparse_t.o: rs232parser.o logfileparser.o udpparser.o simparser.o \
 	channelsetparse.o inputcolumnsetparse.o bufferparser.o \
 	datacell.o binvector.o kvector.o dvector.o \
 	iparse.o 
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### BPNN Demo ##################################################################
 
 bpnn_demo: bpnn_t.o
-	$(CC) bpnn_t.o $(BASE_DIR)/algorithms/bpnn/bpnn.o -o ./$@
+	$(CC) $(CC_FLAGS) bpnn_t.o $(BASE_DIR)/algorithms/bpnn/bpnn.o -o ./$@
 	
 bpnn_t.o: bpnn.o
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### Peak Demo ##################################################################
 
 peak_demo: peak_t.o
-	$(CC) peak_t.o $(BASE_DIR)/algorithms/peak/peak.o \
+	$(CC) $(CC_FLAGS) peak_t.o $(BASE_DIR)/algorithms/peak/peak.o \
 	      $(VECTOR_DIR)/kvector.o -o ./$@
 	
 peak_t.o: peak.o kvector.o
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### KVPlot Demo ################################################################
 
 kvplot_demo: kvplot_t.o
-	$(CC) $(CC_FLAGS) kvplot_t.o \
+	$(CC) $(CC_FLAGS) $(CC_FLAGS) kvplot_t.o \
 	      $(BASE_DIR)/algorithms/peak/peak.o \
 	      $(VECTOR_DIR)/datacell.o \
 	      $(VECTOR_DIR)/kvector.o \
@@ -141,7 +141,7 @@ kvplot_demo: kvplot_t.o
 	      $(CC_X11) -o ./$@
 	
 kvplot_demo_arm: kvplot_t_arm.o
-	$(CC_ARM) $(CC_FLAGS_ARM) kvplot_t_arm.o \
+	$(CC_ARM) $(CC_FLAGS_ARM) $(CC_FLAGS_ARM) kvplot_t_arm.o \
 	      $(BASE_DIR)/algorithms/peak/peak_arm.o \
 	      $(VECTOR_DIR)/datacell_arm.o \
 	      $(VECTOR_DIR)/kvector_arm.o \
@@ -150,10 +150,10 @@ kvplot_demo_arm: kvplot_t_arm.o
 	      $(CC_X11_ARM) -o ./$@
 	
 kvplot_t.o: datacell.o kvector.o peak.o kvplot.o x11plot.o
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 kvplot_t_arm.o: datacell_arm.o kvector_arm.o peak_arm.o kvplot_arm.o x11plot_arm.o
-	$(CC_ARM) -c ./kvplot_t.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC_ARM) $(CC_FLAGS_ARM) -c ./kvplot_t.cpp -I"$(BASE_DIR)" -o ./$@
 
 ##### Dependencies: ##############################################################
 

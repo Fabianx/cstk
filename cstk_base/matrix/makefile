@@ -12,7 +12,7 @@ clean:
 	@-rm -f ./*~
 	
 dvectormatrix.o:
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
 
 dvectormatrix_arm.o:
-	$(CC_ARM) -c ./dvectormatrix.cpp -I"$(BASE_DIR)" -o ./$*.o
+	$(CC_ARM) $(CC_FLAGS_ARM) -c ./dvectormatrix.cpp -I"$(BASE_DIR)" -o ./$*.o

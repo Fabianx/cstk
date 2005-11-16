@@ -13,19 +13,19 @@ clean:
 	@-rm -f ./*~
 	
 %vector.o:
-	$(CC) -c ./$*vector.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC) $(CC_FLAGS) -c ./$*vector.cpp -I"$(BASE_DIR)" -o ./$@
 
 %vector_arm.o:
-	$(CC_ARM) -c ./$*vector.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC_ARM) $(CC_FLAGS_ARM) -c ./$*vector.cpp -I"$(BASE_DIR)" -o ./$@
 
 datacell.o:
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 datacell_arm.o:
-	$(CC_ARM) -c ./datacell.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC_ARM) $(CC_FLAGS_ARM) -c ./datacell.cpp -I"$(BASE_DIR)" -o ./$@
 
 dvector.o: datacell.o
-	$(CC) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$@
 
 dvector_arm.o: datacell_arm.o
-	$(CC_ARM) -c ./datacell.cpp -I"$(BASE_DIR)" -o ./$@
+	$(CC_ARM) $(CC_FLAGS_ARM) -c ./datacell.cpp -I"$(BASE_DIR)" -o ./$@
