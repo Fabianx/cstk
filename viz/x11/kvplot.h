@@ -36,6 +36,8 @@ class KVPlot {
 	char peakplot(uint cscr, uint tscr, Peak& peak, char* title=NULL); 
 	
 	char textplot(uint cscr, uint tscr, KVector& vector);
+
+	char labelplot(uint cscr, uint tscr, char* title, uint line=0, uint col=0, uint font=0);
 	
 	char spiketrain(uint cscr, uint tscr, KVector& vector, int colour, 
 			char* title=NULL);    

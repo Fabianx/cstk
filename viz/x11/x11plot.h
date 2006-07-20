@@ -27,6 +27,8 @@
 #include <string.h> // strlen() ,..
 #include <unistd.h> // usleep() in delay function
 
+#define MAX_FONTS 4
+
 struct WindowSettings {
 	WindowSettings() {
 		xpos = ypos = width= height=-1;
@@ -85,7 +87,7 @@ class X11Plot
   void create(int x1, int x2, int y1, int y2, int bw, char* window_name=0);
   void prepare_colours(); // prepare the display's colours 
   void swap_buffers();    // double buffering
-  void draw_text(char* text_string, int x, int y, int color);
+  void draw_text(char* text_string, int x, int y, int color, uint font=0);
   int eventloop();
   void drawframe(int x, int y, int width, int height); 
   void drawline(int x1, int y1, int x2, int y2, int clr);
@@ -112,7 +114,7 @@ class X11Plot
   unsigned int screen_num; // id
   Pixmap buffer;           // double buffer
  private: 
-  XFontStruct* font_info;
+  XFontStruct* font_info[MAX_FONTS];
   Atom ProtocolAtom, KillAtom; // for destruction
 };
 

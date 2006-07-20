@@ -19,8 +19,9 @@
 
 X11Plot::X11Plot()
 {
+	uint i;
 	display = NULL;
-	font_info = NULL;
+	for (i=0; i<MAX_FONTS; i++) font_info[i] = NULL;
 	gc = NULL;
 	gc_copy = NULL;
 }
@@ -37,8 +38,10 @@ X11Plot::X11Plot(int x1, int x2, int y1, int y2, int bw, char* window_name)
 
 X11Plot::~X11Plot()
 {
+	uint i;
 	XFreePixmap(display, buffer);
-	if (font_info!=NULL) XUnloadFont(display,font_info->fid);
+	for (i=0; i<MAX_FONTS; i++) 
+		if (font_info[i]!=NULL) XUnloadFont(display,font_info[i]->fid);
 	if (gc!=NULL) XFreeGC(display,gc);
 	if (gc_copy!=NULL) XFreeGC(display,gc_copy);
 	if (display!=NULL) XCloseDisplay(display);
@@ -93,15 +96,24 @@ void X11Plot::create(int x1,int x2,int y1,int y2, int bw, char* window_name)
 	XSetLineAttributes(display, gc, lw, LineSolid, CapRound, JoinRound);
 	buffer = XCreatePixmap(display,win, win_width, win_height, 
 				DefaultDepth(display, screen_num));
-	// init font
-	font_info = XLoadQueryFont(display, "6x10");
-	if (font_info==NULL)
-		font_info = XLoadQueryFont(display, "*"); // first = best
-	XSetFont(display, gc, font_info->fid); 
+	// init fonts
+	font_info[0] = XLoadQueryFont(display, "6x10");
+	if (font_info[0]==NULL)
+		font_info[0] = XLoadQueryFont(display, "*"); // first = best
+	font_info[1] = XLoadQueryFont(display, "-*-helvetica-bold-r-*-*-18-*-*-*-*-*-iso8859-*");
+	if (font_info[1]==NULL)
+		font_info[1] = XLoadQueryFont(display, "*"); // first = best
+	font_info[2] = XLoadQueryFont(display, "-*-helvetica-bold-r-*-*-24-*-*-*-*-*-iso8859-*");
+	if (font_info[2]==NULL)
+		font_info[2] = XLoadQueryFont(display, "*"); // first = best
+	font_info[3] = XLoadQueryFont(display, "-*-helvetica-bold-r-*-*-48-*-*-*-*-*-iso8859-*");
+	if (font_info[3]==NULL)
+		font_info[3] = XLoadQueryFont(display, "*"); // first = best
+	XSetFont(display, gc, font_info[0]->fid); // = default
 	
 	XSetForeground(display, gc, WhitePixel(display,screen_num));
 	XFillRectangle(display, buffer, gc, 0, 0, win_width, win_height); 
-	XMoveWindow(display,win,x1,y1);  
+	XMoveWindow(display,win,x1,y1);
 }
 
 void X11Plot::prepare_colours()
@@ -116,10 +128,20 @@ void X11Plot::prepare_colours()
 	}  
 }
 
-void X11Plot::draw_text(char* text_string, int x,int y, int color)
+void X11Plot::draw_text(char* text_string, int x,int y, int color, uint font)
 {
-	XSetForeground(display, gc, plot_colours[color].pixel);
-	XDrawString(display, buffer, gc, x, y, text_string, strlen(text_string) );
+	if (font!=0)
+	{
+		XSetFont(display, gc, font_info[font]->fid);
+		XSetForeground(display, gc, plot_colours[color].pixel);
+		XDrawString(display, buffer, gc, x, y, text_string, strlen(text_string) );
+		XSetFont(display, gc, font_info[0]->fid);
+	}
+	else 
+	{
+		XSetForeground(display, gc, plot_colours[color].pixel);
+		XDrawString(display, buffer, gc, x, y, text_string, strlen(text_string) );
+	}
 }
 
 void X11Plot::swap_buffers() // for double buffering 

@@ -178,13 +178,21 @@ char KVPlot::textplot(uint cscr, uint tscr, KVector& vector)
 	return 0;
 }
 
+char KVPlot::labelplot(uint cscr, uint tscr, char* title, uint line, uint col, uint font)
+{
+	window->drawframe(0, ((cscr-1)*window->win_height)/tscr, window->win_width, window->win_height/tscr);
+	if (title!=NULL) 
+		window->draw_text(title, 3+(col*9), ((cscr-1)*window->win_height)/tscr+9*(line+1), 2, font);    
+	return 0;
+}
+
 char KVPlot::spiketrain(uint cscr, uint tscr, KVector& vector, int colour, 
                          char* title)
 {
 	window->drawframe(0, ((cscr-1)*window->win_height)/tscr, window->win_width, window->win_height/tscr);
 	
+
 /*  
-   
   uint sub_height = (uint)(win_height/tscr-4); 
  
   uint tot_height=(uint)((cscr*win_height)/tscr-3);
