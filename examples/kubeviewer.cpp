@@ -43,7 +43,7 @@ int main(void) {
   winset.border = 2;
   winset.framerate=1;
   winset.skip   = 1;
-  sprintf(winset.title, "Kube analysis");
+  sprintf(winset.title, "Kube Viewer");
   X11Plot *window = new X11Plot(winset);
   window->prepare_colours();
   KVPlot kp(window);
@@ -60,10 +60,6 @@ int main(void) {
   FILE* fp = NULL;
   int poll=CONSTANT_PLOT; // default
   
-  //pr.set_poll("b"); // make sure the comm is going via binary
-  //pr.read(buffer);
-  //pr.set_poll("R"); // then switch to default again
-  
   while (!quit) 
   {
 	evnt = window->eventloop();
@@ -74,6 +70,7 @@ int main(void) {
 		case 27:  /*r*/ pr.set_poll("R"); poll = CONSTANT_PLOT; break;
 		case 46:  /*l*/ pr.set_poll("l"); poll = ONEPASS_WE;  break;
 		case 39:  /*s*/ pr.set_poll("s"); poll = ONEPASS_WE;  break;
+		case 26:  /*e*/ pr.set_poll("e"); poll = ONEPASS_WE;  break;
 		case 10:  /*1*/ pr.set_poll("1"); poll = ONEPASS_CLAS;  break;
 		case 11:  /*2*/ pr.set_poll("2"); poll = ONEPASS_CLAS;  break;
 		case 12:  /*3*/ pr.set_poll("3"); poll = ONEPASS_CLAS;  break;
@@ -120,7 +117,7 @@ int main(void) {
 		fprintf(fp,"%03i", (signed char) buffer[11]);
 		// accelerometer peak size:
 		fprintf(fp," %03i %03i", (unsigned char)buffer[12], (unsigned char) buffer[13]);
-		fprintf(fp,"\n\r");
+		printf(fp,"\n\r");
 		fclose(fp);*/
 		
 		vectaccx.add_comp(buffer[2]);   
@@ -145,27 +142,29 @@ int main(void) {
 		kp.timeseries(5,6, vectaccy, 0, " ", true);
 		kp.labelplot(6,6, "tilt states:", 0, 0, 0);
 		kp.labelplot(6,6, "acceleration:", 0, 15, 0);
-		kp.labelplot(6,6, str, 3, 0, 0);
+		kp.labelplot(6,6, str, 3, 0, 1);
 		kp.labelplot(6,6, str2, 3, 18, 1);
 		window->swap_buffers();
 	}
 	else if (poll == CONSTANT_CLAS) 
 	{
-		char str[SBUFSIZE], str2[SBUFSIZE], str3[SBUFSIZE];
-		sprintf(str,  "   %i (%i)", buffer[0], buffer[1]);
-		sprintf(str2, "   %i (%i)", buffer[2], buffer[3]);
-		sprintf(str3, "   %i", buffer[4]);
-		kp.labelplot(1,2, "tilt-based:", 0, 0);
-		kp.labelplot(1,2, "acceleration-based:", 0, 15);
-		kp.labelplot(2,2, "prediction:", 0, 0);
-		kp.labelplot(1,2, str, 7, 0, 1);
-		kp.labelplot(1,2, str2, 7, 18, 1);
-		kp.labelplot(2,2, str3, 10, 8, 3);
-		window->swap_buffers();
-	} 
+		if ((buffer[0]!=0)&&(buffer[2]!=0))
+		{
+			char str[SBUFSIZE], str2[SBUFSIZE], str3[SBUFSIZE];
+			sprintf(str,  "   %i (%i)", buffer[0], buffer[1]);
+			sprintf(str2, "   %i (%i)", buffer[2], buffer[3]);
+			sprintf(str3, "   %i", buffer[4]);
+			kp.labelplot(1,2, "tilt-based:", 0, 0);
+			kp.labelplot(1,2, "acceleration-based:", 0, 15);
+			kp.labelplot(2,2, "prediction:", 0, 0);
+			kp.labelplot(1,2, str, 7, 0, 1);
+			kp.labelplot(1,2, str2, 7, 18, 1);
+			kp.labelplot(2,2, str3, 10, 8, 3);
+			window->swap_buffers();
+		}
+	}
 	else if (poll == ONEPASS_WE ) 
 	{
-		
 		poll = DONOTHING;
 	}
 	else if (poll == ONEPASS_CLAS ) 
@@ -189,24 +188,3 @@ int main(void) {
   return 0;
   
 }
-
-
-/*
-			if ((unsigned char)buffer[i] == 0xFF) {
-				pre1 = true;
-				pre = false;
-			}
-			else if (pre1)  
-			{
-				if  ((unsigned char)buffer[i] == 0xFF)
-				{
-					pre = true;
-					printf("\n\r");
-				}
-				else printf("ff %0x ", (unsigned char)buffer[i] );
-				pre1 = false;
-			}
-			else if ((pre) && ((unsigned char)buffer[i]!=0))
-				printf("%x ", (unsigned char)buffer[i] );
-*/
-

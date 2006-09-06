@@ -18,6 +18,18 @@ clean:
 	@-rm -f ./*~
 	@-rm -f ./*_demo
 	
+##### PorcLogger ##################################################################
+
+porclogger: porclogger.o
+	$(CC) $(CC_FLAGS) porclogger.o $(SD_DIR)/rs232parser/rs232parser.o \
+	      $(SD_DIR)/bufferparser/bufferparser.o \
+	      $(VECTOR_DIR)/datacell.o \
+	      $(VECTOR_DIR)/kvector.o \
+	      -o ./$@
+	
+porclogger.o: rs232parser.o datacell.o bufferparser.o  kvector.o
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
+
 ##### Kubeviewer ##################################################################
 
 kubeviewer: kubeviewer.o
