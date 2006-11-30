@@ -45,6 +45,21 @@ kubeviewer: kubeviewer.o
 kubeviewer.o: rs232parser.o datacell.o bufferparser.o  kvector.o peak.o kvplot.o x11plot.o
 	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
 
+##### Porc2viewer #################################################################
+
+porc2viewer: porc2viewer.o
+	$(CC) $(CC_FLAGS) porc2viewer.o $(SD_DIR)/rs232parser/rs232parser.o \
+	      $(SD_DIR)/bufferparser/bufferparser.o \
+	      $(BASE_DIR)/algorithms/peak/peak.o \
+	      $(VECTOR_DIR)/datacell.o \
+	      $(VECTOR_DIR)/kvector.o \
+	      $(BASE_DIR)/viz/x11/kvplot.o \
+	      $(BASE_DIR)/viz/x11/x11plot.o \
+	      $(CC_X11) -o ./$@
+	
+porc2viewer.o: rs232parser.o datacell.o bufferparser.o  kvector.o peak.o kvplot.o x11plot.o
+	$(CC) $(CC_FLAGS) -c ./$*.cpp -I"$(BASE_DIR)" -o ./$*.o
+
 ##### RS232Parser Demo ############################################################
 
 rs232parser_demo: rs232parser_t.o
