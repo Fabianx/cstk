@@ -45,7 +45,7 @@ int main(void) {
           ))
       {
           sprintf(filename, "/dev/%s", pent->d_name );
-          printf("%s\n", filename);
+          printf("found porcupine2 at: %s\n", filename);
       }
   }
   if ((errno)||(filename[0]==0))
