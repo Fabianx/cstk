@@ -1,7 +1,7 @@
 /***************************************************************************
-                         kubeviewer.cpp  -  v.1.00
+                         porc2viewer.cpp  -  v.1.00
                          ----------------------------
-    begin                : Jul 05 2006
+    begin                : Dec 01 2006
     copyright            : (C) 2006 by Kristof Van Laerhoven
     email                : 
  ***************************************************************************/
@@ -18,14 +18,44 @@
 #include "sensordata/rs232parser/rs232parser.h"
 #include "viz/x11/kvplot.h"
 #include <stdio.h>  // strings
+#include <dirent.h> // directories
 
-#define SBUFSIZE 512 
+#define SBUFSIZE 512
 #define BUFSIZE  500 
 
 int main(void) {
   
   int i=0, j=0;
-  Rs232Parser pr(B115200,SBUFSIZE,"","/dev/tty.usbmodem0000103D1");
+  char filename[1024]; // name of the usb device
+  DIR* devs;
+  struct dirent *pent;
+  devs = opendir("/dev/");
+  if (!devs)
+  {
+      printf ("cannot open /dev directory\n");
+      exit(1);
+  }
+  int errno=0;
+  filename[0]=0;
+  while ((pent=readdir(devs)))
+  {
+      if ((pent->d_name[0]=='t')&&(  // quick check for tty...
+              ((pent->d_name[3]=='.')&&(pent->d_name[4]=='u')) ||  // tty.usb... 
+              ((pent->d_name[3]=='U')&&(pent->d_name[4]=='S'))     // ttyUSB...
+          ))
+      {
+          sprintf(filename, "/dev/%s", pent->d_name );
+          printf("%s\n", filename);
+      }
+  }
+  if ((errno)||(filename[0]==0))
+  {
+      printf ("cannot find a porcupine2 via any usb\n");
+      exit(1);
+  }
+  closedir(devs);
+
+  Rs232Parser pr(B115200,SBUFSIZE,"",filename);
   char ser_buffer[SBUFSIZE];
   char line_buffer[SBUFSIZE];
   bool quit=false;
