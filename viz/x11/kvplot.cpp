@@ -26,47 +26,54 @@ KVPlot::KVPlot(X11Plot* pwindow)
 char KVPlot::histogram(uint cscr, uint tscr, KVector& vector, int colour, 
                         uint num_buckets, char* title) 
 {
-	window->drawframe(0, ((cscr-1)*window->win_height)/tscr, window->win_width, window->win_height/tscr);
-	// read each value for bar and draw it
-	if (window->win_height!=old_win_height) {
+    window->drawframe(0, ((cscr-1)*window->win_height)/tscr,
+                      window->win_width, window->win_height/tscr);
+    // read each value for bar and draw it
+    if (window->win_height!=old_win_height) {
 		sub_height= (window->win_height/tscr-14);
 		old_win_height = window->win_height;
-	} 
-	bucket_width = (window->win_width-4)/num_buckets;
-	uint bar = 0, max = 0;
-	for (uint i=0;i<num_buckets;i++) {
+    }
+    bucket_width = (window->win_width-4)/num_buckets;
+    uint bar = 0, max = 0;
+    for (uint i=0;i<num_buckets;i++) {
 		// get the fullest bucket i
 		bar = vector.get_histo(num_buckets, i);
 		if (max<bar)  max = bar;
-	}
-	XSetForeground(window->display, window->gc, window->plot_colours[colour].pixel);
-	
-	for (uint i=0;i<num_buckets;i++) {
-		// get the value of bucket i
-		bar = vector.get_histo(num_buckets, i);
-		// plot current bar
-		if (max == 0) max = 1; // Stop those lovely exceptions
-		XFillRectangle(window->display, window->buffer, window->gc, 
-				2+i*(window->win_width-4)/num_buckets,
-				((cscr*window->win_height)/tscr-3)-(bar*sub_height/max),
-				bucket_width, (bar*sub_height/max)); 
-	}          
-	if (title!=NULL) window->draw_text(title, 3, ((cscr-1)*window->win_height)/tscr+9, 2);
-	return 0;
+    }
+    XSetForeground(window->display, window->gc,
+                       window->plot_colours[colour].pixel);
+
+    for (uint i=0;i<num_buckets;i++) {
+        // get the value of bucket i
+        bar = vector.get_histo(num_buckets, i);
+        // plot current bar
+        if (max == 0) max = 1; // Stop those lovely exceptions
+        XFillRectangle(window->display, window->buffer, window->gc,
+                       2+i*(window->win_width-4)/num_buckets,
+                       ((cscr*window->win_height)/tscr-3)-(bar*sub_height/max),
+                       bucket_width, (bar*sub_height/max));
+    }
+    if (title!=NULL)
+        window->draw_text(title, 3,((cscr-1)*window->win_height)/tscr+9, 2);
+    return 0;
 }
 
 char KVPlot::timeseries(uint cscr, uint tscr, KVector& vector, int colour, 
                          char* title, bool scaling) 
 {
-	window->drawframe(0, ((cscr-1)*window->win_height)/tscr, window->win_width, window->win_height/tscr);
-	if (window->win_height!=old_win_height) {
+    char tmpstr[15];
+
+    window->drawframe(0, ((cscr-1)*window->win_height)/tscr,
+                          window->win_width, window->win_height/tscr);
+    if (window->win_height!=old_win_height) {
 		sub_height= (window->win_height/tscr-14);
 		old_win_height = window->win_height;
-	} 
-	tot_height=(int)((cscr*window->win_height)/tscr-3);
-	int scaling_fact=20;
-	
-	for (vei_t i=0; i<vector.pvect_size; i++) {
+    }
+    tot_height=(int)((cscr*window->win_height)/tscr-3);
+
+    int scaling_fact=20;
+
+    for (vei_t i=0; i<vector.pvect_size; i++) {
 		plot_point[i].x = 2+i*(window->win_width-14)/vector.pvect_size;
 		if (!scaling)
 			plot_point[i].y = tot_height-(vector.pvect[i]*sub_height)/255;
@@ -75,34 +82,57 @@ char KVPlot::timeseries(uint cscr, uint tscr, KVector& vector, int colour,
 				scaling_fact = vector.max()-vector.min();
 			plot_point[i].y = 
 				(short int) (tot_height-
-				((vector.pvect[i]-vector.min())*sub_height)/(0.1+scaling_fact));
+				((vector.pvect[i]-vector.min())*sub_height)
+                                             /(0.1+scaling_fact));
 		}
-	}
+    }
+    
 	// plot the line():
 	XSetForeground(window->display, window->gc, window->plot_colours[colour].pixel);
 	XDrawLines(window->display, window->buffer, window->gc, plot_point, 
-		vector.pvect_size, CoordModeOrigin);
-	
+		vector.pvect_size, CoordModeOrigin);	
 	// plot the stats:
-	window->drawline(window->win_width-12, 
+	window->drawline(window->win_width-12,
 		tot_height-(vector.max()*sub_height)/255, window->win_width-3,
 		tot_height-(vector.max()*sub_height)/255, colour);
-	window->drawline(window->win_width-12, 
+        if (title!=NULL)
+        {
+            sprintf( tmpstr, "max:%i", vector.max());
+            window->draw_text(tmpstr, window->win_width-50,
+                              tot_height-(vector.max()*sub_height)/255, 0);
+        }
+        window->drawline(window->win_width-12, 
 		tot_height-(vector.min()*sub_height)/255,
-		window->win_width-3,  tot_height-(vector.min()*sub_height)/255, colour);
-	window->drawline(window->win_width-12,
+		window->win_width-3,
+                         tot_height-(vector.min()*sub_height)/255, colour);
+        if (title!=NULL)
+        {
+            sprintf( tmpstr, "min:%i", vector.min());
+            window->draw_text(tmpstr, window->win_width-50,
+                              tot_height-(vector.min()*sub_height)/255, 1);
+	}
+        window->drawline(window->win_width-12,
 		tot_height-(vector.mean()*sub_height)/255,
-		window->win_width-3,  tot_height-(vector.mean()*sub_height)/255, colour);
-	
+		window->win_width-3,
+                         tot_height-(vector.mean()*sub_height)/255, colour);
+        if (title!=NULL)
+        {
+            sprintf( tmpstr, "avg:%i", vector.mean());
+            window->draw_text(tmpstr, window->win_width-50,
+                              tot_height-(vector.mean()*sub_height)/255, 3);
+	}
+        // plot title:
 	if (title!=NULL) {
-		window->draw_text(title, 3, ((cscr-1)*window->win_height)/tscr+9, 2);
+		window->draw_text(title, 3,
+                                  ((cscr-1)*window->win_height)/tscr+9, 2);
 	}
 	return 0;   
 }
   
 char KVPlot::peakplot(uint cscr, uint tscr, Peak& peak, char* title) 
 { 
-	window->drawframe(0, ((cscr-1)*window->win_height)/tscr, window->win_width, window->win_height/tscr);
+	window->drawframe(0, ((cscr-1)*window->win_height)/tscr,
+                          window->win_width, window->win_height/tscr);
 	// read each value for bar and draw it
 	ves_t curpeak = 0;
 	ve_t  curamp = 0;
@@ -159,7 +189,8 @@ char KVPlot::peakplot(uint cscr, uint tscr, Peak& peak, char* title)
 
 char KVPlot::textplot(uint cscr, uint tscr, KVector& vector)
 {
-	window->drawframe(0, ((cscr-1)*window->win_height)/tscr, window->win_width, window->win_height/tscr);
+	window->drawframe(0, ((cscr-1)*window->win_height)/tscr,
+                          window->win_width, window->win_height/tscr);
 	
 	char str[120]; 
 	sprintf(str,"min:%3i avg:%3i max:%3i val:%3i std:%3lu",
@@ -178,18 +209,23 @@ char KVPlot::textplot(uint cscr, uint tscr, KVector& vector)
 	return 0;
 }
 
-char KVPlot::labelplot(uint cscr, uint tscr, char* title, uint line, uint col, uint font)
+char KVPlot::labelplot(uint cscr, uint tscr, char* title, uint line,
+                       uint col, uint font)
 {
-	window->drawframe(0, ((cscr-1)*window->win_height)/tscr, window->win_width, window->win_height/tscr);
+	window->drawframe(0, ((cscr-1)*window->win_height)/tscr,
+                          window->win_width, window->win_height/tscr);
 	if (title!=NULL) 
-		window->draw_text(title, 3+(col*9), ((cscr-1)*window->win_height)/tscr+9*(line+1), 2, font);    
+		window->draw_text(title, 3+(col*9),
+                                  ((cscr-1)*window->win_height)/tscr+9*(line+1),
+                                  2, font);    
 	return 0;
 }
 
 char KVPlot::spiketrain(uint cscr, uint tscr, KVector& vector, int colour, 
                          char* title)
 {
-	window->drawframe(0, ((cscr-1)*window->win_height)/tscr, window->win_width, window->win_height/tscr);
+	window->drawframe(0, ((cscr-1)*window->win_height)/tscr,
+                          window->win_width, window->win_height/tscr);
 	
 
 /*  
@@ -198,7 +234,8 @@ char KVPlot::spiketrain(uint cscr, uint tscr, KVector& vector, int colour,
   uint tot_height=(uint)((cscr*win_height)/tscr-3);
   for (vei_t i=1; i<vector.pvect_size; i++) {
     plot_point[i].x = 2+i*(win_width-14)/vector.pvect_size;
-    plot_point[i].y = tot_height-(abs(vector.pvect[i]-vector.pvect[i-1])*sub_height)/255;
+    plot_point[i].y = tot_height-(abs(vector.pvect[i]-
+    vector.pvect[i-1])*sub_height)/255;
   } 
   // plot the line():
   XSetForeground(display, gc, plot_colours[colour].pixel);
@@ -223,7 +260,8 @@ char KVPlot::spiketrain(uint cscr, uint tscr, KVector& vector, int colour,
 char KVPlot::impulse(uint cscr, uint tscr, KVector& vector, int colour, 
                      char* title)
 {
-	window->drawframe(0, ((cscr-1)*window->win_height)/tscr, window->win_width, window->win_height/tscr);
+	window->drawframe(0, ((cscr-1)*window->win_height)/tscr,
+                          window->win_width, window->win_height/tscr);
 	
   /*
   uint sub_height = (uint)(win_height/tscr-4); 
