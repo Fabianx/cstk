@@ -263,7 +263,6 @@ int main(void) {
                 }
         }
         
-        /*
         if ((line_done)&&(j>0))
         {
             line_buffer[62]=0;
@@ -276,7 +275,6 @@ int main(void) {
                         line_buffer[77], line_buffer[78],
                     line_buffer);
         }
-        */
 
         if ((line_done)&&(j>0))
         {
