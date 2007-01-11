@@ -89,6 +89,8 @@ class Rs232Parser : virtual public SensorData {
   Rs232Parser(Rs232ParserSettings rs232_param);
   ~Rs232Parser();
 
+    int writechar(char symbol);
+    
   int read(char* channel_types, uint numchannels, 
            DataCell* columns,  uint* filter, uint numcolumns);
   int read(DataCell* channels, uint numchannels);

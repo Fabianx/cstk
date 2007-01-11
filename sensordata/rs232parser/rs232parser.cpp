@@ -43,6 +43,8 @@ Rs232Parser::Rs232Parser(int baud, int buff, char* poll, char* dev, short mod)
    tbuf_counter = 0;
    rs232_param.baudrate = baud;
    rs232_param.buff_size = buff;
+   rs232_param.databits = 8;
+   rs232_param.stopbits = 1;
    int i=-1;
    do { i++;rs232_param.poll_char[i] = poll[i];} while (poll[i]!='\0');
    i=-1; do { i++;rs232_param.device[i] = dev[i]; } while (dev[i]!='\0');
@@ -134,6 +136,21 @@ int Rs232Parser::get_err()
 {
 	return err;
 }  
+
+// write a character
+int Rs232Parser::writechar(char symbol)
+{
+    int res;
+    char bf[1];
+    bf[0] = symbol;
+    res = write(fd, bf, 1);
+    usleep(1000);
+    if (res==-1) {
+        err = RS232ERR_CANTWRITE;
+        return err;
+    }
+    return 0;
+}
 
 // read specific values from rs232 port, see SensorData class for more 
 int Rs232Parser::read(char* channel_types, uint numchannels, 
