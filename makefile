@@ -3,7 +3,7 @@
 
 CC=g++ -Wall -O3 -g
 BASE_DIR = $(shell pwd)
-SUBDIRS = $(notdir $(subst .,,$(shell find . -maxdepth 1 -type d)))
+SUBDIRS = $(notdir $(subst .,,$(shell find . -maxdepth 1 -type d | grep -v ".git" )))
 
 install:	all
 	@-mkdir -p $(BASE_DIR)/../bin
