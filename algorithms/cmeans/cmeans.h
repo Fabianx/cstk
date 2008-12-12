@@ -4,50 +4,91 @@
 
 #include <cstdlib>
 #include <ctime>
-//#include <vector>
+#include <vector>
+#include <list>
 
+using namespace std;
 
 #include "cstk_base/types.h"
 #include "cstk_base/vector/dvector.h" 
 #include "cstk_base/matrix/dvectormatrix.h"
 
-#define DIS_MANH 0
-#define DIS_CHEB 1
-#define DIS_EUCL 2
-#define DIS_MINK 3
-#define EPSILON 0.05 //min verbesserung durchgang
-
-
+class CMeansOptions
+{
+	public:
+		f_64b exp; /**< exponent for the partition matrix U */
+		vei_t maxIter; /**< maximum number of iterations */
+		f_64b epsilon; /**< minimum amount of improvement */
+		bool displayInfo; /**< info display during iteration */
+};
 
 class CMeans 
 {
 	public:
-		void read_vec(DVector& vec);
-		CMeans(vei_t anzahl, f_64b fuzzyfyer, vei_t seldist, vei_t exp, vei_t maxIter);
-		void InitMem(); //table anlegen und zufällig generieren
-		void run();//prozessing des c-means algo 
-		vei_t iteration;	
-		vei_t retrieve_cluster(DVector& vec);//spuckt den nächsten aus		
-		void saveMemtoFile(vei_t iter);		
-		void saveFinal(ve_t iter, double j);
-		DVector* clusterCenters;		
+		CMeans(list<DVector>* data, vei_t cluster_n, CMeansOptions* algorithm_options = NULL) 
+		{
+			input=data;
+
+			free_input=false;
+			if (input == NULL)
+			{
+				input=new list<DVector>;
+				free_input=true;
+			}
+
+			anzcluster=cluster_n;
+
+			clusterCenters.resize(cluster_n);
+
+			options = algorithm_options;
+
+			free_options=false;
+
+			if (!options)
+			{
+				options = new CMeansOptions();
+				free_options=true;
+
+				// Set sane defaults (matlab)
+				options->exp = (vei_t)2.0;
+				options->maxIter = 100;
+				options->epsilon = (vei_t)1e-5;
+				options->displayInfo = true;
+			}
+		}
 		
+		~CMeans()
+		{
+			if (free_input)
+				delete input;
+			if (free_options)
+				delete options;
+		}	
+		
+		virtual void run()=0; /**< process the c-means algorithm */
+
+		// Output parameters
+		
+		vector<vei_t> objFcn; /**< The objective function */
+		vector<DVector> clusterCenters; /**< The found cluster centers */
+		double* membershiptable_U; /**< The membershiptable U */
+
+		// Online version
+
+		void readInputVector(DVector vec)
+		{
+			input->push_back(vec);
+		}
+
+	protected:
+		list<DVector>* input;
+		vei_t anzcluster;
+		CMeansOptions* options;
 	private:
-		//typedef struct Position{DVektor& posi;};			
-
-
-		void CalcclusterCenter();//berechnung der center
-		void CalcMF(); //update Abhängigkeitsfkt
-		double QualityFct(); // güte der clusterung
-		oas_t distance(DVector& vector, DVector& datav);
-		double* membershiptable;
-		vei_t anzvektor;
-		vei_t mexp;
-		vei_t anzcluster, maxIteration, selected_dist;
-		DVectorList *input;	
-		//std::vector <DVector> input;
-		double fuzzyness;
+		bool free_input;
+		bool free_options;
 };
 
+
+
 #endif
-	
