@@ -1,14 +1,16 @@
 #include "cmeans_cstk.h"
 
+//#define DEBUG 1
+
 CSTK_CMeansOptions::CSTK_CMeansOptions() : CMeansOptions()
 {
-	fuzzyfyer = 0.3; // FIXME
-	seldist = 0; // FIXME
+	mexp = 2; // FIXME
+	seldist = DIS_MANH;
 }
 
 static CSTK_CMeansOptions DefaultCSTK_CMeansOptions;
 
-CSTK_CMeans::CSTK_CMeans(list<DVector>* data, vei_t cluster_n, CSTK_CMeansOptions* algorithm_options) : CMeans(data, cluster_n, algorithm_options)
+CSTK_CMeans::CSTK_CMeans(vector<DVector>* data, vei_t cluster_n, CSTK_CMeansOptions* algorithm_options) : CMeans(data, cluster_n, algorithm_options)
 {
 	if (algorithm_options == NULL)
 		this->CMeans::options = &DefaultCSTK_CMeansOptions;
@@ -19,133 +21,244 @@ CSTK_CMeans::CSTK_CMeans(list<DVector>* data, vei_t cluster_n, CSTK_CMeansOption
 
 void CSTK_CMeans::run()
 {
-	printf("It works!\n");
-			
-	printf("options.fuzzyfyer = %f\n", options->fuzzyfyer);
+#ifdef DEBUG
+	printf("It works! Input Vectors:\n");
+
+	for (int i = 0; i < input.size(); i++)
+		printf("%d: %s, ", i, input[i].to_string());
+	printf("\n\n");
+#endif
+
+	InitMembershipTable();
+
+	oas_t lastj, j;
+	
+	CalcClusterCenters(); // Centers kalkulieren
+
+	lastj = QualityFct();
+	objFcn.push_back(lastj);
+	
+	for( vei_t iteration = 0; iteration < options->maxIter; iteration++)
+	{
+		CalcClusterCenters(); // Centers kalkulieren
+		CalcMF();	     // Neue Membershipfuction
+		
+		j = QualityFct();
+		objFcn.push_back(j);
+		if (options->displayInfo)
+			printf("Iteration count = %d, obj. fcn = %f\n",iteration+1, j);
+		
+		oas_t diff = lastj - j;
+
+		if ( diff < options->epsilon)
+			break;
+
+		lastj = j;
+	}
 }
 
 int main(void)
 {
-	list<DVector>* l = new list<DVector>;
+	vector<DVector>* l = new vector<DVector>;
 
-	DVector x;
+	DVector x(2);
 
-	l->push_back(x);
-	l->push_back(x);
+	//srand(time(0));
+
+	for ( int i = 0; i < 100; i++)
+	{
+		for ( int y = 0; y < 2; y++)
+		{
+			x.set_comp((oas_t)rand() / RAND_MAX, F64B_TYPE, y);
+		}
+		l->push_back(x);
+	}
+
+	
+	//x.set_comp(10, F64B_TYPE, 0);
+	
+	//l->push_back(x);
 
 	CSTK_CMeansOptions options;
 
-	options.displayInfo = false;
-	options.fuzzyfyer = 0.4;
+	options.displayInfo = true;
+	options.mexp = 2;
+
+	//x.set_comp(5, F64B_TYPE, 0);
 
 	CSTK_CMeans algorithm(l, 2, &options);
-	algorithm.readInputVector(x);
+	//algorithm.readInputVector(x);
 	algorithm.run();
 }
 
-#if 0
-
-CMeansAlt::CMeansAlt(vei_t anzahl, f_64b fuzzyfyer, vei_t seldist, vei_t exp, vei_t maxIter)
+void CSTK_CMeans::InitMembershipTable()
 {
-	clusterCenters = new DVector[anzahl];
-	anzcluster = anzahl;
-	anzvektor =0;
-	fuzzyness = fuzzyfyer;
-	selected_dist = seldist;
-	maxIteration = maxIter;
-	mexp= exp;
-	//vector<DVector> input; // evtl. wegmachen
-}
-
-
-//ve_t anzclusters; //"c" 
-void CMeansAlt::read_vec(DVector& vec)
-{
-	if (anzvektor==0)
-	{
-		input = new DVectorList;
-		(*input).vector=new DVector(vec);
-		(*input).next= NULL;
-		(*input).last= NULL;
-	}
-	else
-	{
-		while (input->next!=0){input = input->next;};
-		DVectorList *temp;
-		temp = new DVectorList;
-		(*temp).vector = new DVector(vec);
-		(*temp).last= input;
-		(*input).next=temp;
-	};
-	anzvektor++;
-}
-
-
-void CMeansAlt::InitMem()
-{
-	membershiptable= new double [anzvektor*anzcluster];
 	srand(time(0));
-	double sum;	
-	//initialisieren der membership
-	for(vei_t h=0;h<anzvektor; h++)  
- 	   {  
- 	        //  membership zufÃ¤llig initialisieren.
- 	        sum = 0;  
- 	        for(vei_t c=0;c<anzcluster;c++)  
- 	          {  
-	          	membershiptable[h*(c+1)+c] = 0.01 + rand()%3;  // Anordnung {V1C1,V1C2 ...VNC1,VNC2}
- 	        	sum += membershiptable[h*(c+1)+c];  
- 	          };  
- 	        // Normalize the table, so the sum of MFs for a particular data point will be equal to 1.
- 	        for(vei_t c=0;c<anzcluster;c++)
-			{ 
-			membershiptable[h*(c+1)+c] /= sum;
- 	 		} ;
- 	    };
+
+	membershiptable_U.resize(input.size());
+
+	// Initialisieren der Membership Table
+	
+	for(vei_t h=0; h < input.size(); h++)  
+ 	{ 
+		vector<oas_t>* row = &(membershiptable_U[h]);
+ 		
+		//  Membership zufällig initialisieren.
+		row->resize(anzcluster);
+
+		unsigned int max = RAND_MAX;
+		
+		vei_t c;
+		for(c = 0; c<anzcluster-1; c++)
+		{
+			unsigned int r = rand() % max;
+			(*row)[c] = (oas_t)r / RAND_MAX;
+			max -= r;
+		}
+		(*row)[c] = (oas_t)max / RAND_MAX;
+
+ 	        // Normalize the table, so the sum of MFs for a particular 
+		// data point will be equal to 1.
+ 	        //for(vei_t c=0; c<anzcluster; c++)
+		//	(*row)[c] /= sum;
+	}
+
+#ifdef DEBUG
+	printf("Initital membership table:\n");
+
+	for(vei_t h=0; h < input.size(); h++)
+	{
+		vector<oas_t>* row = &(membershiptable_U[h]);
+		printf("%d: ", h);
+ 	        
+		for(vei_t c=0; c < anzcluster; c++)
+		{
+			printf("%f ", (*row)[c]);
+		}
+		printf("\n");
+	}
+#endif
 }
 
-void CMeansAlt::run()
+oas_t CSTK_CMeans::QualityFct()
 {
-	InitMem();
-	saveMemtoFile(0);
-	double lastj,j;
-	lastj = QualityFct();
-	for(iteration=0; iteration<maxIteration; iteration++)
-		{
-			CalcclusterCenter();//Centers kalkulieren
-			CalcMF();//neue Membershipfuction
-			j = QualityFct();
-			if ((lastj -j)< EPSILON) break;
-			lastj = j;
-		};
-	saveFinal(iteration, j);	
+	oas_t erg = 0;
+
+	// sum { h = 1 .. N } ( sum { c = 1 .. C } ( u_{h,c}^(m) * norm(x_h - c_c) 
+	for(vei_t h=0; h<input.size(); h++) 
+	{
+		vector<oas_t>* row = &(membershiptable_U[h]);
+		DVector* x = &(input[h]);
+
+		for (vei_t c=0; c < anzcluster; c++)
+			erg+= pow((*row)[c], options->exp)*pow(distance(*x, clusterCenters[c]),2);
+	}
+
+	return erg;
+
 }
-	
-void CMeansAlt::CalcclusterCenter()
+
+oas_t CSTK_CMeans::distance(DVector& vector, DVector& datav)
 {
-	f_64b basis, divisor;
-	//while(!input.last){input =input.last};
-	vei_t dim = input->vector->get_dim();
-	for (vei_t c=0; c<anzcluster; c++)
-    	{	
-			
-		for(vei_t a=0; a < dim; a++) 
+	switch (options->seldist)
+	{
+		case DIS_MANH:	return vector.dis_manh(datav);
+		case DIS_CHEB:	return vector.dis_cheb(datav);
+		case DIS_EUCL:	return vector.dis_eucl(datav);
+		case DIS_MINK:	return vector.dis_mink(datav, options->mexp);
+	}
+	return vector.dis_manh(datav);
+}
+
+void CSTK_CMeans::CalcClusterCenters()
+{
+#ifdef DEBUG
+	printf("--------\nCenters: ");
+#endif
+
+	for (vei_t c=0; c < anzcluster; c++)
+	{
+		DVector basis_sum;
+		oas_t divisor_sum = 0;
+
+		for(vei_t i=0; i<input.size(); i++) 
 		{
-			basis=divisor=0;
-			while(input->last!=0){input= input->last;};
-			for(vei_t b=0; b<anzvektor; b++)
-			{	
-				basis+= (f_64b) pow(membershiptable [b*(c+1)+c], (double)fuzzyness) * input->vector->get_comp(a);
-				divisor+= (f_64b) pow(membershiptable [b*(c+1)+c], (double)fuzzyness);
-				if (input->next!=NULL)
+			oas_t comp = pow(membershiptable_U[i][c], options->exp);
+			//printf("comp = pow(%f, %f) = %f\n", membershiptable_U[i][c], options->exp, comp);
+
+			if ( i == 0)
+				basis_sum=(comp*input[i]);
+			else
+				basis_sum+=(comp*input[i]);
+			divisor_sum+=comp;
+			//printf("basis_sum = %s divisor_sum = %f\n", basis_sum.to_string(), divisor_sum);
+		}
+
+	 	// -> Does not work due to / not defined.
+		// -> clusterCenters[c]=basis_sum/divisor_sum;
+		
+		DVector vec;
+		vec.create(basis_sum.get_dim());
+		for (vei_t i=0; i<basis_sum.get_dim(); i++)
+         		vec.set_comp((get(basis_sum,i) / divisor_sum), F64B_TYPE, i);
+		clusterCenters[c] = vec;
+#ifdef DEBUG
+		printf("%s, ", clusterCenters[c].to_string());
+#endif
+	}
+#ifdef DEBUG
+	printf("\n");
+#endif
+}
+
+void CSTK_CMeans::CalcMF()
+{
+	for(vei_t h=0; h<input.size(); h++) 
+	{
+		vector<oas_t>* row = &(membershiptable_U[h]);
+		DVector* x = &(input[h]);
+		
+		vector<oas_t> dist_x(anzcluster);
+
+		for (vei_t l=0; l < anzcluster; l++)
+			dist_x[l] = distance(*x, clusterCenters[l]);
+
+		for (vei_t c=0; c < anzcluster; c++)
+		{
+			oas_t sum = 0;
+
+			if (dist_x[c] == 0)
+				sum = 1;
+			else
+			{
+				for (vei_t l=0; l < anzcluster; l++)
 				{
-				input=input->next;
-				};								 
-        		};  
- 	        clusterCenters[c].set_comp((f_64b)basis/divisor, input->vector->get_type(a),a) ;//type eintrrag evtl. bearbeiten
-       		};
-	};
+					sum+=pow(dist_x[c]/dist_x[l],2/(options->exp-1));
+				}
+			}
+
+			(*row)[c]=1/sum;
+		}
+	}
+
+	#ifdef DEBUG
+	printf("\nU:\n\n");
+	for(vei_t h=0; h < input.size(); h++)
+	{
+		vector<oas_t>* row = &(membershiptable_U[h]);
+		printf("%d: ", h);
+ 	        
+		for(vei_t c=0; c < anzcluster; c++)
+		{
+			printf("%f ", (*row)[c]);
+		}
+		printf("\n");
+	}
+	printf("\n");
+	#endif
 }
+
+#if 0
 
 void CMeansAlt::CalcMF()
 {
@@ -182,17 +295,6 @@ double CMeansAlt::QualityFct()
 return erg;
 }
 
-oas_t CMeansAlt::distance(DVector& vector, DVector& datav)
-{
-	switch (selected_dist)
-	{
-		case DIS_MANH:	return vector.dis_manh(datav);
-		case DIS_CHEB:	return vector.dis_cheb(datav);
-		case DIS_EUCL:	return vector.dis_eucl(datav);
-		case DIS_MINK:	return vector.dis_mink(datav, mexp);
-	}
-	return vector.dis_manh(datav);
-}
 
 
 void CMeansAlt::saveMemtoFile(vei_t iter)
