@@ -1,12 +1,49 @@
-//Basics
-#include <cstdlib>
-#include <ctime>
-//#include <vektor>
-
 #include "cmeans_cstk.h"
-#include "cstk_base/types.h"
-#include "cstk_base/vector/dvector.h"
-#include "cstk_base/matrix/dvectormatrix.h"
+
+CSTK_CMeansOptions::CSTK_CMeansOptions() : CMeansOptions()
+{
+	fuzzyfyer = 0.3; // FIXME
+	seldist = 0; // FIXME
+}
+
+static CSTK_CMeansOptions DefaultCSTK_CMeansOptions;
+
+CSTK_CMeans::CSTK_CMeans(list<DVector>* data, vei_t cluster_n, CSTK_CMeansOptions* algorithm_options) : CMeans(data, cluster_n, algorithm_options)
+{
+	if (algorithm_options == NULL)
+		this->CMeans::options = &DefaultCSTK_CMeansOptions;
+
+	options=(CSTK_CMeansOptions*)this->CMeans::options;
+
+}
+
+void CSTK_CMeans::run()
+{
+	printf("It works!\n");
+			
+	printf("options.fuzzyfyer = %f\n", options->fuzzyfyer);
+}
+
+int main(void)
+{
+	list<DVector>* l = new list<DVector>;
+
+	DVector x;
+
+	l->push_back(x);
+	l->push_back(x);
+
+	CSTK_CMeansOptions options;
+
+	options.displayInfo = false;
+	options.fuzzyfyer = 0.4;
+
+	CSTK_CMeans algorithm(l, 2, &options);
+	algorithm.readInputVector(x);
+	algorithm.run();
+}
+
+#if 0
 
 CMeansAlt::CMeansAlt(vei_t anzahl, f_64b fuzzyfyer, vei_t seldist, vei_t exp, vei_t maxIter)
 {
@@ -214,3 +251,5 @@ double Cmeans::distance(double[] vec1, double[] vec2)
 		}
 	return sqrt(sum)
 }*/
+
+#endif

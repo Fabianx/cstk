@@ -25,6 +25,8 @@ class CMeansOptions
 		vei_t maxIter; /**< maximum number of iterations */
 		f_64b epsilon; /**< minimum amount of improvement */
 		bool displayInfo; /**< info display during iteration */
+
+		CMeansOptions();
 };
 
 class CMeans 
@@ -32,7 +34,7 @@ class CMeans
 	public:
 		CMeans(list<DVector>* data, vei_t cluster_n, CMeansOptions* algorithm_options = NULL);
 		
-		~CMeans();
+		virtual ~CMeans();
 		
 		virtual void run()=0; /**< process the c-means algorithm */
 
@@ -52,7 +54,6 @@ class CMeans
 		CMeansOptions* options;
 	private:
 		bool free_input;
-		bool free_options;
 };
 
 
