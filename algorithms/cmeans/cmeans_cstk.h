@@ -2,11 +2,7 @@
 #ifndef CSTK_CMEANS_H
 #define CSTK_CMEANS_H
 
-#include <cstdlib>
-#include <ctime>
-//#include <vector>
-
-
+#include "cmeans.h"
 #include "cstk_base/types.h"
 #include "cstk_base/vector/dvector.h" 
 #include "cstk_base/matrix/dvectormatrix.h"
@@ -15,8 +11,6 @@
 #define DIS_CHEB 1
 #define DIS_EUCL 2
 #define DIS_MINK 3
-
-#include "cmeans.h"
 
 // FIXME: Add correct defaults
 #define DEFAULT_CMEANS_FUZZYFYER	0.3
