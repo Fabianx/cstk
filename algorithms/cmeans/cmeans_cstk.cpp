@@ -57,40 +57,6 @@ void CSTK_CMeans::run()
 	}
 }
 
-int main(void)
-{
-	vector<DVector>* l = new vector<DVector>;
-
-	DVector x(2);
-
-	//srand(time(0));
-
-	for ( int i = 0; i < 100; i++)
-	{
-		for ( int y = 0; y < 2; y++)
-		{
-			x.set_comp((oas_t)rand() / RAND_MAX, F64B_TYPE, y);
-		}
-		l->push_back(x);
-	}
-
-	
-	//x.set_comp(10, F64B_TYPE, 0);
-	
-	//l->push_back(x);
-
-	CSTK_CMeansOptions options;
-
-	options.displayInfo = true;
-	options.mexp = 2;
-
-	//x.set_comp(5, F64B_TYPE, 0);
-
-	CSTK_CMeans algorithm(l, 2, &options);
-	//algorithm.readInputVector(x);
-	algorithm.run();
-}
-
 void CSTK_CMeans::InitMembershipTable()
 {
 	srand(time(0));
@@ -112,7 +78,7 @@ void CSTK_CMeans::InitMembershipTable()
 		for(c = 0; c<anzcluster-1; c++)
 		{
 			unsigned int r = rand() % max;
-			(*row)[c] = (oas_t)r / RAND_MAX;
+			(*row)[c] = (oas_t)(r % RAND_MAX) / RAND_MAX;
 			max -= r;
 		}
 		(*row)[c] = (oas_t)max / RAND_MAX;
