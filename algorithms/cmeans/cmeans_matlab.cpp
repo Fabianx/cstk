@@ -1,7 +1,7 @@
 #include "cmeans_matlab.h"
 #include "engine.h"
 
-#define BUFSIZE 256
+//#define DEBUG 1
 
 Matlab_CMeans::Matlab_CMeans(vector<DVector>* data, vei_t cluster_n, CMeansOptions* algorithm_options) : CMeans(data, cluster_n, algorithm_options)
 {
@@ -9,7 +9,7 @@ Matlab_CMeans::Matlab_CMeans(vector<DVector>* data, vei_t cluster_n, CMeansOptio
 
 void Matlab_CMeans::run()
 {
-#ifdef DEBUG
+#ifdef DEBUG2
 	printf("It works! Input Vectors:\n");
 
 	for (int i = 0; i < input.size(); i++)
@@ -40,8 +40,7 @@ void Matlab_CMeans::run()
 
 	// Copy input vectors
 
-	mx_data = mxCreateDoubleMatrix(100, 2, mxREAL);
-	
+	mx_data = mxCreateDoubleMatrix(input.size(), input[0].get_dim(), mxREAL);
 	double* dataptr = (double*)mxGetPr(mx_data);
 
 	int i = 0;
@@ -79,6 +78,10 @@ void Matlab_CMeans::run()
 
 	engEvalString(ep, "[center, U, obj_fcn] = fcm(data, anzcluster);");
 
+#ifdef DEBUG
+	printf("done calc\n");
+#endif
+
 	/*
 	 * Now get the results
 	 */
@@ -90,24 +93,25 @@ void Matlab_CMeans::run()
 		printf("Matlab_CMeans: Error: Get Array 'center' failed");
 		return;
 	}
-
+	
 	dataptr = (double*)mxGetPr(mx_centers);
+	
+	clusterCenters.resize(mxGetM(mx_centers));
 
 	// Re-Init Cluster Centers
 	for(vei_t h=0; h < mxGetM(mx_centers); h++)
-	{
-		DVector vec;
-		vec.create(mxGetN(mx_centers));
-		clusterCenters[h]=vec;
-	}
-	
-	i=0;
+		clusterCenters[h].create(mxGetN(mx_centers));
 
+	i=0;
 	for(vei_t d=0; d < mxGetN(mx_centers); d++)
 		for(vei_t h=0; h < mxGetM(mx_centers); h++)
 			clusterCenters[h].set_comp(dataptr[i++], F64B_TYPE, d);
 
 	mxDestroyArray(mx_centers);
+
+#ifdef DEBUG
+	printf("done getting centers\n");
+#endif
 
 	// ... and now obj_fcn
 
@@ -126,13 +130,17 @@ void Matlab_CMeans::run()
 
 	mxDestroyArray(mx_obj_fcn);
 
+#ifdef DEBUG
+	printf("done getting obj_fcn\n");
+#endif
+
 	// ... and now the membership table U
 	
 	mxArray *mx_U = NULL;
 	mx_U = engGetVariable(ep, "U");
 
 	if (mx_U == NULL) {
-		printf("Matlab_CMeans: Error: Get Array 'center' failed");
+		printf("Matlab_CMeans: Error: Get Array 'U' failed");
 		return;
 	}
 
@@ -152,6 +160,10 @@ void Matlab_CMeans::run()
 		}
 
 	mxDestroyArray(mx_U);
+
+#ifdef DEBUG
+	printf("done getting mx_U\n");
+#endif
 
 	/*
 	 * We're done! Close MATLAB engine and exit.
