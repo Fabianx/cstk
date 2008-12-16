@@ -2,6 +2,14 @@
 #include "engine.h"
 
 //#define DEBUG 1
+//
+static void engPutDoubleValue(Engine* ep, const char* name, double val)
+{
+	mxArray* mx_val = mxCreateDoubleMatrix(1, 1, mxREAL);
+	memcpy((char *) mxGetPr(mx_val), (char *) &val, sizeof(double));
+	engPutVariable(ep, name, mx_val);
+	mxDestroyArray(mx_val);
+}
 
 Matlab_CMeans::Matlab_CMeans(vector<DVector>* data, vei_t cluster_n, CMeansOptions* algorithm_options) : CMeans(data, cluster_n, algorithm_options)
 {
@@ -54,29 +62,31 @@ void Matlab_CMeans::run()
 		}
 	}
 	
-	// Copy anzcluster
-
-	mx_anzcluster = mxCreateDoubleMatrix(1, 1, mxREAL);
-	double temp = anzcluster;
-	memcpy((char *) mxGetPr(mx_anzcluster), (char *) &temp, sizeof(double));
-
 	/*
-	 * And pass the data structures to Matlab
+	 * And pass the data structure to Matlab
 	 */ 
-	engPutVariable(ep, "anzcluster", mx_anzcluster);
 	engPutVariable(ep, "data", mx_data);
 	
 	// Free memory afterwards
 	mxDestroyArray(mx_data);
-	mxDestroyArray(mx_anzcluster);
+
+	// Copy anzcluster
+	engPutDoubleValue(ep, "anzcluster", anzcluster);
+
+	// Copy options
+	engPutDoubleValue(ep, "exp", options->exp);
+	engPutDoubleValue(ep, "maxIter", options->maxIter);
+	engPutDoubleValue(ep, "epsilon", options->epsilon);
+
+	double temp=options->displayInfo?1:0;
+
+	engPutDoubleValue(ep, "displayInfo", temp);
 
 	/*
 	 * Evaluate the fuzzy cmeans
 	 */
 
-	// FIXME: Add options
-
-	engEvalString(ep, "[center, U, obj_fcn] = fcm(data, anzcluster);");
+	engEvalString(ep, "[center, U, obj_fcn] = fcm(data, anzcluster, [exp, maxIter, epsilon, displayInfo]);");
 
 #ifdef DEBUG
 	printf("done calc\n");
