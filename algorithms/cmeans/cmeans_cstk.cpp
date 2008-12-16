@@ -5,7 +5,7 @@
 CSTK_CMeansOptions::CSTK_CMeansOptions() : CMeansOptions()
 {
 	mexp = 2; // FIXME
-	seldist = DIS_MANH;
+	seldist = DIS_EUCL; // Used also by Matlab
 }
 
 static CSTK_CMeansOptions DefaultCSTK_CMeansOptions;
