@@ -86,11 +86,15 @@ int main(void)
 	algorithm.run();
 	exit(0);
 #endif
+	CSTK_CMeansOptions options;
+
+	// Test option values
+	//options.exp=1.5;
 
 	// Now lets compare it:
 
-	Matlab_CMeans matlab_algorithm(l, 2);
-	CSTK_CMeans cstk_algorithm(l, 2);
+	Matlab_CMeans matlab_algorithm(l, 2, &options);
+	CSTK_CMeans cstk_algorithm(l, 2, &options);
 
 	test_algorithm("CSTK", &cstk_algorithm);
 	test_algorithm("MATLAB", &matlab_algorithm);
