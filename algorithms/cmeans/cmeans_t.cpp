@@ -11,17 +11,17 @@ void test_algorithm(const char* name, CMeans* algorithm)
 	// And print results ...
 	printf("Results for %s algorithm:\n", name);
 	printf("=========================\n");
-	printf("Centers:\n");
+	printf("\nCenters:\n\n");
 	
 	for (i = 0; i < algorithm->clusterCenters.size(); i++)
 		printf("%d: %s\n", i, algorithm->clusterCenters[i].to_string());
 
-	printf("obj. Fcn:\n");
+	printf("\nobj. Fcn:\n\n");
 	
 	for (i = 0; i < algorithm->objFcn.size(); i++)
 		printf("Iteration count = %d, obj. fcn = %f\n", i, algorithm->objFcn[i]);
 	
-	printf("U:\n");
+	printf("\nMembershiptable U:\n\n");
 
 	for(vei_t h=0; h < algorithm->membershiptable_U.size(); h++)
 	{
@@ -34,6 +34,7 @@ void test_algorithm(const char* name, CMeans* algorithm)
 		}
 		printf("\n");
 	}
+	printf("\n");
 }
 
 int main(void)
@@ -42,7 +43,7 @@ int main(void)
 
 	DVector x(2);
 
-	//srand(time(0));
+	srand(time(0));
 	rand();
 	
 #if 1
@@ -55,13 +56,22 @@ int main(void)
 		l->push_back(x);
 	}
 
+#if 0
+	x.set_comp(1, F64B_TYPE, 0);
+	l->push_back(x);
+
+	x.set_comp(10, F64B_TYPE, 0);
+	l->push_back(x);
+
+	x.set_comp(5, F64B_TYPE, 0);
+	l->push_back(x);
+#endif
+
 #else
 	x.set_comp(1, F64B_TYPE, 0);
-	
 	l->push_back(x);
-	
+
 	x.set_comp(10, F64B_TYPE, 0);
-	
 	l->push_back(x);
 
 	CSTK_CMeansOptions options;
