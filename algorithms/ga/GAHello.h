@@ -22,6 +22,7 @@ class GAHelloIndividual : public GAIndividual
 class GAHelloFitness : public GAFitness
 {
 	public:
+		virtual void start_fitness();
 		virtual float calc_fitness(GAIndividual* g);
 		virtual GAIndividual* create();
 };

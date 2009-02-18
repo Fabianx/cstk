@@ -48,6 +48,7 @@ class GAIndividual
 class GAFitness
 {
 	public:
+		virtual void start_fitness()=0;
 		virtual float calc_fitness(GAIndividual* g)=0;
 		virtual GAIndividual* create()=0;
 };

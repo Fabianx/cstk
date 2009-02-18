@@ -82,6 +82,7 @@ void GeneticAlgorithm::init(vector<GAIndividual*>* new_pop)
 
 void GeneticAlgorithm::calc_fitness()
 {
+	fitness->start_fitness();
 	for (int i = 0; i < options->popsize; i++)
 		fitness->calc_fitness((*population)[i]);
 }
