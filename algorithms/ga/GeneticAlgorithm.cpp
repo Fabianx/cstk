@@ -25,10 +25,36 @@ GeneticAlgorithm::GeneticAlgorithm(GAFitness* f, GeneticAlgorithmOptions* algori
 	if (algorithm_options == NULL)
 		options = &DefaultGeneticAlgorithmOptions;
 
-	if (population == NULL)
-		population = new vector<GAIndividual*>(options->popsize);
-	if (new_population == NULL)
-		new_population = new vector<GAIndividual*>(options->popsize);
+	population = new vector<GAIndividual*>(options->popsize);
+	for (int i = 0; i < options->popsize; i++)
+		(*population)[i]=NULL;
+
+	new_population = new vector<GAIndividual*>(options->popsize);
+	for (int i = 0; i < options->popsize; i++)
+		(*new_population)[i]=NULL;
+
+	elite_selected = 0;
+}
+
+GeneticAlgorithm::~GeneticAlgorithm()
+{
+	if (population)
+	{
+		for (int i = 0; i < options->popsize; i++)
+			if ((*population)[i])
+				delete (*population)[i];
+
+		delete population;
+	}
+
+	if (new_population)
+	{
+		for (int i = 0; i < options->popsize; i++)
+			if ((*new_population)[i])
+				delete (*new_population)[i];
+
+		delete new_population;
+	}
 }
 
 void GeneticAlgorithm::run()
