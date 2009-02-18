@@ -6,6 +6,7 @@
 #include <ctime>
 #include <vector>
 #include <list>
+#include <string>
 
 using namespace std;
 
@@ -14,17 +15,17 @@ using namespace std;
 
 #define GA_DEFAULT_EPSILON		1e-5
 #define GA_DEFAULT_POPULATION_SIZE	2048
-#define GA_DEFAULT_MAX_ITERATIONS	200
-#define GA_DEFAULT_ELITE		0.1 // 10% elite
-#define GA_DEFAULT_MUTATION		0.01 // 1% mutation probability
-#define GA_DEFAULT_RECOMBINATION	0.5 // 50% recombination probability
+#define GA_DEFAULT_MAX_ITERATIONS	16384
+#define GA_DEFAULT_ELITE		0.10f // 10% elite
+#define GA_DEFAULT_MUTATION		0.25f // 25% mutation probability
+#define GA_DEFAULT_RECOMBINATION	0.5 // 50% best of population do mate
 
 class GeneticAlgorithmOptions
 {
 	public:
 		oas_t epsilon; /**< minimum amount of improvement */
 		vei_t popsize; /**< population size */
-		vei_t maxiter; /**< population size */
+		vei_t maxiter; /**< maximum iterations */
 		oas_t elite; /**< percentage of elite members */
 		oas_t mutation; /**< probability of mutation */
 		oas_t recombination; /**< probability of recombination */
@@ -39,7 +40,7 @@ class GAIndividual
 		virtual GAIndividual* mate_with(GAIndividual* B)=0;
 		virtual void mutate()=0;
 		virtual GAIndividual* clone()=0;
-		virtual void print()=0;
+		virtual string toString()=0;
 };
 
 // Perhaps add a cache
