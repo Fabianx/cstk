@@ -1,4 +1,5 @@
 #include "GAHello.h"
+#include "GABit.h"
 
 #if 0
 void test_algorithm(const char* name, GeneticAlgorithm* algorithm)
@@ -46,7 +47,7 @@ int main(void)
 	GeneticAlgorithmOptions options;
 	options.mutation = 0.25f; // 25%
 	options.maxiter = 16384; 
-	GAHelloFitness f;
+	GABitFitness f(64);
 
 	GeneticAlgorithm algorithm(&f, &options);
 	algorithm.run();
