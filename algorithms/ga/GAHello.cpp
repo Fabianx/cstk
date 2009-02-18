@@ -1,11 +1,12 @@
 #include "GAHello.h"
 #include <sstream>
 
-#define GA_TARGET std::string("Hello world!")
+string GAHelloIndividual::target = std::string("Hello world!");
+vei_t GAHelloIndividual::tsize = GAHelloIndividual::target.size();
+vei_t GAHelloIndividual::max_mutations = GAHelloIndividual::tsize;
 
 GAIndividual* GAHelloIndividual::mate_with(GAIndividual* B)
 {
-	vei_t tsize = GA_TARGET.size();
 	vei_t spos = rand() % tsize;
 	GAHelloIndividual* P = (GAHelloIndividual*)B;
 
@@ -16,11 +17,15 @@ GAIndividual* GAHelloIndividual::mate_with(GAIndividual* B)
 
 void GAHelloIndividual::mutate()
 {
-	vei_t tsize = GA_TARGET.size();
-	vei_t ipos = rand() % tsize;
-	vei_t delta = (rand() % 90) + 32;
+	vei_t num_mutations = rand() % max_mutations;
 
-	str[ipos] = ((str[ipos] + delta) % 122);
+	for (vei_t i = 0; i < num_mutations; i++)
+	{
+		vei_t ipos = rand() % tsize;
+		vei_t delta = (rand() % 90) + 32;
+
+		str[ipos] = ((str[ipos] + delta) % 122);
+	}
 }
 
 GAIndividual* GAHelloIndividual::clone()
@@ -43,13 +48,11 @@ string GAHelloIndividual::toString()
 
 float GAHelloFitness::calc_fitness(GAIndividual* g)
 {
-	string target = GA_TARGET;
-	vei_t tsize = target.size();
 	oas_t fitness = 0;
 	GAHelloIndividual* o = (GAHelloIndividual*)g;
 
-	for (int j=0; j<tsize; j++)
-		fitness += abs(int(o->str[j] - target[j]));
+	for (int j=0; j<GAHelloIndividual::tsize; j++)
+		fitness += abs(int(o->str[j] - GAHelloIndividual::target[j]));
 
 	g->fitness=fitness;
 
@@ -59,10 +62,9 @@ float GAHelloFitness::calc_fitness(GAIndividual* g)
 GAIndividual* GAHelloFitness::create()
 {
 	GAHelloIndividual* g = new GAHelloIndividual();
-	vei_t tsize = GA_TARGET.size();
 	g->str.erase();
 
-	for (int j=0; j<tsize; j++)
+	for (int j=0; j<GAHelloIndividual::tsize; j++)
 		g->str += (rand() % 90) + 32;
 
 	return g;

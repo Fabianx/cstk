@@ -9,6 +9,9 @@ class GAHelloIndividual : public GAIndividual
 {
 	public:
 		string str;
+		static string target;
+		static vei_t tsize;
+		static vei_t max_mutations;
 
 		virtual GAIndividual* mate_with(GAIndividual* B);
 		virtual void mutate();
