@@ -1,5 +1,6 @@
 #include "GeneticAlgorithm.h"
 #include <algorithm>
+#include <iostream>
 
 GeneticAlgorithmOptions::GeneticAlgorithmOptions()
 {
@@ -97,13 +98,29 @@ void GeneticAlgorithm::sort_by_fitness()
 
 void GeneticAlgorithm::print_best()
 {
-	(*population)[0]->print();
+	cout << "Best: " << (*population)[0]->toString() << endl;
+#if 0
+	string old = "";
+	string s = "";
+	for (int i = 0; i < options->popsize; i++)
+	{
+		s = (*population)[i]->toString();
+		if (s.compare(old) == 0)
+			continue;
+		cout << s << ",";
+		old = s;
+	}
+	cout << endl;
+#endif
 }
 
 void GeneticAlgorithm::mate()
 {
 	vei_t i1, i2;
 	vei_t mating_selected = options->recombination * options->popsize;
+	uint32_t mutation_prop = (RAND_MAX * options->mutation);
+
+	select_elite();
 
 	for (vei_t i=elite_selected; i<options->popsize; i++) 
 	{
@@ -111,10 +128,10 @@ void GeneticAlgorithm::mate()
 		i2 = rand() % mating_selected;
 
 		if ((*new_population)[i])
-			delete (*new_population)[i];	
+			delete (*new_population)[i];
 		(*new_population)[i] = (*population)[i1]->mate_with((*population)[i2]);
-
-		(*new_population)[i]->mutate();
+		if (rand() < mutation_prop)
+			(*new_population)[i]->mutate();
 	}
 	// Swap it
 	vector<GAIndividual*>* temp = population;
