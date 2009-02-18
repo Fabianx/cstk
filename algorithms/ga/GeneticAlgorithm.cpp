@@ -61,6 +61,7 @@ GeneticAlgorithm::~GeneticAlgorithm()
 void GeneticAlgorithm::run()
 {
 	init();
+	oas_t old_fitness = 0;
 
 	for (int i=0; i<options->maxiter; i++)
 	{
@@ -70,6 +71,11 @@ void GeneticAlgorithm::run()
 
 		if ((*population)[0]->fitness == 0)
 			break;
+
+		if ((*population)[0]->fitness <= old_fitness && (old_fitness - (*population)[0]->fitness) < options->epsilon)
+			break;
+
+		old_fitness = (*population)[0]->fitness;
 
 		mate();			// mate the population together
 	}

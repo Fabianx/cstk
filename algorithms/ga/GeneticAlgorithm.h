@@ -13,7 +13,7 @@ using namespace std;
 #include "cstk_base/types.h"
 #include "cstk_base/vector/binvector.h"
 
-#define GA_DEFAULT_EPSILON		1e-5
+#define GA_DEFAULT_EPSILON		0	// Change in iterations
 #define GA_DEFAULT_POPULATION_SIZE	2048
 #define GA_DEFAULT_MAX_ITERATIONS	16384
 #define GA_DEFAULT_ELITE		0.10f // 10% elite
