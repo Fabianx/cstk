@@ -47,14 +47,10 @@ string GAHelloIndividual::toString()
 
 // Fitness
 map<string, oas_t> PenaltyMap;
-oas_t max_penalty = 0;
 
 void GAHelloFitness::start_fitness()
 {
-	if (max_penalty > 0)
-		cout << "Max penalty: " << max_penalty << endl;
 	PenaltyMap.clear();
-	max_penalty = 0;
 }
 
 float GAHelloFitness::calc_fitness(GAIndividual* g)
@@ -69,9 +65,6 @@ float GAHelloFitness::calc_fitness(GAIndividual* g)
 	PenaltyMap[o->str]+=0;
 	fitness+=PenaltyMap[o->str];
 	PenaltyMap[o->str]+=0.1;
-	PenaltyMap[o->str]*=2;
-	if (PenaltyMap[o->str] > max_penalty)
-		max_penalty = PenaltyMap[o->str];
 
 	g->fitness=fitness;
 
